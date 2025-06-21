@@ -6,6 +6,8 @@ import { provideClientHydration, withEventReplay } from '@angular/platform-brows
 
 import { providePrimeNG } from 'primeng/config';
 import Material from '@primeng/themes/material';
+import { provideHttpClient, withFetch, withInterceptorsFromDi } from '@angular/common/http';
+
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -16,6 +18,7 @@ export const appConfig: ApplicationConfig = {
       theme: {
         preset: Material
       }
-    })
+    }),
+    provideHttpClient(withFetch())
   ]
 };
