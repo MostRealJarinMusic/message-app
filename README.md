@@ -1,5 +1,5 @@
 # Encrypted Messaging App
-*A simple Discord-like messaging app*
+*A simple Discord-like messaging app* <br>
 Intended as a side project / exercise in learning the following technologies:
 
 - REST APIs
