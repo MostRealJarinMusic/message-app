@@ -1,5 +1,6 @@
-# A simple Discord-like messaging app
-*Intended as a side project / exercise in learning the following technologies:*
+# Encrypted Messaging App
+*A simple Discord-like messaging app*
+Intended as a side project / exercise in learning the following technologies:
 
 - REST APIs
 - JSON formats
@@ -11,17 +12,16 @@
 - HTML / CSS
 - C++
 
-
 ## Tech Stack Structure
-# Frontend:
+### Frontend:
 - Angular
 - Electron
 - PrimeNG
 
-# Backend:
+### Backend:
 - Express
 - Websocket
 - JWT
 
-# Database:
+### Database:
 - PouchDB (client-side)
