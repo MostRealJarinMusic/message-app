@@ -1,0 +1,21 @@
+<div class="chat-window flex flex-column h-screen p-3">
+  <div class="flex-grow-1 overflow-auto mb-2" #messageList>
+    <div *ngFor="let message of messages" class="mb-2">
+        <strong>{{ message.user }}:</strong>
+        <span>{{ message.message }}</span>
+        <small class="ml-2 text-500">{{ formatTime(message.timestamp) }}</small>
+    </div>
+  </div>
+
+  <form class="flex gap-2" (submit)="sendMessage()">
+    <input
+      type="text"
+      pInputText
+      [(ngModel)]="newMessage"
+      name="message"
+      class="flex-grow-1"
+      placeholder="Type your message..."
+    />
+    <button pButton type="submit" icon="pi pi-send" label="Send"></button>
+  </form>
+</div>
