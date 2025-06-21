@@ -18,7 +18,9 @@ const users = new Map<string, string>();
 users.set('testuser', 'password123');
 users.set('testuser2', 'password1234')
 
-app.post('/login', (req, res) => {
+
+//API routes
+app.post('/api/auth/login', (req, res) => {
   const { username, password } = req.body;
   if (users.get(username) === password) {
     const token = jwt.sign({ username }, SECRET, { expiresIn: '1h' });
@@ -28,6 +30,8 @@ app.post('/login', (req, res) => {
   }
 });
 
+
+//WebSocket routes
 wss.on('connection', (ws, req) => {
   const token = new URLSearchParams(req.url?.split('?')[1] || '').get('token');
   if (!token) return ws.close();
