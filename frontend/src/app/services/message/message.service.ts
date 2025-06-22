@@ -1,18 +1,31 @@
 import { Injectable } from '@angular/core';
 import { SocketService } from '../socket/socket.service';
-import { PouchService } from '../pouch/pouch.service';
 import { Observable } from 'rxjs';
-import { Message } from '../../models/message.model';
+import { Message, WSEventType } from '../../models/message.model';
+import { v4 as uuidv4 } from 'uuid';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MessageService {
 
-  constructor(private wsService: SocketService, private dbService: PouchService) { }
+  constructor(private wsService: SocketService, private authService: AuthService) { }
 
   public sendMessage(content: string): void {
+    const message: Message = {
+      id: uuidv4(),
+      content,
+      authorId: this.authService.getUsername(),
+      createdAt: new Date()
+    }
 
+    //this.dbService.saveMessage(message);
+    this.wsService.emit(WSEventType.SEND, message);
+  }
+
+  public onMessage(): Observable<Message> {
+    return this.wsService.on<Message>(WSEventType.RECEIVE);
   }
 
   public getMessages(channelId: string): Observable<Message[]> {

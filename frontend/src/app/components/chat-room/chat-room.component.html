@@ -1,9 +1,9 @@
 <div class="chat-window flex flex-column h-screen p-3">
   <div class="flex-grow-1 overflow-auto mb-2" #messageList>
     <div *ngFor="let message of messages" class="mb-2">
-        <strong>{{ message.user }}:</strong>
-        <span>{{ message.message }}</span>
-        <small class="ml-2 text-500">{{ formatTime(message.timestamp) }}</small>
+        <strong>{{ message.authorId }}:</strong>
+        <span>{{ message.content }}</span>
+        <small class="ml-2 text-500">{{ formatTime(message.createdAt) }}</small>
     </div>
   </div>
 

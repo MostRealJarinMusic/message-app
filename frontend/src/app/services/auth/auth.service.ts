@@ -16,19 +16,6 @@ export class AuthService {
   // }
 
   async login(username: string, password: string): Promise<boolean> {
-    // return fetch('http://localhost:3000/login', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ username, password }),
-    // }).then(res => res.json())
-    //   .then(data => {
-    //     if (data.token) {
-    //       localStorage.setItem(this.tokenKey, data.token);
-    //       return true;
-    //     }
-    //     return false;
-    //   });
-
     const data = await firstValueFrom(this.apiService.post<{ token: string }>('auth/login', { username, password }));
     if (data && data.token) {
       localStorage.setItem(this.tokenKey, data.token);

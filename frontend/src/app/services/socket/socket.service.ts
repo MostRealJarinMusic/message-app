@@ -1,43 +1,58 @@
 import { Injectable } from '@angular/core';
-import { AuthService } from '../auth/auth.service';
-import { BehaviorSubject, filter } from 'rxjs';
+import { BehaviorSubject, filter, Observable, Subject, map } from 'rxjs';
+import { WSEvent, WSEventType } from '../../models/message.model';
 
 @Injectable({ providedIn: 'root' })
 export class SocketService {
   private socket?: WebSocket;
-  private messagesSubject = new BehaviorSubject<any>(null);
-  public messages$ = this.messagesSubject.pipe(filter(Boolean))
+  private eventStream$ = new Subject<WSEvent>();
+  public isConnected = false;
 
-  constructor(private auth: AuthService) {}
-
-  connect(): void {
-    const token = this.auth.getToken();
+  connect(token: string | null): void {
     if (!token) {
-      console.log("Invalid token")
+      console.log("Invalid token");
       return;
     }
 
     this.socket = new WebSocket(`ws://localhost:3000?token=${token}`);
 
+    this.socket.onopen = () => {
+      this.isConnected = true;
+      console.log('Websocket connected');
+    };
+
     this.socket.onmessage = async (event) => {
       try {
-        const data = await this.parseMessageData(event.data)
-        const msg = JSON.parse(data);
+        const parsedMessage = await this.parseMessageData(event.data)
+        const data: WSEvent = JSON.parse(parsedMessage);
 
-        console.log('Message:', msg);
-
-        this.messagesSubject.next({
-          ...msg,
-          timestamp: new Date()
-        })
-      } catch (error) {
-        console.error('Message processing error: ', error)
+        this.eventStream$.next(data);
+      } catch (err) {
+        console.error('Invalid message', err)
       }
+    };
+
+    this.socket.onclose = () => {
+      this.isConnected = false;
+      console.log('Websocket disconnected');
+    };
+
+    this.socket.onerror = (err) => {
+      console.error('WebSocket error:', err);
     };
   }
 
-  send(message: string): void {
-    this.socket?.send(JSON.stringify({ message }));
+  emit<T = any>(event: WSEventType, payload: T): void {
+    if (!this.isConnected) return;
+    const message: WSEvent = { event, payload };
+    this.socket?.send(JSON.stringify(message)); 
+  }
+
+  on<T = any>(event: WSEventType): Observable<T> {
+    return this.eventStream$.pipe(
+      filter(e => e.event === event),
+      map(e => e.payload as T)
+    )
   }
 
   private async parseMessageData(data: any): Promise<string> {
@@ -45,5 +60,4 @@ export class SocketService {
     if (data instanceof ArrayBuffer) return new TextDecoder().decode(data);
     return data;
   }
-  
 }
