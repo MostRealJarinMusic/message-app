@@ -11,6 +11,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { ReactiveFormsModule } from '@angular/forms';
 import { PasswordModule } from 'primeng/password';
 import { SocketService } from '../../services/socket/socket.service';
+import { AuthtokenService } from '../../services/authtoken/authtoken.service';
 
 @Component({
   selector: 'app-login',
@@ -31,12 +32,12 @@ export class LoginComponent {
   username = '';
   password = '';
 
-  constructor(private authService: AuthService, private wsService: SocketService, private router: Router) {}
+  constructor(private authService: AuthService, private wsService: SocketService, private tokenService: AuthtokenService, private router: Router) {}
 
   async onLogin() {
     const success = await this.authService.login(this.username, this.password);
     if (success) {
-      this.wsService.connect(this.authService.getToken());
+      this.wsService.connect(this.tokenService.getToken());
       this.router.navigate(['/dashboard']);
     } else {
       //Failed login

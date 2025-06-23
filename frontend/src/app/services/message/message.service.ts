@@ -1,34 +1,49 @@
 import { Injectable } from '@angular/core';
 import { SocketService } from '../socket/socket.service';
-import { Observable } from 'rxjs';
-import { Message, WSEventType } from '../../models/message.model';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { Message, WSEventType } from '@common/types';
 import { v4 as uuidv4 } from 'uuid';
 import { AuthService } from '../auth/auth.service';
+import { ApiService } from '../api/api.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MessageService {
+  private messagesSubject = new BehaviorSubject<Message[]>([]);
+  public messages$ = this.messagesSubject.asObservable();
 
-  constructor(private wsService: SocketService, private authService: AuthService) { }
+  constructor(private wsService: SocketService, private authService: AuthService, private apiService: ApiService) { 
+    this.initWebSocket();
+  }
 
   public sendMessage(content: string): void {
     const message: Message = {
       id: uuidv4(),
       content,
       authorId: this.authService.getUsername(),
-      createdAt: new Date()
+      createdAt: new Date().toISOString()
     }
 
     //this.dbService.saveMessage(message);
     this.wsService.emit(WSEventType.SEND, message);
   }
 
-  public onMessage(): Observable<Message> {
-    return this.wsService.on<Message>(WSEventType.RECEIVE);
+  public loadMessageHistory(): void {
+    this.apiService.get<Message[]>('messages').subscribe({
+      next: (history) => this.messagesSubject.next(history),
+      error: (err) => console.error('Failed to load history:', err)
+    });
   }
 
-  public getMessages(channelId: string): Observable<Message[]> {
-    return new Observable
+  private initWebSocket(): void {
+    this.wsService.on<Message>(WSEventType.RECEIVE).subscribe({
+      next: (message) => {
+        const current = this.messagesSubject.value;
+        this.messagesSubject.next([...current, message]);
+      }
+    })
   }
+
+
 }

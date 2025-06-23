@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, filter, Observable, Subject, map } from 'rxjs';
-import { WSEvent, WSEventType } from '../../models/message.model';
+import { WSEvent, WSEventType } from '@common/types'
 
 @Injectable({ providedIn: 'root' })
 export class SocketService {

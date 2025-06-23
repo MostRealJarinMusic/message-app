@@ -47,3 +47,5 @@ Thumbs.db
 .env.local
 /frontend/.angular/cache
 /frontend/dist-electron
+
+*.db

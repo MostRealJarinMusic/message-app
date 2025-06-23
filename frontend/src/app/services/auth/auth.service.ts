@@ -2,15 +2,13 @@ import { Injectable } from '@angular/core';
 import { jwtDecode } from 'jwt-decode';
 import { ApiService } from '../api/api.service';
 import { firstValueFrom } from 'rxjs';
+import { AuthtokenService } from '../authtoken/authtoken.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-
-  private tokenKey = 'auth_token';
-
-  constructor(private apiService: ApiService) {}
+  constructor(private apiService: ApiService, private tokenService: AuthtokenService) {}
 
   // register(username: string, password: string): Promise<boolean> {
   // }
@@ -18,7 +16,8 @@ export class AuthService {
   async login(username: string, password: string): Promise<boolean> {
     const data = await firstValueFrom(this.apiService.post<{ token: string }>('auth/login', { username, password }));
     if (data && data.token) {
-      localStorage.setItem(this.tokenKey, data.token);
+      //localStorage.setItem(this.tokenKey, data.token);
+      this.tokenService.setToken(data.token);
       return true;
     }
     return false;
@@ -28,12 +27,12 @@ export class AuthService {
 
   }
 
-  getToken(): string | null {
-    return localStorage.getItem(this.tokenKey);
-  }
+  // getToken(): string | null {
+  //   return localStorage.getItem(this.tokenKey);
+  // }
 
   getUsername(): string | null {
-    const token = this.getToken();
+    const token = this.tokenService.getToken(); //this.getToken();
     if (!token) return null;
     return (jwtDecode(token) as any).username;
   }

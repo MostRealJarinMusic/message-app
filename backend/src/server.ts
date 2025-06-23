@@ -4,7 +4,8 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import jwt from 'jsonwebtoken';
 import WebSocket from 'ws';
-import { v4 as uuid } from 'uuid';
+import { MessageRepo } from './db/message.repo';
+import { WSEvent } from '@common/types';
 
 const app = express();
 const server = http.createServer(app);
@@ -21,6 +22,7 @@ users.set('testuser2', 'password1234')
 
 
 //API routes
+//Auth
 app.post('/api/auth/login', (req, res) => {
   const { username, password } = req.body;
   if (users.get(username) === password) {
@@ -32,11 +34,18 @@ app.post('/api/auth/login', (req, res) => {
 });
 
 
-//Websocket interfaces
-interface MessageEnvelope {
-  event: string;
-  payload: any;
-}
+//Message
+app.get('/api/messages', async (req, res) => {
+  try {
+    console.log("Attempt to get messages");
+    const messages = await MessageRepo.findAll();
+
+    res.json(messages);
+  } catch (err) {
+    console.error('Error getting messages:', err);
+    res.status(500).json({ error: 'Failed to fetch messages' })
+  }
+})
 
 
 
@@ -50,7 +59,7 @@ wss.on('connection', (ws, req) => {
     (ws as any).user = decoded.username;
 
 
-    console.log('Client connected');
+    console.log(`${decoded.username} connected`);
     //Temporary welcome message
     // ws.send(JSON.stringify({ 
     //   type: 'info', 
@@ -64,7 +73,7 @@ wss.on('connection', (ws, req) => {
     ws.close();
   }
 
-  ws.on('message', (message) => {
+  ws.on('message', async (message) => {
     // const user = (ws as any).user;
     // const data = JSON.parse(msg.toString());
 
@@ -74,12 +83,14 @@ wss.on('connection', (ws, req) => {
     //   }
     // });
     try {
-      const { event, payload }: MessageEnvelope = JSON.parse(message.toString());
+      const { event, payload }: WSEvent<any> = JSON.parse(message.toString());
       const user = (ws as any).user;
 
       switch (event) {
         case 'message:send':
-          const newMessage = { ...payload, id: uuid() };
+          const newMessage = { ...payload };
+
+          MessageRepo.create(newMessage);
           broadcast('message:receive', newMessage);
           break;
         default:
