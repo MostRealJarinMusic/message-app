@@ -27,12 +27,8 @@ export class AuthService {
 
   }
 
-  // getToken(): string | null {
-  //   return localStorage.getItem(this.tokenKey);
-  // }
-
   getUsername(): string | null {
-    const token = this.tokenService.getToken(); //this.getToken();
+    const token = this.tokenService.getToken();
     if (!token) return null;
     return (jwtDecode(token) as any).username;
   }

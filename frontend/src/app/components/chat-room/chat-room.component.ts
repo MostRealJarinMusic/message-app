@@ -29,22 +29,6 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
   constructor(private messageService: MessageService) {}
 
   ngOnInit() {
-    // this.messageService.getMessages().subscribe({
-    //   next: (messages) => {
-    //     this.messages = messages
-    //   },
-    //   error: (err) => {
-    //     console.error('Failed to load messages:', err);
-    //   }
-    // });
-
-
-    // this.messagesSub = this.messageService.onMessage().subscribe(message => {
-    //   this.messages.push(message);
-    //   //Save to local PouchDB for storage
-    // })
-
-
     this.messageService.loadMessageHistory();
     this.messagesSub = this.messageService.messages$.subscribe(messages => {
       this.messages = messages;
