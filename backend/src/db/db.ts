@@ -9,10 +9,20 @@ export const getDB = async () => {
 
     await dbInstance.exec(`
         CREATE TABLE IF NOT EXISTS messages (
-            id TEXT PRIMARY KEY,
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
             authorId TEXT NOT NULL,
             content TEXT NOT NULL,
             createdAt TEXT NOT NULL
+        );
+    `)
+
+
+    await dbInstance.exec(`
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL,
+            email TEXT NOT NULL,
+            hashedPassword TEXT NOT NULL
         );
     `)
 

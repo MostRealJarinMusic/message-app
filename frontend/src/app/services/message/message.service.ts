@@ -18,8 +18,7 @@ export class MessageService {
   }
 
   public sendMessage(content: string): void {
-    const message: Message = {
-      id: uuidv4(),
+    const message: Partial<Message> = {
       content,
       authorId: this.authService.getUsername(),
       createdAt: new Date().toISOString()

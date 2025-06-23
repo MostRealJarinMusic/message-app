@@ -4,10 +4,10 @@ export interface AuthPayload {
 }
 
 export interface LoginCredentials {
-    email: string;
+    username?: string;
+    email?: string;
     password: string;
 }
-
 export interface RegisterPayload {
     username: string;
     email: string;
@@ -49,6 +49,5 @@ export interface User {
     id: string;
     username: string;
     email: string;
-    hashedPassword: string;
     status?: PresenceStatus
 }

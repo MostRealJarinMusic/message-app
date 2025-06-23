@@ -2,18 +2,22 @@ import { getDB } from "./db";
 import { Message } from '@common/types'
 
 export class MessageRepo {
-    static async create(message: Message): Promise<void>  {
+    static async insertMessage(message: Partial<Message>): Promise<number> {
         const db = await getDB();
-        
-        await db.run(
-            `INSERT INTO messages (id, authorId, content, createdAt) VALUES (?, ?, ?, ?)`,
-            message.id, message.authorId, message.content, message.createdAt
-        );
 
-
+        return new Promise((resolve, reject) => {
+            db.run(
+                `INSERT INTO messages (authorId, content, createdAt) VALUES (?, ?, ?)`,
+                [message.authorId, message.content, message.createdAt],
+                function (err) {
+                    if (err) return reject(err);
+                    resolve(this.lastID)
+                }
+            )
+        })
     }
 
-    static async findAll() {
+    static async getAllMessages() {
         const db = await getDB();
         
         return new Promise<Message[]>((resolve, reject) => {

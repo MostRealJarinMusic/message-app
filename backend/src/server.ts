@@ -5,7 +5,8 @@ import bodyParser from 'body-parser';
 import jwt from 'jsonwebtoken';
 import WebSocket from 'ws';
 import { MessageRepo } from './db/message.repo';
-import { WSEvent } from '@common/types';
+import { AuthPayload, LoginCredentials, Message, RegisterPayload, WSEvent } from '@common/types';
+import { UserRepo } from './db/user.repo';
 
 const app = express();
 const server = http.createServer(app);
@@ -23,13 +24,31 @@ users.set('testuser2', 'password1234')
 
 //API routes
 //Auth
-app.post('/api/auth/login', (req, res) => {
-  const { username, password } = req.body;
-  if (users.get(username) === password) {
-    const token = jwt.sign({ username }, SECRET);
-    res.json({ token });
-  } else {
-    res.status(401).json({ error: 'Invalid credentials' });
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const user = await UserRepo.loginUser(req.body);
+    if (!user) {
+      res.status(401).json({ error: 'Invalid credentials' });
+    } else {
+      const token = jwt.sign({ id: user.id, username: user.username }, SECRET);
+      res.json({ token, user} as AuthPayload);
+    }
+  } catch (err) {
+    res.status(500).json({ error: 'Registration failed' });
+  }
+});
+
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    const user = await UserRepo.registerUser(req.body);
+    if (!user) {
+      res.status(401).json({ error: 'Invalid credentials' });
+    } else {
+      const token = jwt.sign({ id: user.id, username: user.username }, SECRET);
+      res.json({ token, user } as AuthPayload);
+    }
+  } catch (err) {
+    res.status(500).json( { error: 'Registration failed' });
   }
 });
 
@@ -38,7 +57,7 @@ app.post('/api/auth/login', (req, res) => {
 app.get('/api/messages', async (req, res) => {
   try {
     console.log("Attempt to get messages");
-    const messages = await MessageRepo.findAll();
+    const messages = await MessageRepo.getAllMessages();
 
     res.json(messages);
   } catch (err) {
@@ -88,10 +107,10 @@ wss.on('connection', (ws, req) => {
 
       switch (event) {
         case 'message:send':
-          const newMessage = { ...payload };
+          const newMessage: Partial<Message> = { ...payload };
+          const id = (await MessageRepo.insertMessage(newMessage)).toString();
 
-          MessageRepo.create(newMessage);
-          broadcast('message:receive', newMessage);
+          broadcast('message:receive', { ...newMessage, id } as Message );
           break;
         default:
           console.warn('Unhandled event', event);
