@@ -60,5 +60,28 @@ export class UserRepo {
             )
         })
     }
+
+    static async getUserById(id: string): Promise<User | null> {
+        const db = await getDB();
+
+        return new Promise((resolve, reject) => {
+            db.get(
+                `SELECT id, username, email FROM users WHERE id = ?`,
+                [id],
+                (err, row: any) => {
+                    if (err) return reject(err);
+                    if (!row) return resolve(null);
+
+                    const user: User = {
+                        id: row.id.toString(),
+                        username: row.username,
+                        email: row.email
+                    }
+
+                    resolve(user);
+                }
+            )
+        })
+    }
     
 }

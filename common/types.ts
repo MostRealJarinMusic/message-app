@@ -16,7 +16,7 @@ export interface RegisterPayload {
 
 export interface Message {
     id: string;
-    authorId: string | null;
+    authorId: string;
     content: string;
     createdAt: string;
     editedAt?: string;
@@ -30,7 +30,12 @@ export interface WSEvent<T = any> {
 
 export enum WSEventType {
     SEND = "message:send",
-    RECEIVE = "message:receive"
+    EDIT = "message:edit",
+    DELETE = "message:delete",
+    RECEIVE = "message:receive",
+    EDITED = "message:edited",
+    DELETED = "message:deleted",
+    PRESENCE = "presence:update",
 }
 
 export interface PresenceUpdate {
@@ -50,4 +55,9 @@ export interface User {
     username: string;
     email: string;
     status?: PresenceStatus
+}
+
+export interface UserSignature {
+    id: string,
+    username: string
 }

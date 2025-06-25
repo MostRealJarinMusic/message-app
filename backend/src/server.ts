@@ -5,7 +5,7 @@ import bodyParser from 'body-parser';
 import jwt from 'jsonwebtoken';
 import WebSocket from 'ws';
 import { MessageRepo } from './db/message.repo';
-import { AuthPayload, LoginCredentials, Message, RegisterPayload, WSEvent } from '@common/types';
+import { AuthPayload, LoginCredentials, Message, PresenceUpdate, RegisterPayload, UserSignature, WSEvent, WSEventType } from '@common/types';
 import { UserRepo } from './db/user.repo';
 
 const app = express();
@@ -17,11 +17,6 @@ const SECRET = 'supersecret';
 app.use(cors());
 app.use(bodyParser.json());
 
-const users = new Map<string, string>();
-users.set('testuser', 'password123');
-users.set('testuser2', 'password1234')
-
-
 //API routes
 //Auth
 app.post('/api/auth/login', async (req, res) => {
@@ -30,7 +25,7 @@ app.post('/api/auth/login', async (req, res) => {
     if (!user) {
       res.status(401).json({ error: 'Invalid credentials' });
     } else {
-      const token = jwt.sign({ id: user.id, username: user.username }, SECRET);
+      const token = jwt.sign({ id: user.id, username: user.username } as UserSignature, SECRET);
       res.json({ token, user} as AuthPayload);
     }
   } catch (err) {
@@ -44,19 +39,50 @@ app.post('/api/auth/register', async (req, res) => {
     if (!user) {
       res.status(401).json({ error: 'Invalid credentials' });
     } else {
-      const token = jwt.sign({ id: user.id, username: user.username }, SECRET);
+      const token = jwt.sign({ id: user.id, username: user.username } as UserSignature, SECRET);
       res.json({ token, user } as AuthPayload);
     }
   } catch (err) {
-    res.status(500).json( { error: 'Registration failed' });
+    res.status(500).json({ error: 'Registration failed' });
   }
 });
 
+app.get('/api/auth/me', authMiddleware, async (req, res) => {
+  try {
+    const userId = (req as any).signature.id
+    const user = await UserRepo.getUserById(userId);
+    
+    if (!user) {
+      res.status(404).json({ error: 'User not found'});
+    } else {
+      res.json(user);
+    }
+  } catch (err) {
+    res.status(500).json({ error: 'Database error' })
+  }
+})
+
+//User
+app.get('/users/:id', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const user = await UserRepo.getUserById(userId);
+
+    if (!user) {
+      res.status(404).json({ error: 'User not found'});
+    } else {
+      res.json(user);
+    }
+  } catch (err) {
+    res.status(500).json({ error: 'Database error' })
+  }
+})
+
 
 //Message
-app.get('/api/messages', async (req, res) => {
+app.get('/api/messages', authMiddleware, async (req, res) => {
   try {
-    console.log("Attempt to get messages");
+    //console.log("Attempt to get messages");
     const messages = await MessageRepo.getAllMessages();
 
     res.json(messages);
@@ -68,17 +94,34 @@ app.get('/api/messages', async (req, res) => {
 
 
 
+
+function authMiddleware(req: any, res: any, next: any) {
+  const authHeader = req.headers.authorization;
+  const token = authHeader?.split(' ')[1];
+
+  if (!token) return res.status(401).json({ error: 'No token provided' });
+
+  try {
+    const signature = jwt.verify(token, SECRET);
+    req.signature = signature
+    next();
+  } catch (err) {
+    res.status(403).json({ error: 'Invalid token' });
+  }
+}
+
+
 //WebSocket routes
 wss.on('connection', (ws, req) => {
   const token = new URLSearchParams(req.url?.split('?')[1] || '').get('token');
   if (!token) return ws.close();
 
   try {
-    const decoded = jwt.verify(token, SECRET) as any;
-    (ws as any).user = decoded.username;
+    const signature = jwt.verify(token, SECRET) as any;
+    (ws as any).signature = signature.username;
 
 
-    console.log(`${decoded.username} connected`);
+    console.log(`${signature.username} connected`);
     //Temporary welcome message
     // ws.send(JSON.stringify({ 
     //   type: 'info', 
@@ -86,31 +129,27 @@ wss.on('connection', (ws, req) => {
     //   timestamp: new Date()
     // }));
 
-
-
   } catch {
     ws.close();
   }
 
   ws.on('message', async (message) => {
-    // const user = (ws as any).user;
-    // const data = JSON.parse(msg.toString());
-
-    // wss.clients.forEach(client => {
-    //   if (client.readyState === WebSocket.OPEN) {
-    //     client.send(JSON.stringify({ user, ...data }));
-    //   }
-    // });
     try {
       const { event, payload }: WSEvent<any> = JSON.parse(message.toString());
-      const user = (ws as any).user;
+      const signature: UserSignature = (ws as any).signature;
 
       switch (event) {
         case 'message:send':
           const newMessage: Partial<Message> = { ...payload };
-          const id = (await MessageRepo.insertMessage(newMessage)).toString();
+          const messageId = (await MessageRepo.insertMessage(newMessage)).toString();
 
-          broadcast('message:receive', { ...newMessage, id } as Message );
+          broadcast('message:receive', { ...newMessage, messageId } as Message );
+          break;
+        case 'presence:update':
+          const presenceUpdate: Partial<PresenceUpdate> = { ...payload };
+          const id = signature.id;
+
+          broadcast('message:receive', { ...presenceUpdate,  id });
           break;
         default:
           console.warn('Unhandled event', event);

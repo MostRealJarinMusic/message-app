@@ -7,6 +7,7 @@ import { CardModule } from 'primeng/card';
 import { Subscription } from 'rxjs';
 import { MessageService } from '../../services/message/message.service';
 import { Message } from '@common/types';
+import { UserService } from 'src/app/services/user/user.service';
 
 @Component({
   selector: 'app-chat-room',
@@ -26,13 +27,14 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
   messagesSub!: Subscription;
   newMessage = '';
 
-  constructor(private messageService: MessageService) {}
+  constructor(private messageService: MessageService, private userService: UserService) {}
 
   ngOnInit() {
     this.messageService.loadMessageHistory();
+    
     this.messagesSub = this.messageService.messages$.subscribe(messages => {
       this.messages = messages;
-    })
+    }); 
   }
 
   ngOnDestroy(): void {
@@ -40,6 +42,7 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
   }
 
   sendMessage() {
+    //Message sanitisation here
     if (!this.newMessage.trim()) return;
 
     //Use message service to send message
@@ -57,4 +60,13 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
       hour12: true 
     });
   }
+
+  // getUsername(senderId: string): string {
+  //   const username = this.userService.getUsernameById(senderId);
+  //   if (!username) {
+  //     this.userService.fetchUser(senderId);
+  //     return 'Loading...';
+  //   }
+  //   return username;
+  // }
 }

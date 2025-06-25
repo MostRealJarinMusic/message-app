@@ -6,7 +6,8 @@ import { provideClientHydration, withEventReplay } from '@angular/platform-brows
 
 import { providePrimeNG } from 'primeng/config';
 import Material from '@primeng/themes/material';
-import { provideHttpClient, withFetch, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors, withInterceptorsFromDi } from '@angular/common/http';
+import { authInterceptor } from './services/auth/auth.interceptor';
 
 
 export const appConfig: ApplicationConfig = {
@@ -19,6 +20,6 @@ export const appConfig: ApplicationConfig = {
         preset: Material
       }
     }),
-    provideHttpClient(withFetch())
+    provideHttpClient(withFetch(), withInterceptors([authInterceptor]))
   ]
 };

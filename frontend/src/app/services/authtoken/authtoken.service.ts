@@ -4,22 +4,23 @@ import { BehaviorSubject, Observable } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
-export class AuthtokenService {
+export class AuthTokenService {
   private readonly tokenKey = 'auth_token';
-
   private tokenSubject = new BehaviorSubject<string | null>(this.getStoredToken())
 
-  constructor() { }
+  constructor() { 
+    this.getStoredToken();
+  }
 
   private getStoredToken(): string | null {
-    if (typeof window !== 'undefined' && localStorage) {
-      return localStorage.getItem(this.tokenKey);
+    if (typeof window !== 'undefined' && sessionStorage) {
+      return sessionStorage.getItem(this.tokenKey);
     }
     return null;
   }
 
   setToken(token: string): void {
-    localStorage.setItem(this.tokenKey, token);
+    sessionStorage.setItem(this.tokenKey, token);
     this.tokenSubject.next(token);
   }
 
@@ -28,11 +29,15 @@ export class AuthtokenService {
   }
 
   clearToken(): void {
-    localStorage.removeItem(this.tokenKey);
+    if (typeof window !== 'undefined' && sessionStorage) sessionStorage.removeItem(this.tokenKey);
     this.tokenSubject.next(null);
   }
 
-  token$(): Observable<string | null> {
+  isAuthenticated(): boolean {
+    return !!this.tokenSubject.value;
+  }
+
+  get token$(): Observable<string | null> {
     return this.tokenSubject.asObservable();
   }
 }

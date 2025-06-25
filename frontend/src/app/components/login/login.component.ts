@@ -9,7 +9,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { ReactiveFormsModule } from '@angular/forms';
 import { PasswordModule } from 'primeng/password';
 import { SocketService } from '../../services/socket/socket.service';
-import { AuthtokenService } from '../../services/authtoken/authtoken.service';
+import { AuthTokenService } from '../../services/authtoken/authtoken.service';
 import { TabsModule } from 'primeng/tabs';
 import { DividerModule } from 'primeng/divider';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -42,7 +42,7 @@ export class LoginComponent {
   email = '';
   password = '';
 
-  constructor(private authService: AuthService, private wsService: SocketService, private tokenService: AuthtokenService, private router: Router) {}
+  constructor(private authService: AuthService, private tokenService: AuthTokenService, private router: Router) {}
 
   async onLogin() {
     const loginCredentials: LoginCredentials = {
@@ -78,7 +78,8 @@ export class LoginComponent {
   }
 
   private navigateToDashboard() {
-    this.wsService.connect(this.tokenService.getToken());
+    console.log(this.tokenService.getToken());
+    //this.wsService.connect(this.tokenService.getToken());
     this.router.navigate(['/dashboard']);
   }
 }
