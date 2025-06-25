@@ -9,7 +9,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { ReactiveFormsModule } from '@angular/forms';
 import { PasswordModule } from 'primeng/password';
 import { SocketService } from '../../services/socket/socket.service';
-import { AuthTokenService } from '../../services/authtoken/authtoken.service';
+import { AuthTokenService } from '../../services/authtoken/auth-token.service';
 import { TabsModule } from 'primeng/tabs';
 import { DividerModule } from 'primeng/divider';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -73,13 +73,11 @@ export class LoginComponent {
       this.navigateToDashboard();
     } else {
       //Failed register
-      alert('Login failed');
+      alert('Registration failed');
     }
   }
 
   private navigateToDashboard() {
-    console.log(this.tokenService.getToken());
-    //this.wsService.connect(this.tokenService.getToken());
     this.router.navigate(['/dashboard']);
   }
 }

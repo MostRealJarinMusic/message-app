@@ -4,6 +4,8 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { Message, PresenceUpdate, WSEventType } from '@common/types';
 import { ApiService } from '../api/api.service';
 import { UserService } from '../user/user.service';
+import { SessionService } from '../session/session.service';
+import { PrivateApiService } from '../api/private-api.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +14,12 @@ export class MessageService {
   private messagesSubject = new BehaviorSubject<Message[]>([]);
   public messages$ = this.messagesSubject.asObservable();
 
-  constructor(private wsService: SocketService, private userService: UserService, private apiService: ApiService) { 
+  constructor(
+    private wsService: SocketService, 
+    private sessionService: SessionService, 
+    private apiService: PrivateApiService
+  ) { 
+
     console.log("Message service created")
     this.initWebSocket();
   }
@@ -20,7 +27,7 @@ export class MessageService {
   public sendMessage(content: string): void {
     const message: Partial<Message> = {
       content,
-      authorId: this.userService.getCurrentUser()?.id,
+      authorId: this.sessionService.currentUser?.id,
       createdAt: new Date().toISOString()
     }
 
@@ -31,7 +38,7 @@ export class MessageService {
   }
 
   public loadMessageHistory(): void {
-    this.apiService.get<Message[]>('messages').subscribe({
+    this.apiService.getMessageHistory().subscribe({
       next: (history) => {
         this.messagesSubject.next(history);
         console.log('Loaded history');

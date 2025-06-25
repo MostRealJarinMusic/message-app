@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, throwError, Observable, filter, switchMap, take } from 'rxjs';
-import { AuthTokenService } from '../authtoken/authtoken.service';
+import { AuthTokenService } from '../authtoken/auth-token.service';
 
 @Injectable({
   providedIn: 'root'

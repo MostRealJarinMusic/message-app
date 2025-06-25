@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { AuthTokenService } from './authtoken.service';
+import { PrivateApiService } from './private-api.service';
 
-describe('AuthTokenService', () => {
-  let service: AuthTokenService;
+describe('PrivateApiService', () => {
+  let service: PrivateApiService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(AuthTokenService);
+    service = TestBed.inject(PrivateApiService);
   });
 
   it('should be created', () => {

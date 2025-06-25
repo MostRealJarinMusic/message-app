@@ -19,7 +19,7 @@ app.use(bodyParser.json());
 
 //API routes
 //Auth
-app.post('/api/auth/login', async (req, res) => {
+app.post('/api/public/auth/login', async (req, res) => {
   try {
     const user = await UserRepo.loginUser(req.body);
     if (!user) {
@@ -33,7 +33,7 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
-app.post('/api/auth/register', async (req, res) => {
+app.post('/api/public/auth/register', async (req, res) => {
   try {
     const user = await UserRepo.registerUser(req.body);
     if (!user) {
@@ -47,7 +47,7 @@ app.post('/api/auth/register', async (req, res) => {
   }
 });
 
-app.get('/api/auth/me', authMiddleware, async (req, res) => {
+app.get('/api/private/auth/me', authMiddleware, async (req, res) => {
   try {
     const userId = (req as any).signature.id
     const user = await UserRepo.getUserById(userId);
@@ -63,7 +63,7 @@ app.get('/api/auth/me', authMiddleware, async (req, res) => {
 })
 
 //User
-app.get('/users/:id', authMiddleware, async (req, res) => {
+app.get('/api/private/users/:id', authMiddleware, async (req, res) => {
   try {
     const userId = req.params.id;
     const user = await UserRepo.getUserById(userId);
@@ -80,9 +80,9 @@ app.get('/users/:id', authMiddleware, async (req, res) => {
 
 
 //Message
-app.get('/api/messages', authMiddleware, async (req, res) => {
+app.get('/api/private/messages', authMiddleware, async (req, res) => {
   try {
-    //console.log("Attempt to get messages");
+    console.log("Attempt to get messages");
     const messages = await MessageRepo.getAllMessages();
 
     res.json(messages);

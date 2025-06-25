@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, filter, Observable, Subject, map, timer } from 'rxjs';
 import { PresenceStatus, PresenceUpdate, WSEvent, WSEventType } from '@common/types'
-import { AuthTokenService } from '../authtoken/authtoken.service';
+import { AuthTokenService } from '../authtoken/auth-token.service';
 import { UserService } from '../user/user.service';
+import { SessionService } from '../session/session.service';
 
 @Injectable({ providedIn: 'root' })
 export class SocketService {
@@ -14,13 +15,15 @@ export class SocketService {
   private maxAttempts = 10;
   private explicitClose = false;
 
-  constructor(private userService: UserService, private tokenService: AuthTokenService) {
+  constructor(private sessionService: SessionService) {
     console.log("Socket service created")
 
-    this.userService.user$.subscribe(user => {
-      const token = this.tokenService.getToken();
+    this.sessionService.user$.subscribe(user => {
+      const token = this.sessionService.tokenValue;
       if (user && token) {
         this.connect(token);
+      } else if (!user && this.isConnected) {
+        this.disconnect();
       }
     })
   }
@@ -70,6 +73,10 @@ export class SocketService {
     this.socket.onerror = (err) => {
       console.error('WebSocket error:', err);
     };
+  }
+
+  disconnect(): void {
+    this.socket?.close();
   }
 
   emit<T = any>(event: WSEventType, payload: T): void {
