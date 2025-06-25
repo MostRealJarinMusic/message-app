@@ -36,6 +36,8 @@ export enum WSEventType {
     EDITED = "message:edited",
     DELETED = "message:deleted",
     PRESENCE = "presence:update",
+    PING = "ping",
+    PONG = "pong"
 }
 
 export interface PresenceUpdate {
@@ -61,3 +63,5 @@ export interface UserSignature {
     id: string,
     username: string
 }
+
+export type Timestamp = number;

@@ -11,13 +11,11 @@ export class SessionService {
   private userSubject = new BehaviorSubject<User | null>(null);
   public user$ = this.userSubject.asObservable();
 
-  //private token: string | null = null;
-
   constructor(
     private tokenService: AuthTokenService, 
     private userService: UserService
   ) { 
-    console.log("Session service created")
+    //console.log("Session service created")
 
     const savedToken = this.tokenService.getSavedToken();
     if (savedToken) this.resumeSession(savedToken);

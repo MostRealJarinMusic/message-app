@@ -2,8 +2,6 @@ import { Injectable } from '@angular/core';
 import { SocketService } from '../socket/socket.service';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Message, PresenceUpdate, WSEventType } from '@common/types';
-import { ApiService } from '../api/api.service';
-import { UserService } from '../user/user.service';
 import { SessionService } from '../session/session.service';
 import { PrivateApiService } from '../api/private-api.service';
 

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, filter, Observable, Subject, map, timer } from 'rxjs';
-import { PresenceStatus, PresenceUpdate, WSEvent, WSEventType } from '@common/types'
+import { BehaviorSubject, filter, Observable, Subject, map, timer, distinctUntilChanged, Subscription } from 'rxjs';
+import { PresenceStatus, PresenceUpdate, Timestamp, WSEvent, WSEventType } from '@common/types'
 import { AuthTokenService } from '../authtoken/auth-token.service';
 import { UserService } from '../user/user.service';
 import { SessionService } from '../session/session.service';
@@ -10,40 +10,54 @@ export class SocketService {
   private socket?: WebSocket;
   private eventStream$ = new Subject<WSEvent>();
   public isConnected = false;
-
+  
   private reconnectAttempts = 0;
-  private maxAttempts = 10;
+  private maxReconnectAttempts = 10;
   private explicitClose = false;
+
+  private heartBeatInterval?: ReturnType<typeof setInterval>;
+  private readonly heartbeatRate = 30000;
 
   constructor(private sessionService: SessionService) {
     //console.log("Socket service created")
 
-    this.sessionService.user$.subscribe(user => {
-      const token = this.sessionService.tokenValue;
-      if (user && token) {
-        this.connect(token);
-      } else if (!user && this.isConnected) {
-        this.disconnect();
-      }
-    })
+    this.sessionService.user$
+      .pipe(distinctUntilChanged((a, b) => a?.id === b?.id))
+      .subscribe(user => {
+        const token = this.sessionService.tokenValue;
+        if (user && token) {
+          this.connect(token);
+        } else if (!user && this.isConnected) {
+          this.disconnect();
+        }
+      })
   }
 
   connect(token: string | null): void {
-    if (this.socket && this.isConnected) return;
+    if (this.socket && (this.isConnected || this.socket.readyState < WebSocket.CLOSING)){
+      console.log("Got here")
+      return;
+    }
+
+    console.log(this.socket);
 
     if (!token) {
       console.log("Invalid token");
       return;
     }
 
+    this.disconnect();
+
     this.explicitClose = false;
     this.socket = new WebSocket(`ws://localhost:3000?token=${token}`);
 
-    this.socket.onopen = async () => {
+    this.socket.onopen = () => {
       this.isConnected = true;
       console.log('Websocket connected');
 
       this.reconnectAttempts = 0;
+      //this.startHeartbeat();
+
 
       //Presence message
       //this.emit<PresenceUpdate>(WSEventType.PRESENCE, { userId: await this.authService.getID(), status: PresenceStatus.ONLINE })
@@ -54,6 +68,13 @@ export class SocketService {
         const parsedMessage = await this.parseMessageData(event.data)
         const data: WSEvent = JSON.parse(parsedMessage);
 
+        if (data.event === WSEventType.PING) {
+          const latency = Date.now() - data.payload.timestamp;
+          //console.log(`Latency: ${latency}`);
+          this.emit(WSEventType.PONG, { timestamp: Date.now() })
+        }
+
+
         this.eventStream$.next(data);
       } catch (err) {
         console.error('Invalid message', err)
@@ -62,6 +83,8 @@ export class SocketService {
 
     this.socket.onclose = () => {
       this.isConnected = false;
+      //this.stopHeartbeat();
+
       console.log('Websocket disconnected');
 
       if (!this.explicitClose) {
@@ -72,11 +95,16 @@ export class SocketService {
 
     this.socket.onerror = (err) => {
       console.error('WebSocket error:', err);
+      
     };
+
+    
   }
 
   disconnect(): void {
+    this.explicitClose = true;
     this.socket?.close();
+    this.socket = undefined;
   }
 
   emit<T = any>(event: WSEventType, payload: T): void {
@@ -96,7 +124,7 @@ export class SocketService {
   }
 
   private reconnect(token: string) {
-    if (this.reconnectAttempts >= this.maxAttempts) return;
+    if (this.reconnectAttempts >= this.maxReconnectAttempts) return;
     this.reconnectAttempts++;
 
     const delay = Math.min(1000 * this.reconnectAttempts, 5000);
@@ -106,6 +134,23 @@ export class SocketService {
     })
 
   }
+
+
+  // private startHeartbeat() {
+  //   this.heartBeatInterval = setInterval(() => {
+  //     if (this.isConnected) {
+  //       const timestamp = Date.now();
+  //       this.emit<Timestamp>(WSEventType.PING, timestamp);
+  //     }
+  //   }, this.heartbeatRate);
+  // }
+
+  // private stopHeartbeat() {
+  //   if (this.heartBeatInterval) {
+  //     clearInterval(this.heartBeatInterval);
+  //     this.heartBeatInterval = undefined;
+  //   }
+  // }
 
   private async parseMessageData(data: any): Promise<string> {
     if (data instanceof Blob) return await data.text();

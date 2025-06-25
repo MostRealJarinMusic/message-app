@@ -5,7 +5,7 @@ import bodyParser from 'body-parser';
 import jwt from 'jsonwebtoken';
 import WebSocket from 'ws';
 import { MessageRepo } from './db/message.repo';
-import { AuthPayload, LoginCredentials, Message, PresenceUpdate, RegisterPayload, UserSignature, WSEvent, WSEventType } from '@common/types';
+import { AuthPayload, LoginCredentials, Message, PresenceUpdate, RegisterPayload, UserSignature, WSEvent, WSEventType } from '../../common/types';
 import { UserRepo } from './db/user.repo';
 
 const app = express();
@@ -111,6 +111,12 @@ function authMiddleware(req: any, res: any, next: any) {
 }
 
 
+
+//WebSocket constants
+const clientLastPong: Map<WebSocket, number> = new Map();
+const HEARTBEAT_INTERVAL = 30000;
+const TIMEOUT_LIMIT = 60000;
+
 //WebSocket routes
 wss.on('connection', (ws, req) => {
   const token = new URLSearchParams(req.url?.split('?')[1] || '').get('token');
@@ -119,8 +125,10 @@ wss.on('connection', (ws, req) => {
   try {
     const signature = jwt.verify(token, SECRET) as any;
     (ws as any).signature = signature.username;
-    
+
     console.log(`WS: ${signature.username} connected`);
+
+    clientLastPong.set(ws, Date.now());
   } catch {
     ws.close();
   }
@@ -136,7 +144,6 @@ wss.on('connection', (ws, req) => {
           const messageId = (await MessageRepo.insertMessage(newMessage)).toString();
 
           broadcast('message:receive', { ...newMessage, messageId } as Message );
-
           console.log(`WS: ${signature} sending message`)
           break;
         case 'presence:update':
@@ -145,11 +152,13 @@ wss.on('connection', (ws, req) => {
 
           broadcast('presence:update', { ...presenceUpdate,  id });
           break;
+        case 'pong':
+          clientLastPong.set(ws, Date.now());
+          console.log(`WS: Pong from ${signature}`)
+          break;
         default:
           console.warn('WS: Unhandled event', event);
       }
-
-
     } catch (err) {
       console.error('WS: Invalid message format', err);
     }
@@ -157,11 +166,32 @@ wss.on('connection', (ws, req) => {
 
 
   ws.on('close', () => {
+    clientLastPong.delete(ws);
     console.log(`WS: ${(ws as any).signature} disconnected`);
-  })
+  });
 
 });
 
+setInterval(() => {
+  const now = Date.now();
+  console.log('WS: Ping');
+
+  console.log(wss.clients.size);
+
+  wss.clients.forEach((ws) => {
+    const lastPong = clientLastPong.get(ws) || 0;
+
+    //Remove dead connections
+    if (now - lastPong > TIMEOUT_LIMIT) {
+      console.log(`WS: No pong received from ${(ws as any).signature} - terminating client`);
+      ws.terminate();
+      return;
+    }
+    //Ping
+    const ping: WSEvent = { event: WSEventType.PING, payload: { timestamp: now } };
+    ws.send(JSON.stringify(ping));
+  });
+}, HEARTBEAT_INTERVAL);
 
 function broadcast(event: string, payload: any) {
   const message = JSON.stringify({ event, payload });
