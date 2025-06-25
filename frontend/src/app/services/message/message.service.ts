@@ -20,7 +20,7 @@ export class MessageService {
     private apiService: PrivateApiService
   ) { 
 
-    console.log("Message service created")
+    //console.log("Message service created")
     this.initWebSocket();
   }
 
@@ -30,8 +30,6 @@ export class MessageService {
       authorId: this.sessionService.currentUser?.id,
       createdAt: new Date().toISOString()
     }
-
-    console.log(message)
 
     //this.dbService.saveMessage(message);
     this.wsService.emit(WSEventType.SEND, message);

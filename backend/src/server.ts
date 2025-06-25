@@ -82,7 +82,7 @@ app.get('/api/private/users/:id', authMiddleware, async (req, res) => {
 //Message
 app.get('/api/private/messages', authMiddleware, async (req, res) => {
   try {
-    console.log("Attempt to get messages");
+    console.log("HTTP: Attempt to get messages");
     const messages = await MessageRepo.getAllMessages();
 
     res.json(messages);
@@ -119,16 +119,8 @@ wss.on('connection', (ws, req) => {
   try {
     const signature = jwt.verify(token, SECRET) as any;
     (ws as any).signature = signature.username;
-
-
-    console.log(`${signature.username} connected`);
-    //Temporary welcome message
-    // ws.send(JSON.stringify({ 
-    //   type: 'info', 
-    //   message: `Welcome ${decoded.username}`, 
-    //   timestamp: new Date()
-    // }));
-
+    
+    console.log(`WS: ${signature.username} connected`);
   } catch {
     ws.close();
   }
@@ -144,26 +136,28 @@ wss.on('connection', (ws, req) => {
           const messageId = (await MessageRepo.insertMessage(newMessage)).toString();
 
           broadcast('message:receive', { ...newMessage, messageId } as Message );
+
+          console.log(`WS: ${signature} sending message`)
           break;
         case 'presence:update':
           const presenceUpdate: Partial<PresenceUpdate> = { ...payload };
           const id = signature.id;
 
-          broadcast('message:receive', { ...presenceUpdate,  id });
+          broadcast('presence:update', { ...presenceUpdate,  id });
           break;
         default:
-          console.warn('Unhandled event', event);
+          console.warn('WS: Unhandled event', event);
       }
 
 
     } catch (err) {
-      console.error('Invalid message format', err);
+      console.error('WS: Invalid message format', err);
     }
   });
 
 
   ws.on('close', () => {
-    console.log('Client disconnected');
+    console.log(`WS: ${(ws as any).signature} disconnected`);
   })
 
 });

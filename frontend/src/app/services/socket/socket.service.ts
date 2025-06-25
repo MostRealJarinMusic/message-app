@@ -16,7 +16,7 @@ export class SocketService {
   private explicitClose = false;
 
   constructor(private sessionService: SessionService) {
-    console.log("Socket service created")
+    //console.log("Socket service created")
 
     this.sessionService.user$.subscribe(user => {
       const token = this.sessionService.tokenValue;
