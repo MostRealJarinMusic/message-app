@@ -50,12 +50,6 @@ export class MessageService {
   }
 
   private initWebSocket(): void {
-    // this.wsService.on<Message>(WSEventType.RECEIVE).subscribe({
-    //   next: (message) => {
-    //     const current = this.messagesSubject.value;
-    //     this.messagesSubject.next([...current, message]);
-    //   }
-    // });
     combineLatest([
       this.wsService.on<Message>(WSEventType.RECEIVE),
       this.channelService.currentChannelId$
