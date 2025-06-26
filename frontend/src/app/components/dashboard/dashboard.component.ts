@@ -1,10 +1,12 @@
 import { Component } from '@angular/core';
 import { ChatRoomComponent } from '../chat-room/chat-room.component';
+import { ChannelListComponent } from '../channel-list/channel-list.component';
 
 @Component({
   selector: 'app-dashboard',
   imports: [
-    ChatRoomComponent
+    ChatRoomComponent,
+    ChannelListComponent
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'

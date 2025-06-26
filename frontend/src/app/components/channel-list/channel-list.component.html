@@ -1,0 +1,9 @@
+<div class="channel-list">
+  <button 
+    *ngFor="let channel of channels"
+    (click)="selectChannel(channel.id)"
+    [class.active]="currentChannelId === channel.id"
+  >
+    # {{ channel.name }}
+  </button>
+</div>

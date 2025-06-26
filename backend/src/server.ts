@@ -5,8 +5,9 @@ import bodyParser from 'body-parser';
 import jwt from 'jsonwebtoken';
 import WebSocket from 'ws';
 import { MessageRepo } from './db/message.repo';
-import { AuthPayload, LoginCredentials, Message, PresenceUpdate, RegisterPayload, UserSignature, WSEvent, WSEventType } from '../../common/types';
+import { AuthPayload, Message, PresenceUpdate, UserSignature, WSEvent, WSEventType } from '../../common/types';
 import { UserRepo } from './db/user.repo';
+import { ChannelRepo } from './db/channel.repo';
 
 const app = express();
 const server = http.createServer(app);
@@ -79,11 +80,13 @@ app.get('/api/private/users/:id', authMiddleware, async (req, res) => {
 })
 
 
-//Message
-app.get('/api/private/messages', authMiddleware, async (req, res) => {
+//Servers, Channels, Messages
+app.get('/api/private/channels/:channelId/messages', authMiddleware, async (req, res) => {
   try {
-    console.log("HTTP: Attempt to get messages");
-    const messages = await MessageRepo.getAllMessages();
+    const channelId = req.params.channelId;
+    //console.log(`HTTP: Attempt to get messages from channel ${channelId}`);
+
+    const messages = await MessageRepo.getAllChannelMessages(channelId);
 
     res.json(messages);
   } catch (err) {
@@ -92,7 +95,17 @@ app.get('/api/private/messages', authMiddleware, async (req, res) => {
   }
 })
 
+app.get('/api/private/channels', authMiddleware, async (req, res) => {
+  try {
+    //console.log("HTTP: Attempt to get channels");
+    const channels = await ChannelRepo.getChannels();
 
+    res.json(channels);
+  } catch (err) {
+    console.error('Error getting channels', err);
+    res.status(500).json({ error: 'Failed to fetch channels' });
+  }
+})
 
 
 function authMiddleware(req: any, res: any, next: any) {

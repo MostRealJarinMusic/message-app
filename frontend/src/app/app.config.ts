@@ -5,7 +5,7 @@ import { routes } from './app.routes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 
 import { providePrimeNG } from 'primeng/config';
-import Material from '@primeng/themes/material';
+import Aura from '@primeng/themes/aura';
 import { provideHttpClient, withFetch, withInterceptors, withInterceptorsFromDi } from '@angular/common/http';
 import { authInterceptor } from './services/auth/auth.interceptor';
 
@@ -17,7 +17,7 @@ export const appConfig: ApplicationConfig = {
     provideClientHydration(withEventReplay()),
     providePrimeNG({
       theme: {
-        preset: Material
+        preset: Aura
       }
     }),
     provideHttpClient(withFetch(), withInterceptors([authInterceptor]))

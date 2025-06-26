@@ -1,0 +1,11 @@
+button {
+  cursor: pointer;
+
+  &.active {
+    font-weight: bold;
+  }
+
+  &:hover {
+    background-color: #f0f0f0;
+  }
+}

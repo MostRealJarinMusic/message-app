@@ -7,7 +7,7 @@ import { CardModule } from 'primeng/card';
 import { Subscription } from 'rxjs';
 import { MessageService } from '../../services/message/message.service';
 import { Message } from '@common/types';
-import { UserService } from 'src/app/services/user/user.service';
+import { ChannelService } from 'src/app/services/channel/channel.service';
 
 @Component({
   selector: 'app-chat-room',
@@ -27,10 +27,15 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
   messagesSub!: Subscription;
   newMessage = '';
 
-  constructor(private messageService: MessageService, private userService: UserService) {}
+  constructor(private messageService: MessageService, private channelService: ChannelService) {}
 
   ngOnInit() {
-    this.messageService.loadMessageHistory();
+    this.channelService.currentChannelId$.subscribe((channelId) => {
+      if (channelId != null) {
+        this.messageService.loadMessageHistory(channelId);
+      }
+    })
+
     
     this.messagesSub = this.messageService.messages$.subscribe(messages => {
       this.messages = messages;

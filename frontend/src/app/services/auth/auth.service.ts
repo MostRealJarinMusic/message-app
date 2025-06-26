@@ -1,8 +1,6 @@
 import { Injectable } from '@angular/core';
-import { ApiService } from '../api/api.service';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
-import { AuthTokenService } from '../authtoken/auth-token.service';
-import { AuthPayload, LoginCredentials, RegisterPayload, User } from '@common/types';
+import { AuthPayload, LoginCredentials, RegisterPayload } from '@common/types';
 import { SessionService } from '../session/session.service';
 import { PublicApiService } from '../api/public-api.service';
 

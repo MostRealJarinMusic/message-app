@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { filter, Observable, switchMap, take } from 'rxjs';
 import { Message, User } from '@common/types';
 import { AuthTokenService } from '../authtoken/auth-token.service';
+import { Channel } from '@common/types';
 
 @Injectable({
   providedIn: 'root'
@@ -22,11 +23,15 @@ export class PrivateApiService extends BaseApiService {
     )
   }
 
-  getMessageHistory(): Observable<Message[]> {
-    return this.authFetch<Message[]>(_ => this.get<Message[]>('messages'));
+  getMessageHistory(channelId: string): Observable<Message[]> {
+    return this.authFetch<Message[]>(_ => this.get<Message[]>(`channels/${channelId}/messages`));
   }
 
   getCurrentUser(): Observable<User> {
     return this.authFetch<User>(_ => this.get<User>('auth/me'));
+  }
+
+  getChannels(): Observable<Channel[]> {
+    return this.authFetch<Channel[]>(_ => this.get<Channel[]>('channels'));
   }
 }

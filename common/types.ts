@@ -1,8 +1,8 @@
+//Auth types
 export interface AuthPayload {
     token: string;
     user: User;
 }
-
 export interface LoginCredentials {
     username?: string;
     email?: string;
@@ -13,16 +13,34 @@ export interface RegisterPayload {
     email: string;
     password: string;
 }
+export interface UserSignature {
+    id: string,
+    username: string
+}
 
+export type Timestamp = number;
+
+//Messaging types
 export interface Message {
     id: string;
     authorId: string;
+    channelId: string;
     content: string;
     createdAt: string;
     editedAt?: string;
     deleted?: boolean;
 }
 
+export interface Channel {
+    id: string;
+    name: string;
+    topic?: string;
+    createdAt?: string;
+    createdBy?: string;
+    editedAt?: string;
+}
+
+//WebSocket types
 export interface WSEvent<T = any> {
     event: WSEventType;
     payload: T;
@@ -40,6 +58,7 @@ export enum WSEventType {
     PONG = "pong"
 }
 
+//Presence types
 export interface PresenceUpdate {
     userId: string;
     status: PresenceStatus;
@@ -52,16 +71,10 @@ export enum PresenceStatus {
     DND = 'dnd'
 }
 
+//User types
 export interface User {
     id: string;
     username: string;
     email: string;
     status?: PresenceStatus
 }
-
-export interface UserSignature {
-    id: string,
-    username: string
-}
-
-export type Timestamp = number;
