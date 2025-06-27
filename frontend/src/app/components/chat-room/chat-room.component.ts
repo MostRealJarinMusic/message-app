@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { NgFor } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
@@ -13,12 +13,11 @@ import { ChannelService } from 'src/app/services/channel/channel.service';
   selector: 'app-chat-room',
   standalone: true,
   imports: [
-    NgFor,
     InputTextModule,
     ButtonModule,
     CardModule,
     FormsModule
-  ],
+],
   templateUrl: './chat-room.component.html',
   styleUrl: './chat-room.component.scss'
 })

@@ -1,10 +1,12 @@
 <div class="chat-container">
   <div class="message-container">
-    <div *ngFor="let message of messages" class="mb-2">
+    @for (message of messages; track message) {
+      <div class="mb-2">
         <strong>{{ message.authorId }}:</strong>
         <span>{{ message.content }}</span>
         <small class="ml-2 text-500">{{ formatTime(message.createdAt) }}</small>
-    </div>
+      </div>
+    }
   </div>
 
   <form class="flex gap-2" (submit)="sendMessage()">
@@ -14,7 +16,7 @@
       name="message"
       class="flex-grow-1"
       placeholder="Type your message..."
-    />
-    <button pButton type="submit" icon="pi pi-send" label="Send"></button>
-  </form>
-</div>
+      />
+      <button pButton type="submit" icon="pi pi-send" label="Send"></button>
+    </form>
+  </div>

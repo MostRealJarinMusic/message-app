@@ -1,4 +1,4 @@
-import { NgFor } from '@angular/common';
+
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { Channel } from '@common/types';
 import { ButtonModule } from 'primeng/button';
@@ -7,7 +7,7 @@ import { ChannelService } from 'src/app/services/channel/channel.service';
 
 @Component({
   selector: 'app-channel-list',
-  imports: [NgFor, ButtonModule],
+  imports: [ButtonModule],
   templateUrl: './channel-list.component.html',
   styleUrl: './channel-list.component.scss',
 })
