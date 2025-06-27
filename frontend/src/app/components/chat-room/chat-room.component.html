@@ -1,5 +1,5 @@
-<div class="chat-window flex flex-column h-screen p-3">
-  <div class="flex-grow-1 overflow-auto mb-2" #messageList>
+<div class="chat-container">
+  <div class="message-container">
     <div *ngFor="let message of messages" class="mb-2">
         <strong>{{ message.authorId }}:</strong>
         <span>{{ message.content }}</span>
@@ -9,7 +9,6 @@
 
   <form class="flex gap-2" (submit)="sendMessage()">
     <input
-      type="text"
       pInputText
       [(ngModel)]="newMessage"
       name="message"

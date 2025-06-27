@@ -20,7 +20,7 @@ export interface UserSignature {
 
 export type Timestamp = number;
 
-//Messaging types
+//Message, Channel, Server types
 export interface Message {
     id: string;
     authorId: string;
@@ -39,6 +39,19 @@ export interface Channel {
     createdBy?: string;
     editedAt?: string;
 }
+
+export interface Server {
+    id: string;
+    name: string;
+}
+
+export interface ServerMember {
+    userId: string;
+    serverId: string;
+    roles?: string[];
+}
+
+
 
 //WebSocket types
 export interface WSEvent<T = any> {

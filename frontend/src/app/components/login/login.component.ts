@@ -8,7 +8,6 @@ import { CardModule } from 'primeng/card';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ReactiveFormsModule } from '@angular/forms';
 import { PasswordModule } from 'primeng/password';
-import { SocketService } from '../../services/socket/socket.service';
 import { AuthTokenService } from '../../services/authtoken/auth-token.service';
 import { TabsModule } from 'primeng/tabs';
 import { DividerModule } from 'primeng/divider';

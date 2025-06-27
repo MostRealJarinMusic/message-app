@@ -1,0 +1,17 @@
+.dashboard-container {
+  display: flex;
+  height: 100%;
+}
+
+.sidebar {
+  width: 200px;
+  border-right: 5px solid #2c2f33;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.chat-room {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}

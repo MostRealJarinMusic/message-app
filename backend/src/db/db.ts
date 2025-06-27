@@ -40,11 +40,13 @@ export const getDB = async () => {
 
     await dbInstance.exec(`
         INSERT OR IGNORE INTO channels (id, name) VALUES (2, "MEMES");
-    `)
+    `);
 
     await dbInstance.exec(`
         INSERT OR IGNORE INTO channels (id, name) VALUES (3, "BOT-COMMAND");
-    `)
+    `);
+
+    
 
     return dbInstance;
 }
