@@ -21,19 +21,7 @@ export class ChatRoomComponent {
   private channelService = inject(ChannelService);
 
   messages = toSignal(this.messageService.messages$, { initialValue: [] });
-  currentChannelId = toSignal(this.channelService.currentChannelId$, {
-    initialValue: null,
-  });
   newMessage = '';
-
-  constructor() {
-    effect(() => {
-      const channelId = this.currentChannelId();
-      if (channelId) {
-        this.messageService.loadMessageHistory(channelId);
-      }
-    });
-  }
 
   sendMessage() {
     //Message sanitisation here

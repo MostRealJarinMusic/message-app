@@ -1,32 +1,19 @@
-import { Injectable } from '@angular/core';
-import { Channel, Server } from '@common/types';
-import { BehaviorSubject, distinctUntilChanged, filter } from 'rxjs';
+import { inject, Injectable } from '@angular/core';
+import { Channel } from '@common/types';
+import { BehaviorSubject } from 'rxjs';
 import { PrivateApiService } from '../api/private-api.service';
-import { ServerService } from '../server/server.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ChannelService {
+  private apiService = inject(PrivateApiService);
+
   private currentChannelIdSubject = new BehaviorSubject<string | null>(null);
   public currentChannelId$ = this.currentChannelIdSubject.asObservable();
 
   private channelsSubject = new BehaviorSubject<Channel[]>([]);
   public channels$ = this.channelsSubject.asObservable();
-
-  constructor(
-    private apiService: PrivateApiService,
-    private serverService: ServerService
-  ) {
-    this.serverService.currentServerId$
-      .pipe(
-        filter((id): id is string => !!id),
-        distinctUntilChanged()
-      )
-      .subscribe((serverId) => {
-        this.loadChannels(serverId);
-      });
-  }
 
   selectChannel(id: string) {
     this.currentChannelIdSubject.next(id);
@@ -40,8 +27,6 @@ export class ChannelService {
         if (!this.currentChannelIdSubject.value && channels.length > 0) {
           this.selectChannel(channels[0].id);
         }
-
-        //console.log(channels);
       },
       error: (err) => console.error('Failed to load channels', err),
     });

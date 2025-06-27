@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Server } from '@common/types';
 import { BehaviorSubject } from 'rxjs';
 import { PrivateApiService } from '../api/private-api.service';
@@ -7,13 +7,13 @@ import { PrivateApiService } from '../api/private-api.service';
   providedIn: 'root',
 })
 export class ServerService {
+  private apiService = inject(PrivateApiService);
+
   private currentServerIdSubject = new BehaviorSubject<string | null>(null);
   public currentServerId$ = this.currentServerIdSubject.asObservable();
 
   private serversSubject = new BehaviorSubject<Server[]>([]);
   public servers$ = this.serversSubject.asObservable();
-
-  constructor(private apiService: PrivateApiService) {}
 
   selectServer(id: string) {
     this.currentServerIdSubject.next(id);

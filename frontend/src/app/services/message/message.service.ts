@@ -1,26 +1,24 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { SocketService } from '../socket/socket.service';
-import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
+import { BehaviorSubject, combineLatest } from 'rxjs';
 import { Message, PresenceUpdate, WSEventType } from '@common/types';
 import { SessionService } from '../session/session.service';
 import { PrivateApiService } from '../api/private-api.service';
 import { ChannelService } from '../channel/channel.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class MessageService {
+  private wsService = inject(SocketService);
+  private sessionService = inject(SessionService);
+  private channelService = inject(ChannelService);
+  private apiService = inject(PrivateApiService);
+
   private messagesSubject = new BehaviorSubject<Message[]>([]);
   public messages$ = this.messagesSubject.asObservable();
 
-  constructor(
-    private wsService: SocketService, 
-    private sessionService: SessionService, 
-    private channelService: ChannelService,
-    private apiService: PrivateApiService
-  ) { 
-
-    //console.log("Message service created")
+  constructor() {
     this.initWebSocket();
   }
 
@@ -29,8 +27,8 @@ export class MessageService {
       content,
       authorId: this.sessionService.currentUser?.id,
       channelId: this.channelService.currentChannel!,
-      createdAt: new Date().toISOString()
-    }
+      createdAt: new Date().toISOString(),
+    };
 
     //this.dbService.saveMessage(message);
     this.wsService.emit(WSEventType.SEND, message);
@@ -44,28 +42,25 @@ export class MessageService {
       },
       error: (err) => {
         console.error('Failed to load history:', err);
-        console.log('Failed to load history')
-      }
+      },
     });
   }
 
   private initWebSocket(): void {
     combineLatest([
       this.wsService.on<Message>(WSEventType.RECEIVE),
-      this.channelService.currentChannelId$
+      this.channelService.currentChannelId$,
     ]).subscribe(([message, selectedChannelId]) => {
       if (message.channelId === selectedChannelId) {
         const current = this.messagesSubject.value;
         this.messagesSubject.next([...current, message]);
       }
-    })
+    });
 
     // this.wsService.on<PresenceUpdate>(WSEventType.PRESENCE).subscribe({
     //   next: (update) => {
     //     console.log(`${update.userId} is ${update.status}`)
-    //   } 
+    //   }
     // })
   }
-
-
 }
