@@ -1,4 +1,5 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, effect, inject, OnInit } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ChatRoomComponent } from '../chat-room/chat-room.component';
 import { ChannelListComponent } from '../channel-list/channel-list.component';
 import { ServerListComponent } from '../server-list/server-list.component';
@@ -13,33 +14,26 @@ import { distinctUntilChanged, filter } from 'rxjs';
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent {
   serverService = inject(ServerService);
   channelService = inject(ChannelService);
   messageService = inject(MessageService);
 
-  ngOnInit(): void {
+  private serverIdSignal = toSignal(this.serverService.currentServerId$);
+  private channelIdSignal = toSignal(this.channelService.currentChannelId$);
+
+  constructor() {
     //Load the server
     this.serverService.loadServers();
 
-    //Load the channels
-    this.serverService.currentServerId$
-      .pipe(
-        filter((id) => !!id),
-        distinctUntilChanged()
-      )
-      .subscribe((serverId) => {
-        this.channelService.loadChannels(serverId!);
-      });
+    effect(() => {
+      const serverId = this.serverIdSignal();
+      if (serverId) this.channelService.loadChannels(serverId);
+    });
 
-    //Load the message history
-    this.channelService.currentChannelId$
-      .pipe(
-        filter((id) => !!id),
-        distinctUntilChanged()
-      )
-      .subscribe((channelId) => {
-        this.messageService.loadMessageHistory(channelId!);
-      });
+    effect(() => {
+      const channelId = this.channelIdSignal();
+      if (channelId) this.messageService.loadMessageHistory(channelId);
+    });
   }
 }

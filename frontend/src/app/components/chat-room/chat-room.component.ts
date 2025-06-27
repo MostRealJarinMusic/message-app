@@ -1,13 +1,11 @@
-import { Component, effect, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { Subscription } from 'rxjs';
 import { MessageService } from '../../services/message/message.service';
 import { Message } from '@common/types';
-import { ChannelService } from 'src/app/services/channel/channel.service';
 
 @Component({
   selector: 'app-chat-room',
@@ -18,7 +16,6 @@ import { ChannelService } from 'src/app/services/channel/channel.service';
 })
 export class ChatRoomComponent {
   private messageService = inject(MessageService);
-  private channelService = inject(ChannelService);
 
   messages = toSignal(this.messageService.messages$, { initialValue: [] });
   newMessage = '';
