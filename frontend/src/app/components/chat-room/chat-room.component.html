@@ -1,6 +1,6 @@
 <div class="chat-container">
   <div class="message-container">
-    @for (message of messages; track message) {
+    @for (message of messages(); track message) {
       <div class="mb-2">
         <strong>{{ message.authorId }}:</strong>
         <span>{{ message.content }}</span>

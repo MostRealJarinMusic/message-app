@@ -1,5 +1,5 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-
+import { Component, effect, inject, OnDestroy, OnInit } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
@@ -12,37 +12,27 @@ import { ChannelService } from 'src/app/services/channel/channel.service';
 @Component({
   selector: 'app-chat-room',
   standalone: true,
-  imports: [
-    InputTextModule,
-    ButtonModule,
-    CardModule,
-    FormsModule
-],
+  imports: [InputTextModule, ButtonModule, CardModule, FormsModule],
   templateUrl: './chat-room.component.html',
-  styleUrl: './chat-room.component.scss'
+  styleUrl: './chat-room.component.scss',
 })
-export class ChatRoomComponent implements OnInit, OnDestroy {
-  messages: Message[] = [];
-  messagesSub!: Subscription;
+export class ChatRoomComponent {
+  private messageService = inject(MessageService);
+  private channelService = inject(ChannelService);
+
+  messages = toSignal(this.messageService.messages$, { initialValue: [] });
+  currentChannelId = toSignal(this.channelService.currentChannelId$, {
+    initialValue: null,
+  });
   newMessage = '';
 
-  constructor(private messageService: MessageService, private channelService: ChannelService) {}
-
-  ngOnInit() {
-    this.channelService.currentChannelId$.subscribe((channelId) => {
-      if (channelId != null) {
+  constructor() {
+    effect(() => {
+      const channelId = this.currentChannelId();
+      if (channelId) {
         this.messageService.loadMessageHistory(channelId);
       }
-    })
-
-    
-    this.messagesSub = this.messageService.messages$.subscribe(messages => {
-      this.messages = messages;
-    }); 
-  }
-
-  ngOnDestroy(): void {
-    this.messagesSub.unsubscribe();
+    });
   }
 
   sendMessage() {
@@ -58,10 +48,10 @@ export class ChatRoomComponent implements OnInit, OnDestroy {
 
   formatTime(timestamp: string): string {
     const date = new Date(timestamp);
-    return date.toLocaleTimeString('en-US', { 
-      hour: 'numeric', 
-      minute: '2-digit', 
-      hour12: true 
+    return date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
     });
   }
 
