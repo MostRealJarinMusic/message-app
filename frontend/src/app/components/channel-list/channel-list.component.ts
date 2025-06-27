@@ -1,9 +1,8 @@
-
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, Signal } from '@angular/core';
 import { Channel } from '@common/types';
 import { ButtonModule } from 'primeng/button';
-import { Subscription } from 'rxjs';
 import { ChannelService } from 'src/app/services/channel/channel.service';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-channel-list',
@@ -11,30 +10,18 @@ import { ChannelService } from 'src/app/services/channel/channel.service';
   templateUrl: './channel-list.component.html',
   styleUrl: './channel-list.component.scss',
 })
-export class ChannelListComponent implements OnInit, OnDestroy {
-  channels: Channel[] = [];
-  currentChannelId: string | null = null;
-  private subscriptions = new Subscription();
+export class ChannelListComponent {
+  private channelService = inject(ChannelService);
 
-  constructor(private channelService: ChannelService) {}
-
-  ngOnInit(): void {
-    this.subscriptions.add(
-      this.channelService.channels$.subscribe((channels) => {
-        this.channels = channels;
-      })
-    );
-
-    this.subscriptions.add(
-      this.channelService.currentChannelId$.subscribe((id) => {
-        this.currentChannelId = id;
-      })
-    );
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
-  }
+  channels: Signal<Channel[]> = toSignal(this.channelService.channels$, {
+    initialValue: [],
+  });
+  currentChannelId: Signal<string | null> = toSignal(
+    this.channelService.currentChannelId$,
+    {
+      initialValue: null,
+    }
+  );
 
   selectChannel(id: string) {
     this.channelService.selectChannel(id);

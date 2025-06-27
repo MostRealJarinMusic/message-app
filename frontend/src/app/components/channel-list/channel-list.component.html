@@ -1,25 +1,9 @@
 <div class="channel-list">
-  <!-- <div *ngFor="let channel of channels" class="channel-item">
-    <p-button
-    (click)="selectChannel(channel.id)"
-    [class.active]="currentChannelId === channel.id"
-    [label]="channel.name"
-    severity="secondary"
-  />
-  </div> -->
-  <!-- <div
-    class="channel-item"
-    *ngFor="let channel of channels"
-    (click)="selectChannel(channel.id)"
-    [class.active]="channel.id === currentChannelId"
-  >
-  {{ channel.name }}
-  </div> -->
-  @for (channel of channels; track $index) {
+  @for (channel of channels(); track $index) {
   <li 
     class="channel-item"
     (click)="selectChannel(channel.id)"
-    [class.active]="channel.id === currentChannelId"
+    [class.active]="channel.id === currentChannelId()"
   >
     {{ channel.name }}
   </li>
