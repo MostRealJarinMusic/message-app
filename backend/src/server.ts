@@ -159,8 +159,8 @@ function authMiddleware(req: any, res: any, next: any) {
 
 //WebSocket constants
 const clientLastPong: Map<WebSocket, number> = new Map();
-const HEARTBEAT_INTERVAL = 30000;
-const TIMEOUT_LIMIT = 60000;
+const HEARTBEAT_INTERVAL = 60000;
+const TIMEOUT_LIMIT = 120000;
 
 //WebSocket routes
 wss.on("connection", (ws, req) => {

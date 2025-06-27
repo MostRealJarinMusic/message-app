@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, Signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
@@ -17,7 +17,9 @@ import { Message } from '@common/types';
 export class ChatRoomComponent {
   private messageService = inject(MessageService);
 
-  messages = toSignal(this.messageService.messages$, { initialValue: [] });
+  messages: Signal<Message[]> = toSignal(this.messageService.messages$, {
+    initialValue: [],
+  });
   newMessage = '';
 
   sendMessage() {
