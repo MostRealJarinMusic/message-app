@@ -1,0 +1,11 @@
+<div class="server-list">
+  @for (server of servers; track $index) {
+    <li 
+      class="server-item" 
+      (click)="selectServer(server.id)" 
+      [class.active]="server.id === currentServerId"
+    >
+      {{ server.name }}
+    </li>
+  }
+</div>

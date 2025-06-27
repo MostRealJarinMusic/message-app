@@ -1,40 +1,53 @@
 import { Injectable } from '@angular/core';
-import { Channel } from '@common/types';
-import { BehaviorSubject } from 'rxjs';
+import { Channel, Server } from '@common/types';
+import { BehaviorSubject, distinctUntilChanged, filter } from 'rxjs';
 import { PrivateApiService } from '../api/private-api.service';
+import { ServerService } from '../server/server.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ChannelService {
-  private curreentChannelIdSubject = new BehaviorSubject<string | null>(null);
-  public currentChannelId$ = this.curreentChannelIdSubject.asObservable();
+  private currentChannelIdSubject = new BehaviorSubject<string | null>(null);
+  public currentChannelId$ = this.currentChannelIdSubject.asObservable();
 
   private channelsSubject = new BehaviorSubject<Channel[]>([]);
   public channels$ = this.channelsSubject.asObservable();
 
-  constructor(private apiService: PrivateApiService) { }
-
-  selectChannel(id: string) {
-    this.curreentChannelIdSubject.next(id);
+  constructor(
+    private apiService: PrivateApiService,
+    private serverService: ServerService
+  ) {
+    this.serverService.currentServerId$
+      .pipe(
+        filter((id): id is string => !!id),
+        distinctUntilChanged()
+      )
+      .subscribe((serverId) => {
+        this.loadChannels(serverId);
+      });
   }
 
-  loadChannels() {
-    this.apiService.getChannels().subscribe({
+  selectChannel(id: string) {
+    this.currentChannelIdSubject.next(id);
+  }
+
+  loadChannels(serverId: string) {
+    this.apiService.getChannels(serverId).subscribe({
       next: (channels) => {
         this.channelsSubject.next(channels);
 
-        if (!this.curreentChannelIdSubject.value && channels.length > 0) {
+        if (!this.currentChannelIdSubject.value && channels.length > 0) {
           this.selectChannel(channels[0].id);
         }
 
-        console.log(channels)
+        //console.log(channels);
       },
-      error: (err) => console.error('Failed to load channels', err)
-    })
+      error: (err) => console.error('Failed to load channels', err),
+    });
   }
 
   get currentChannel() {
-    return this.curreentChannelIdSubject.value;
+    return this.currentChannelIdSubject.value;
   }
 }

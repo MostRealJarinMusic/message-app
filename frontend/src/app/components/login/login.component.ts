@@ -20,9 +20,9 @@ import { LoginCredentials, RegisterPayload } from '@common/types';
   selector: 'app-login',
   standalone: true,
   imports: [
-    FormsModule, 
-    InputTextModule, 
-    ButtonModule, 
+    FormsModule,
+    InputTextModule,
+    ButtonModule,
     CardModule,
     CheckboxModule,
     ReactiveFormsModule,
@@ -31,23 +31,23 @@ import { LoginCredentials, RegisterPayload } from '@common/types';
     DividerModule,
     IconFieldModule,
     InputIconModule,
-    FloatLabelModule
+    FloatLabelModule,
   ],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+  styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent {
   username = '';
   email = '';
   password = '';
 
-  constructor(private authService: AuthService, private tokenService: AuthTokenService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   async onLogin() {
     const loginCredentials: LoginCredentials = {
       username: this.username,
-      password: this.password
-    }
+      password: this.password,
+    };
 
     const success = await this.authService.login(loginCredentials);
     if (success) {
@@ -59,13 +59,13 @@ export class LoginComponent {
   }
 
   async onRegister() {
-    console.log("Attempt to register account");
+    console.log('Attempt to register account');
 
     const registerPayload: RegisterPayload = {
       username: this.username,
       email: this.email,
-      password: this.password
-    }
+      password: this.password,
+    };
 
     const success = await this.authService.register(registerPayload);
     if (success) {

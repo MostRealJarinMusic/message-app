@@ -5,11 +5,10 @@ import { AuthPayload, LoginCredentials, RegisterPayload } from '@common/types';
 import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PublicApiService extends BaseApiService {
-
-  constructor(http: HttpClient) { 
+  constructor(http: HttpClient) {
     super(http, 'http://localhost:3000/api/public');
   }
 
