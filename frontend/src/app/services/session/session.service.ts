@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { User } from '@common/types';
 import { AuthTokenService } from '../authtoken/auth-token.service';
 import { UserService } from '../user/user.service';
@@ -11,7 +11,7 @@ export class SessionService {
   private tokenService = inject(AuthTokenService);
   private userService = inject(UserService);
 
-  readonly currentUser = signal<User | null>(null);
+  readonly currentUser = this.userService.currentUser;
 
   constructor() {
     //console.log("Session service created")
@@ -24,8 +24,7 @@ export class SessionService {
     console.log('Starting session');
     this.tokenService.setToken(token);
     try {
-      const user = await firstValueFrom(this.userService.fetchCurrentUser());
-      this.currentUser.set(user);
+      await firstValueFrom(this.userService.fetchCurrentUser());
     } catch (err) {
       this.endSession();
       throw err;
@@ -42,8 +41,7 @@ export class SessionService {
     console.log('Resuming session');
     this.tokenService.setToken(token);
     try {
-      const user = await firstValueFrom(this.userService.fetchCurrentUser());
-      this.currentUser.set(user);
+      await firstValueFrom(this.userService.fetchCurrentUser());
     } catch {
       this.endSession();
     }

@@ -7,9 +7,6 @@ import { PrivateApiService } from '../api/private-api.service';
   providedIn: 'root',
 })
 export class UserService {
-  // private userSubject = new BehaviorSubject<User | null>(null);
-  // public user$ = this.userSubject.asObservable();
-
   readonly currentUser = signal<User | null>(null);
 
   //Local user cache
