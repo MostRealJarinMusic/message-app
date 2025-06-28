@@ -1,20 +1,19 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { User } from '@common/types';
 import { AuthTokenService } from '../authtoken/auth-token.service';
 import { UserService } from '../user/user.service';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SessionService {
-  private userSubject = new BehaviorSubject<User | null>(null);
-  public user$ = this.userSubject.asObservable();
+  private tokenService = inject(AuthTokenService);
+  private userService = inject(UserService);
 
-  constructor(
-    private tokenService: AuthTokenService, 
-    private userService: UserService
-  ) { 
+  readonly currentUser = signal<User | null>(null);
+
+  constructor() {
     //console.log("Session service created")
 
     const savedToken = this.tokenService.getSavedToken();
@@ -22,11 +21,11 @@ export class SessionService {
   }
 
   async startSession(token: string): Promise<void> {
-    console.log("Starting session")
+    console.log('Starting session');
     this.tokenService.setToken(token);
     try {
       const user = await firstValueFrom(this.userService.fetchCurrentUser());
-      this.userSubject.next(user);
+      this.currentUser.set(user);
     } catch (err) {
       this.endSession();
       throw err;
@@ -34,25 +33,17 @@ export class SessionService {
   }
 
   endSession(): void {
-    console.log('Ending session')
+    console.log('Ending session');
     this.tokenService.clearToken();
-    this.userSubject.next(null);
-  }
-
-  get currentUser(): User | null {
-    return this.userSubject.value;
-  }
-
-  get tokenValue(): string | null {
-    return this.tokenService.getToken();
+    this.currentUser.set(null);
   }
 
   private async resumeSession(token: string): Promise<void> {
-    console.log("Resuming session");
+    console.log('Resuming session');
     this.tokenService.setToken(token);
     try {
       const user = await firstValueFrom(this.userService.fetchCurrentUser());
-      this.userSubject.next(user);
+      this.currentUser.set(user);
     } catch {
       this.endSession();
     }

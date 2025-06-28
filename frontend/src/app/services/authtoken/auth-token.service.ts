@@ -2,14 +2,15 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthTokenService {
   private readonly tokenKey = 'auth_token';
   private tokenSubject = new BehaviorSubject<string | null>(null);
 
   setToken(token: string): void {
-    if (typeof window !== 'undefined' && sessionStorage) sessionStorage.setItem(this.tokenKey, token);
+    if (typeof window !== 'undefined' && sessionStorage)
+      sessionStorage.setItem(this.tokenKey, token);
     this.tokenSubject.next(token);
   }
 
@@ -25,7 +26,8 @@ export class AuthTokenService {
   }
 
   clearToken(): void {
-    if (typeof window !== 'undefined' && sessionStorage) sessionStorage.removeItem(this.tokenKey);
+    if (typeof window !== 'undefined' && sessionStorage)
+      sessionStorage.removeItem(this.tokenKey);
     this.tokenSubject.next(null);
   }
 

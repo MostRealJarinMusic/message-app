@@ -24,7 +24,7 @@ export class MessageService {
   public sendMessage(content: string): void {
     const message: Partial<Message> = {
       content,
-      authorId: this.sessionService.currentUser?.id,
+      authorId: this.sessionService.currentUser()?.id,
       channelId: this.channelService.currentChannel()!,
       createdAt: new Date().toISOString(),
     };
