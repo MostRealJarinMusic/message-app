@@ -14,25 +14,26 @@ import { MessageService } from 'src/app/services/message/message.service';
   styleUrl: './dashboard.component.scss',
 })
 export class DashboardComponent {
-  serverService = inject(ServerService);
-  channelService = inject(ChannelService);
-  messageService = inject(MessageService);
+  private serverService = inject(ServerService);
+  private channelService = inject(ChannelService);
+  private messageService = inject(MessageService);
 
-  private serverIdSignal = toSignal(this.serverService.currentServerId$);
-  private channelIdSignal = toSignal(this.channelService.currentChannelId$);
+  private currentServer = this.serverService.currentServer;
+  private currentChannel = this.channelService.currentChannel;
 
   constructor() {
     //Load the server
     this.serverService.loadServers();
 
     effect(() => {
-      const serverId = this.serverIdSignal();
-      if (serverId) this.channelService.loadChannels(serverId);
+      const currentServer = this.currentServer();
+      if (currentServer) this.channelService.loadChannels(currentServer);
     });
 
     effect(() => {
-      const channelId = this.channelIdSignal();
-      if (channelId) this.messageService.loadMessageHistory(channelId);
+      const currentChannel = this.currentChannel();
+      if (currentChannel)
+        this.messageService.loadMessageHistory(currentChannel);
     });
   }
 }

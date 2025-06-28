@@ -3,7 +3,7 @@
   <li 
     class="channel-item"
     (click)="selectChannel(channel.id)"
-    [class.active]="channel.id === currentChannelId()"
+    [class.active]="channel.id === currentChannel()"
   >
     {{ channel.name }}
   </li>

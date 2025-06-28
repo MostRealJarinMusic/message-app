@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { Server } from '@common/types';
 import { BehaviorSubject } from 'rxjs';
 import { PrivateApiService } from '../api/private-api.service';
@@ -9,26 +9,21 @@ import { PrivateApiService } from '../api/private-api.service';
 export class ServerService {
   private apiService = inject(PrivateApiService);
 
-  private currentServerIdSubject = new BehaviorSubject<string | null>(null);
-  public currentServerId$ = this.currentServerIdSubject.asObservable();
-
-  private serversSubject = new BehaviorSubject<Server[]>([]);
-  public servers$ = this.serversSubject.asObservable();
+  readonly servers = signal<Server[]>([]);
+  readonly currentServer = signal<string | null>(null);
 
   selectServer(id: string) {
-    this.currentServerIdSubject.next(id);
+    this.currentServer.set(id);
   }
 
   loadServers() {
     this.apiService.getServers().subscribe({
       next: (servers) => {
-        this.serversSubject.next(servers);
+        this.servers.set(servers);
 
-        if (!this.currentServerIdSubject.value && servers.length > 0) {
+        if (!this.currentServer() && servers.length > 0) {
           this.selectServer(servers[0].id);
         }
-
-        console.log(servers);
       },
       error: (err) => console.error('Failed to load channels', err),
     });

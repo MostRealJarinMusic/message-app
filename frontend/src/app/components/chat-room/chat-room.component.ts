@@ -17,10 +17,8 @@ import { Message } from '@common/types';
 export class ChatRoomComponent {
   private messageService = inject(MessageService);
 
-  messages: Signal<Message[]> = toSignal(this.messageService.messages$, {
-    initialValue: [],
-  });
-  newMessage = '';
+  protected messages = this.messageService.messages;
+  protected newMessage = '';
 
   sendMessage() {
     //Message sanitisation here

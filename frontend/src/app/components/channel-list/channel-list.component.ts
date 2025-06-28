@@ -13,15 +13,8 @@ import { toSignal } from '@angular/core/rxjs-interop';
 export class ChannelListComponent {
   private channelService = inject(ChannelService);
 
-  channels: Signal<Channel[]> = toSignal(this.channelService.channels$, {
-    initialValue: [],
-  });
-  currentChannelId: Signal<string | null> = toSignal(
-    this.channelService.currentChannelId$,
-    {
-      initialValue: null,
-    }
-  );
+  protected channels = this.channelService.channels;
+  protected currentChannel = this.channelService.currentChannel;
 
   selectChannel(id: string) {
     this.channelService.selectChannel(id);
