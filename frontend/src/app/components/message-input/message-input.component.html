@@ -1,1 +1,12 @@
-<p>message-input works!</p>
+<form (submit)="sendMessage()">
+  <input
+    pInputText
+    [ngModel]="newMessage()"
+    (ngModelChange)="onInputChange($event)"
+    name="message"
+    class="flex-grow-1"
+    [placeholder]="placeholderMessage()"
+  />
+
+  <button pButton type="submit" icon="pi pi-send" label="Send"></button>
+</form>

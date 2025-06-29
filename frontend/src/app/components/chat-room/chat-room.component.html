@@ -9,7 +9,9 @@
     }
   </div>
 
-  <form class="flex gap-2" (submit)="sendMessage()">
+
+  <app-message-input></app-message-input>
+  <!-- <form class="flex gap-2" (submit)="sendMessage()">
     <input
       pInputText
       [(ngModel)]="newMessage"
@@ -18,5 +20,5 @@
       placeholder="Type your message..."
       />
       <button pButton type="submit" icon="pi pi-send" label="Send"></button>
-    </form>
+    </form> -->
   </div>

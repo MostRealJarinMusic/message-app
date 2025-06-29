@@ -1,11 +1,50 @@
-import { Component } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { InputTextModule } from 'primeng/inputtext';
+import { ChannelService } from 'src/app/services/channel/channel.service';
+import { MessageDraftService } from 'src/app/services/message-draft/message-draft.service';
+import { MessageService } from 'src/app/services/message/message.service';
 
 @Component({
   selector: 'app-message-input',
-  imports: [],
+  imports: [InputTextModule, FormsModule, ButtonModule, CardModule],
   templateUrl: './message-input.component.html',
-  styleUrl: './message-input.component.scss'
+  styleUrl: './message-input.component.scss',
 })
 export class MessageInputComponent {
+  private messageService = inject(MessageService);
+  private channelService = inject(ChannelService);
+  private draftService = inject(MessageDraftService);
 
+  protected newMessage = signal('');
+  protected currentChannel = computed(() =>
+    this.channelService.currentChannel()
+  );
+  protected placeholderMessage = computed(
+    () => `Message ${this.channelService.currentChannelName()}`
+  );
+  protected draft = computed(() =>
+    this.draftService.getDraftSignal(this.currentChannel()!)()
+  );
+
+  private sync = effect(() => {
+    this.newMessage.set(this.draft());
+  });
+
+  protected onInputChange(message: string) {
+    this.newMessage.set(message);
+    this.draftService.setDraft(this.currentChannel()!, message);
+  }
+
+  protected sendMessage() {
+    //Message sanitisation here
+    const message = this.newMessage().trim();
+    if (!message) return;
+
+    this.messageService.sendMessage(message);
+    this.draftService.clearDraft(this.currentChannel()!);
+    this.newMessage.set('');
+  }
 }

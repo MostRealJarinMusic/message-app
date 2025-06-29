@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { Channel } from '@common/types';
 import { PrivateApiService } from '../api/private-api.service';
 
@@ -10,6 +10,11 @@ export class ChannelService {
 
   readonly currentChannel = signal<string | null>(null);
   readonly channels = signal<Channel[]>([]);
+  readonly currentChannelName = computed(
+    () =>
+      this.channels().find((channel) => channel.id === this.currentChannel())
+        ?.name
+  );
 
   selectChannel(id: string) {
     this.currentChannel.set(id);
