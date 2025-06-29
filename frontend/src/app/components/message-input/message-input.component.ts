@@ -25,12 +25,13 @@ export class MessageInputComponent {
   protected placeholderMessage = computed(
     () => `Message ${this.channelService.currentChannelName()}`
   );
-  protected draft = computed(() =>
-    this.draftService.getDraftSignal(this.currentChannel()!)()
-  );
 
   private sync = effect(() => {
-    this.newMessage.set(this.draft());
+    const channel = this.currentChannel();
+    if (!channel) return;
+
+    const draftSignal = this.draftService.getDraftSignal(channel);
+    this.newMessage.set(draftSignal());
   });
 
   protected onInputChange(message: string) {
