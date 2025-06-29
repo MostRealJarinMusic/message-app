@@ -8,6 +8,7 @@ import { MessageRepo } from "./db/message.repo";
 import {
   AuthPayload,
   Message,
+  PresenceStatus,
   PresenceUpdate,
   UserSignature,
   WSEvent,
@@ -169,7 +170,7 @@ wss.on("connection", (ws, req) => {
 
   try {
     const signature = jwt.verify(token, SECRET) as any;
-    (ws as any).signature = signature.username;
+    (ws as any).signature = signature;
 
     console.log(`WS: ${signature.username} connected`);
 
@@ -191,17 +192,16 @@ wss.on("connection", (ws, req) => {
           ).toString();
 
           broadcast("message:receive", { ...newMessage, messageId } as Message);
-          console.log(`WS: ${signature} sending message`);
+          console.log(`WS: ${signature.username} sending message`);
           break;
         case "presence:update":
-          const presenceUpdate: Partial<PresenceUpdate> = { ...payload };
-          const id = signature.id;
+          const presenceUpdate: PresenceUpdate = { ...payload };
 
-          broadcast("presence:update", { ...presenceUpdate, id });
+          broadcast("presence:update", { ...presenceUpdate });
           break;
         case "pong":
           clientLastPong.set(ws, Date.now());
-          console.log(`WS: Pong from ${signature}`);
+          console.log(`WS: Pong from ${signature.username}`);
           break;
         default:
           console.warn("WS: Unhandled event", event);
@@ -214,6 +214,13 @@ wss.on("connection", (ws, req) => {
   ws.on("close", () => {
     clientLastPong.delete(ws);
     console.log(`WS: ${(ws as any).signature} disconnected`);
+
+    const presenceUpdate: PresenceUpdate = {
+      userId: (ws as any).signature.id,
+      status: PresenceStatus.OFFLINE,
+    };
+
+    broadcast("presence:update", presenceUpdate);
   });
 });
 

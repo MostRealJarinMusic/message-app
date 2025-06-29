@@ -69,7 +69,10 @@ export class SocketService {
       //this.startHeartbeat();
 
       //Presence message
-      //this.emit<PresenceUpdate>(WSEventType.PRESENCE, { userId: await this.authService.getID(), status: PresenceStatus.ONLINE })
+      this.emit<PresenceUpdate>(WSEventType.PRESENCE, {
+        userId: this.sessionService.currentUser()!.id,
+        status: PresenceStatus.ONLINE,
+      });
     };
 
     this.socket.onmessage = async (event) => {
@@ -81,6 +84,15 @@ export class SocketService {
           const latency = Date.now() - data.payload.timestamp;
           //console.log(`Latency: ${latency}`);
           this.emit(WSEventType.PONG, { timestamp: Date.now() });
+        }
+
+        //Temporary
+        if (
+          data.event === WSEventType.PRESENCE &&
+          data.payload.userId !== this.sessionService.currentUser()!.id
+        ) {
+          //
+          console.log(`User ${data.payload.userId} is ${data.payload.status}`);
         }
 
         this.eventStream$.next(data);
