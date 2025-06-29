@@ -6,10 +6,17 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ChannelService } from 'src/app/services/channel/channel.service';
 import { MessageDraftService } from 'src/app/services/message-draft/message-draft.service';
 import { MessageService } from 'src/app/services/message/message.service';
+import { TextareaModule } from 'primeng/textarea';
 
 @Component({
   selector: 'app-message-input',
-  imports: [InputTextModule, FormsModule, ButtonModule, CardModule],
+  imports: [
+    InputTextModule,
+    FormsModule,
+    ButtonModule,
+    CardModule,
+    TextareaModule,
+  ],
   templateUrl: './message-input.component.html',
   styleUrl: './message-input.component.scss',
 })

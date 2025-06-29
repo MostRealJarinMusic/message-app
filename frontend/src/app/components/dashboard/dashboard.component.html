@@ -1,5 +1,12 @@
-<div class="dashboard-container">
-    <app-server-list class="sidebar"></app-server-list>
-    <app-channel-list class="sidebar"></app-channel-list>
-    <app-chat-room class="chat-room"></app-chat-room>
+<div class="flex h-screen bg-surface-900">
+  <app-server-list class="w-32 py-2 pl-2 overflow-y-auto"></app-server-list>
+  <p-divider 
+    layout="vertical"
+   />
+  <app-channel-list class="w-72 py-2 pr-4 overflow-y-auto"></app-channel-list>
+
+  <div class="flex flex-col flex-1 bg-surface-800">
+    <app-message-list class="flex-1 pl-4 overflow-hidden"></app-message-list>
+    <app-message-input class="pb-4 px-4"></app-message-input>
+  </div>
 </div>

@@ -1,9 +1,11 @@
 import { Component, Input } from '@angular/core';
 import { Message } from '@common/types';
+import { AvatarModule } from 'primeng/avatar';
+import { AvatarGroupModule } from 'primeng/avatargroup';
 
 @Component({
   selector: 'app-message',
-  imports: [],
+  imports: [AvatarGroupModule, AvatarModule],
   templateUrl: './message.component.html',
   styleUrl: './message.component.scss',
 })

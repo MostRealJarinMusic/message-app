@@ -1,12 +1,14 @@
-<form (submit)="sendMessage()">
-  <input
-    pInputText
-    [ngModel]="newMessage()"
-    (ngModelChange)="onInputChange($event)"
-    name="message"
-    class="flex-grow-1"
-    [placeholder]="placeholderMessage()"
-  />
+<div>
+  <form (submit)="sendMessage()">
+    <input
+      pInputText
+      [ngModel]="newMessage()"
+      (ngModelChange)="onInputChange($event)"
+      name="message"
+      class="w-full"
+      [placeholder]="placeholderMessage()"
+    />
+    <!-- <button pButton type="submit" icon="pi pi-send" label="Send"></button> -->
+  </form>
+</div>
 
-  <button pButton type="submit" icon="pi pi-send" label="Send"></button>
-</form>

@@ -1,3 +1,11 @@
-<div class="message">
-  <p><strong>{{ message.authorId }}:</strong> {{ message.content }} <small>{{ formatTime(message.createdAt) }}</small></p>
+<div class="flex items-start space-x-4 mb-2">
+  <p-avatar icon="pi pi-user" shape="circle"></p-avatar>
+
+  <!-- <p><strong>{{ message.authorId }}:</strong> {{ message.content }} <small>{{ formatTime(message.createdAt) }}</small></p> -->
+  <div>
+    <div class="text-sm font-semibold">{{ message.authorId }}
+      <span class="text-xs ml-2 font-light">{{ formatTime(message.createdAt) }}</span>
+    </div>
+    <div class="text-sm">{{ message.content}}</div>
+  </div>
 </div>

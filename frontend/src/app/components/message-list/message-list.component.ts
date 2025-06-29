@@ -1,6 +1,7 @@
 import {
   Component,
   effect,
+  ElementRef,
   inject,
   ViewChild,
   ViewContainerRef,
@@ -22,6 +23,9 @@ export class MessageListComponent {
   @ViewChild('container', { read: ViewContainerRef, static: true })
   container!: ViewContainerRef;
 
+  @ViewChild('messageList')
+  messageListRef!: ElementRef<HTMLDivElement>;
+
   constructor() {
     effect(() => {
       this.renderMessages(this.messages());
@@ -35,14 +39,14 @@ export class MessageListComponent {
         this.container.createComponent(MessageComponent);
       componentReference.instance.message = message;
     }
+
+    // console.log(this.messageListRef.nativeElement?.scrollHeight);
+    // console.log(this.messageListRef.nativeElement?.scrollTop);
+    setTimeout(() => this.scrollToBottom(), 0);
   }
 
-  protected formatTime(timestamp: string): string {
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true,
-    });
+  private scrollToBottom() {
+    const element = this.messageListRef.nativeElement;
+    if (element) element.scrollTop = element.scrollHeight;
   }
 }

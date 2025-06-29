@@ -1,15 +1,22 @@
 import { Component, effect, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { ChatRoomComponent } from '../chat-room/chat-room.component';
 import { ChannelListComponent } from '../channel-list/channel-list.component';
 import { ServerListComponent } from '../server-list/server-list.component';
 import { ChannelService } from 'src/app/services/channel/channel.service';
 import { ServerService } from 'src/app/services/server/server.service';
 import { MessageService } from 'src/app/services/message/message.service';
+import { DividerModule } from 'primeng/divider';
+import { MessageListComponent } from '../message-list/message-list.component';
+import { MessageInputComponent } from '../message-input/message-input.component';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [ChatRoomComponent, ChannelListComponent, ServerListComponent],
+  imports: [
+    ChannelListComponent,
+    ServerListComponent,
+    DividerModule,
+    MessageListComponent,
+    MessageInputComponent,
+  ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })

@@ -1,9 +1,12 @@
-<div class="server-list">
+<div class="space-y-1">
   @for (server of servers(); track $index) {
     <li 
-      class="server-item" 
+      [ngClass]="{
+        'pl-3 py-1 list-none rounded-border transition-colors duration-200 cursor-pointer': true,
+        'text-color-emphasis bg-emphasis': server.id === currentServer(),
+        'text-muted-color hover:bg-emphasis hover:text-muted-color-emphasis': server.id !== currentServer()
+      }"
       (click)="selectServer(server.id)" 
-      [class.active]="server.id === currentServer()"
     >
       {{ server.name }}
     </li>
