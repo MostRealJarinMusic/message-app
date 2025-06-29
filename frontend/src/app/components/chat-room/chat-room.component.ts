@@ -6,6 +6,7 @@ import { CardModule } from 'primeng/card';
 import { MessageService } from '../../services/message/message.service';
 import { Message } from '@common/types';
 import { MessageInputComponent } from '../message-input/message-input.component';
+import { MessageListComponent } from '../message-list/message-list.component';
 
 @Component({
   selector: 'app-chat-room',
@@ -16,6 +17,7 @@ import { MessageInputComponent } from '../message-input/message-input.component'
     CardModule,
     FormsModule,
     MessageInputComponent,
+    MessageListComponent,
   ],
   templateUrl: './chat-room.component.html',
   styleUrl: './chat-room.component.scss',
@@ -36,15 +38,6 @@ export class ChatRoomComponent {
   //   //Clear message
   //   this.newMessage = '';
   // }
-
-  formatTime(timestamp: string): string {
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true,
-    });
-  }
 
   // getUsername(senderId: string): string {
   //   const username = this.userService.getUsernameById(senderId);
