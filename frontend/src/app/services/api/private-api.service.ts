@@ -41,7 +41,7 @@ export class PrivateApiService extends BaseApiService {
 
   //Users CRUD
   getCurrentUser(): Observable<User> {
-    return this.authorisedFetch<User>((_) => this.get<User>('auth/me'));
+    return this.authorisedFetch<User>((_) => this.get<User>('users/me'));
   }
 
   //Channel and Server CRUD

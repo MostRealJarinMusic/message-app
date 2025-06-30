@@ -1,4 +1,4 @@
-import { getDB } from "./db";
+import { getDB } from "../db";
 import { Channel } from "@common/types";
 
 export class ChannelRepo {

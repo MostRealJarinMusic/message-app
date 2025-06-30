@@ -1,5 +1,5 @@
 import { Server } from "@common/types";
-import { getDB } from "./db";
+import { getDB } from "../db";
 
 export class ServerRepo {
   static async getServers() {
