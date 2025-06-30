@@ -1,6 +1,7 @@
 import { getDB } from "../db";
 import { LoginCredentials, RegisterPayload, User } from "@common/types";
 import bcrypt from "bcrypt";
+import { ulid } from "ulid";
 
 const SALT_ROUNDS = 10;
 
@@ -12,16 +13,16 @@ export class UserRepo {
       bcrypt.hash(payload.password, SALT_ROUNDS, (err, hashedPassword) => {
         if (err) return reject(err);
 
-        db.run(
-          `INSERT INTO users (username, email, hashedPassword) VALUES (?, ?, ?)`,
-          [payload.username, payload.email, hashedPassword],
-          function (err) {
+        db.get(
+          `INSERT INTO users (id, username, email, hashedPassword) VALUES (?, ?, ?, ?) RETURNING *`,
+          [ulid(), payload.username, payload.email, hashedPassword],
+          (err, row: any) => {
             if (err) return reject(err);
 
             const user: User = {
-              id: this.lastID.toString(),
-              username: payload.username,
-              email: payload.email,
+              id: row.id, //Returns row ID and not the new ID
+              username: row.username,
+              email: row.email,
             };
 
             resolve(user);

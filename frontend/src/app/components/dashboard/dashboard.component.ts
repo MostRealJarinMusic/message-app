@@ -7,6 +7,7 @@ import { MessageService } from 'src/app/services/message/message.service';
 import { DividerModule } from 'primeng/divider';
 import { MessageListComponent } from '../message-list/message-list.component';
 import { MessageInputComponent } from '../message-input/message-input.component';
+import { UserService } from 'src/app/services/user/user.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -24,6 +25,7 @@ export class DashboardComponent {
   private serverService = inject(ServerService);
   private channelService = inject(ChannelService);
   private messageService = inject(MessageService);
+  private userService = inject(UserService);
 
   private currentServer = this.serverService.currentServer;
   private currentChannel = this.channelService.currentChannel;
@@ -41,6 +43,12 @@ export class DashboardComponent {
       const currentChannel = this.currentChannel();
       if (currentChannel)
         this.messageService.loadMessageHistory(currentChannel);
+
+      // const authorIds = [
+      //   ...new Set(this.messageService.messages().map((m) => m.authorId)),
+      // ];
+
+      // this.userService.preloadUsers(authorIds);
     });
   }
 }

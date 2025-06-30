@@ -25,7 +25,14 @@ export class ChannelService {
       next: (channels) => {
         this.channels.set(channels);
 
-        if (!this.currentChannel() && channels.length > 0) {
+        if (
+          (!this.currentChannel() ||
+            !this.channels()
+              .map((channel) => channel.id)
+              .includes(this.currentChannel()!)) &&
+          channels.length > 0
+        ) {
+          console.log('Selecting channel');
           this.selectChannel(channels[0].id);
         }
       },

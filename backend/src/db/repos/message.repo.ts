@@ -1,3 +1,4 @@
+import { ulid } from "ulid";
 import { getDB } from "../db";
 import { Message } from "@common/types";
 
@@ -7,8 +8,9 @@ export class MessageRepo {
 
     return new Promise((resolve, reject) => {
       db.run(
-        `INSERT INTO messages (authorId, channelId, content, createdAt) VALUES (?, ?, ?, ?)`,
+        `INSERT INTO messages (id, authorId, channelId, content, createdAt) VALUES (?, ?, ?, ?, ?)`,
         [
+          ulid(),
           message.authorId,
           message.channelId,
           message.content,
