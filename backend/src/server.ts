@@ -213,7 +213,7 @@ wss.on("connection", (ws, req) => {
 
   ws.on("close", () => {
     clientLastPong.delete(ws);
-    console.log(`WS: ${(ws as any).signature} disconnected`);
+    console.log(`WS: ${(ws as any).signature.username} disconnected`);
 
     const presenceUpdate: PresenceUpdate = {
       userId: (ws as any).signature.id,

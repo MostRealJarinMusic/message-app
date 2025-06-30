@@ -24,16 +24,27 @@ export class PrivateApiService extends BaseApiService {
     );
   }
 
+  //Message CRUD
+  sendMessage(message: Partial<Message>): Observable<Message> {
+    return this.authorisedFetch<Message>((_) =>
+      this.post<Message>(`channels/${message.channelId}/messages`, message)
+    );
+  }
+
   getMessageHistory(channelId: string): Observable<Message[]> {
     return this.authorisedFetch<Message[]>((_) =>
       this.get<Message[]>(`channels/${channelId}/messages`)
     );
   }
 
+  deleteMessage(messageId: string) {}
+
+  //Users CRUD
   getCurrentUser(): Observable<User> {
     return this.authorisedFetch<User>((_) => this.get<User>('auth/me'));
   }
 
+  //Channel and Server CRUD
   getChannels(serverId: string): Observable<Channel[]> {
     return this.authorisedFetch<Channel[]>((_) =>
       this.get<Channel[]>(`servers/${serverId}/channels`)

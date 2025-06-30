@@ -1,10 +1,11 @@
-import { Component, Input } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { Message } from '@common/types';
 import { AvatarModule } from 'primeng/avatar';
 import { AvatarGroupModule } from 'primeng/avatargroup';
 import { isToday, isYesterday } from 'date-fns';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
+import { MessageService } from 'src/app/services/message/message.service';
 @Component({
   selector: 'app-message',
   imports: [AvatarGroupModule, AvatarModule, ButtonModule, TooltipModule],
@@ -12,6 +13,8 @@ import { TooltipModule } from 'primeng/tooltip';
   styleUrl: './message.component.scss',
 })
 export class MessageComponent {
+  private messageService = inject(MessageService);
+
   @Input() message!: Message;
 
   protected formatTime(timestamp: string): string {
@@ -31,5 +34,7 @@ export class MessageComponent {
 
   protected editMessage() {}
 
-  protected deleteMessage() {}
+  protected deleteMessage() {
+    this.messageService.deleteMessage(this.message.id);
+  }
 }
