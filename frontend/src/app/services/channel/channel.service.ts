@@ -32,7 +32,6 @@ export class ChannelService {
               .includes(this.currentChannel()!)) &&
           channels.length > 0
         ) {
-          console.log('Selecting channel');
           this.selectChannel(channels[0].id);
         }
       },

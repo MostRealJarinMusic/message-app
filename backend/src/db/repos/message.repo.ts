@@ -3,14 +3,14 @@ import { getDB } from "../db";
 import { Message } from "@common/types";
 
 export class MessageRepo {
-  static async insertMessage(message: Partial<Message>): Promise<number> {
+  static async insertMessage(message: Message): Promise<number> {
     const db = await getDB();
 
     return new Promise((resolve, reject) => {
       db.run(
         `INSERT INTO messages (id, authorId, channelId, content, createdAt) VALUES (?, ?, ?, ?, ?)`,
         [
-          ulid(),
+          message.id,
           message.authorId,
           message.channelId,
           message.content,

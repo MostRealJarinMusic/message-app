@@ -49,7 +49,7 @@ export class SocketService {
       return;
     }
 
-    console.log(this.socket);
+    //console.log(this.socket);
 
     if (!token) {
       console.log('Invalid token');

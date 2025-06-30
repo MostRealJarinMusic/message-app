@@ -22,15 +22,25 @@ export class MessageService {
   }
 
   public sendMessage(content: string): void {
-    const message: Partial<Message> = {
-      content,
-      authorId: this.sessionService.currentUser()?.id,
-      channelId: this.channelService.currentChannel()!,
-      createdAt: new Date().toISOString(),
-    };
+    // const message: Partial<Message> = {
+    //   content,
+    //   authorId: this.sessionService.currentUser()?.id,
+    //   channelId: this.channelService.currentChannel()!,
+    //   createdAt: new Date().toISOString(),
+    // };
 
     //this.dbService.saveMessage(message);
-    this.wsService.emit(WSEventType.SEND, message);
+    // this.wsService.emit(WSEventType.SEND, message);
+
+    //Should use HTTP
+    //Temporary message response code
+    this.apiService
+      .sendMessage(this.channelService.currentChannel()!, content)
+      .subscribe({
+        next: (message) => {
+          //console.log(message);
+        },
+      });
   }
 
   public loadMessageHistory(channelId: string): void {

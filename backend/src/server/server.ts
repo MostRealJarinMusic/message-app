@@ -14,7 +14,7 @@ export class Server {
   constructor() {
     this.app.use(cors());
     this.app.use(bodyParser.json());
-    registerRoutes(this.app);
+    registerRoutes(this.app, this.wsManager);
     this.app.use(errorHandler);
   }
 

@@ -25,9 +25,9 @@ export class PrivateApiService extends BaseApiService {
   }
 
   //Message CRUD
-  sendMessage(message: Partial<Message>): Observable<Message> {
+  sendMessage(channelId: string, content: string): Observable<Message> {
     return this.authorisedFetch<Message>((_) =>
-      this.post<Message>(`channels/${message.channelId}/messages`, message)
+      this.post<Message>(`channels/${channelId}/messages`, { content })
     );
   }
 
