@@ -41,16 +41,23 @@ export class MessageService {
   }
 
   private initWebSocket(): void {
+    //Listeners for sent messages, edits and deletes
     this.wsService.on<Message>(WSEventType.RECEIVE).subscribe((message) => {
       if (message.channelId === this.channelService.currentChannel()) {
         this.messages.update((current) => [...current, message]);
       }
     });
 
+    //Prsence service code - here
     // this.wsService.on<PresenceUpdate>(WSEventType.PRESENCE).subscribe({
     //   next: (update) => {
     //     console.log(`${update.userId} is ${update.status}`)
     //   }
     // })
+  }
+
+  public editMessage() {}
+  public deleteMessage(messageId: string) {
+    //Make a HTTP request
   }
 }

@@ -1,11 +1,38 @@
-<div class="flex items-start space-x-4 mb-2">
+<div class="relative group flex items-start space-x-4 my-1 mr-2 p-1 transition-colors duration-200 rounded-r-md  hover:bg-surface-700">
+  <div
+    class="absolute -top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+  >
+    <div class="flex gap-2 bg-surface-900 px-2 py-1 rounded-border shadow-md">
+      <p-button
+        icon="pi pi-pencil"
+        styleClass="p-button-sm p-button-text p-button-rounded !w-6 !h-6"
+        (click)="editMessage()"
+        pTooltip="Edit"
+        tooltipPosition="top"
+        tooltipStyleClass="text-sm"
+      ></p-button>
+
+      <p-button
+        icon="pi pi-trash"
+        styleClass="p-button-sm p-button-text p-button-rounded p-button-danger !w-6 !h-6"
+        (click)="deleteMessage()"
+        pTooltip="Delete"
+        tooltipPosition="top"
+        tooltipStyleClass="text-sm severity:danger"
+      ></p-button>
+    </div>
+
+  </div>
+
   <p-avatar icon="pi pi-user" shape="circle"></p-avatar>
 
   <!-- <p><strong>{{ message.authorId }}:</strong> {{ message.content }} <small>{{ formatTime(message.createdAt) }}</small></p> -->
-  <div>
-    <div class="text-sm font-semibold">{{ message.authorId }}
-      <span class="text-xs ml-2 font-light">{{ formatTime(message.createdAt) }}</span>
+  <div class="space-y-1">
+    <div class="text-xs font-semibold">{{ message.authorId }}
+      <span class="text-xs ml-2 font-light text-muted-color">{{ formatTime(message.createdAt) }}</span>
     </div>
-    <div class="text-sm">{{ message.content}}</div>
+    <div class="text-xs">{{ message.content}}</div>
   </div>
+
+
 </div>
