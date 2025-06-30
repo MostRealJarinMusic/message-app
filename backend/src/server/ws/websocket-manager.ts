@@ -46,18 +46,6 @@ export class WebSocketManager {
       const signature: UserSignature = (ws as any).signature;
 
       switch (event) {
-        // case "message:send":
-        //   const newMessage: Partial<Message> = { ...payload };
-        //   const messageId = (
-        //     await MessageRepo.insertMessage(newMessage)
-        //   ).toString();
-
-        //   this.broadcast("message:receive", {
-        //     ...newMessage,
-        //     messageId,
-        //   } as Message);
-        //   console.log(`WS: ${signature.username} sending message`);
-        //   break;
         case "presence:update":
           // const presenceUpdate: PresenceUpdate = { ...payload };
 

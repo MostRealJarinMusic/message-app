@@ -22,13 +22,6 @@ export class MessageService {
   }
 
   public sendMessage(content: string): void {
-    // const message: Partial<Message> = {
-    //   content,
-    //   authorId: this.sessionService.currentUser()?.id,
-    //   channelId: this.channelService.currentChannel()!,
-    //   createdAt: new Date().toISOString(),
-    // };
-
     //this.dbService.saveMessage(message);
     // this.wsService.emit(WSEventType.SEND, message);
 

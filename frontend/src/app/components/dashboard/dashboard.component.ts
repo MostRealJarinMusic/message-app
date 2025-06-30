@@ -25,7 +25,6 @@ export class DashboardComponent {
   private serverService = inject(ServerService);
   private channelService = inject(ChannelService);
   private messageService = inject(MessageService);
-  private userService = inject(UserService);
 
   private currentServer = this.serverService.currentServer;
   private currentChannel = this.channelService.currentChannel;
