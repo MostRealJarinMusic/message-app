@@ -9,6 +9,7 @@ import {
 import { Message } from '@common/types';
 import { MessageService } from 'src/app/services/message/message.service';
 import { MessageComponent } from '../message/message.component';
+import { SessionService } from 'src/app/services/session/session.service';
 
 @Component({
   selector: 'app-message-list',
@@ -18,6 +19,8 @@ import { MessageComponent } from '../message/message.component';
 })
 export class MessageListComponent {
   private messageService = inject(MessageService);
+  private sessionService = inject(SessionService);
+
   private messages = this.messageService.messages;
 
   @ViewChild('container', { read: ViewContainerRef, static: true })
@@ -38,6 +41,8 @@ export class MessageListComponent {
       const componentReference =
         this.container.createComponent(MessageComponent);
       componentReference.instance.message = message;
+      componentReference.instance.isMine =
+        message.authorId === this.sessionService.currentUser()?.id;
     }
 
     // console.log(this.messageListRef.nativeElement?.scrollHeight);

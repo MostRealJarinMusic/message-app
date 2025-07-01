@@ -37,7 +37,11 @@ export class PrivateApiService extends BaseApiService {
     );
   }
 
-  deleteMessage(messageId: string) {}
+  deleteMessage(messageId: string): Observable<void> {
+    return this.authorisedFetch<void>((_) =>
+      this.delete<void>(`messages/${messageId}`)
+    );
+  }
 
   //Users CRUD
   getCurrentUser(): Observable<User> {

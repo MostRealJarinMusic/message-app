@@ -7,7 +7,7 @@ import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'src/app/services/message/message.service';
 import { UserService } from 'src/app/services/user/user.service';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgIf } from '@angular/common';
 @Component({
   selector: 'app-message',
   imports: [
@@ -24,6 +24,7 @@ export class MessageComponent {
   private messageService = inject(MessageService);
 
   @Input() message!: Message;
+  @Input() isMine!: boolean;
 
   // protected getUsername(id: string): string {
   //   return this.userService.getUsername(id);

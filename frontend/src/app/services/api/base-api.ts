@@ -16,6 +16,12 @@ export abstract class BaseApiService {
       .pipe(catchError(this.handleError));
   }
 
+  protected delete<T>(endpoint: string) {
+    return this.http
+      .delete<T>(`${this.baseUrl}/${endpoint}`)
+      .pipe(catchError(this.handleError));
+  }
+
   protected handleError(error: HttpErrorResponse) {
     console.error('API error:', error);
 

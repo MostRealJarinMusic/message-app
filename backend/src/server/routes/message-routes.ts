@@ -1,14 +1,56 @@
 import { Router } from "express";
-import { authMiddleware } from "src/middleware/auth-middleware";
-import { MessageRepo } from "src/db/repos/message.repo";
+import { authMiddleware } from "../../middleware/auth-middleware";
+import { MessageRepo } from "../../db/repos/message.repo";
+import { WebSocketManager } from "../ws/websocket-manager";
+import { UserSignature, WSEventType } from "../../../../common/types";
 
-const messageRoutes = Router();
+// const messageRoutes = Router();
 
-// messageRoutes.get("/:channelId/messages", authMiddleware, async (req, res) => {
-//   const messages = await MessageRepo.getAllChannelMessages(
-//     req.params.channelId
-//   );
-//   res.json(messages);
+// // messageRoutes.get("/:channelId/messages", authMiddleware, async (req, res) => {
+// //   const messages = await MessageRepo.getAllChannelMessages(
+// //     req.params.channelId
+// //   );
+// //   res.json(messages);
+// // });
+
+// messageRoutes.delete("/:messageId", authMiddleware, async (req, res) => {
+//   try {
+//     const { messageId } = req.params;
+//     await MessageRepo.deleteMessage(messageId);
+
+//     res.status(204);
+//   } catch (err) {
+//     res.status(500).json({ error: "Failed to delete message" });
+//   }
 // });
 
-export default messageRoutes;
+// export default messageRoutes;
+
+export default function messageRoutes(wsManager: WebSocketManager): Router {
+  const messageRoutes = Router();
+
+  messageRoutes.delete("/:messageId", authMiddleware, async (req, res) => {
+    console.log("Got here");
+
+    try {
+      const messageId = req.params.messageId;
+      const message = await MessageRepo.getMessage(messageId);
+
+      if (message) {
+        await MessageRepo.deleteMessage(messageId);
+      } else {
+        res.status(404).json({ error: "Message doesn't exist" });
+        return;
+      }
+
+      //Broadcast to users
+      wsManager.broadcast(WSEventType.DELETED, message);
+
+      res.status(204).send();
+    } catch (err) {
+      res.status(500).json({ error: "Failed to delete message" });
+    }
+  });
+
+  return messageRoutes;
+}

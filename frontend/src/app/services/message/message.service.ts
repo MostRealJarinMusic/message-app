@@ -32,6 +32,10 @@ export class MessageService {
       .subscribe({
         next: (message) => {
           //console.log(message);
+          //Response to a successfully sent message
+        },
+        error: (err) => {
+          //Response to any errors - optimistic UI
         },
       });
   }
@@ -51,6 +55,19 @@ export class MessageService {
       }
     });
 
+    //Deletes
+    this.wsService.on<Message>(WSEventType.DELETED).subscribe((message) => {
+      //Delete the message from the loaded channel if it exists in the history
+      console.log('Deleting message');
+      console.log(message);
+
+      if (message.channelId === this.channelService.currentChannel()) {
+        this.messages.update((current) =>
+          current.filter((m) => m.id !== message.id)
+        );
+      }
+    });
+
     //Prsence service code - here
     // this.wsService.on<PresenceUpdate>(WSEventType.PRESENCE).subscribe({
     //   next: (update) => {
@@ -62,5 +79,14 @@ export class MessageService {
   public editMessage() {}
   public deleteMessage(messageId: string) {
     //Make a HTTP request
+    this.apiService.deleteMessage(messageId).subscribe({
+      next: () => {
+        //
+        console.log('Successful delete');
+      },
+      error: (err) => {
+        console.error('Unsuccessful delete', err);
+      },
+    });
   }
 }

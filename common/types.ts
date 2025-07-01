@@ -31,6 +31,21 @@ export interface Message {
   deleted?: boolean;
 }
 
+// export interface MessageChange {
+//   changeType: MessageChangeType;
+//   channelId?: string;
+//   messageId: string;
+// }
+
+// export enum MessageChangeType {
+//   DELETE = "delete",
+//   EDIT = "edit",
+// }
+
+// export interface CommandStatus {
+//   status: boolean;
+// }
+
 export interface Channel {
   id: string;
   serverId: string;
@@ -59,9 +74,6 @@ export interface WSEvent<T = any> {
 }
 
 export enum WSEventType {
-  SEND = "message:send",
-  EDIT = "message:edit",
-  DELETE = "message:delete",
   RECEIVE = "message:receive",
   EDITED = "message:edited",
   DELETED = "message:deleted",

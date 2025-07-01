@@ -24,6 +24,49 @@ export class MessageRepo {
     });
   }
 
+  static async messageExists(messageId: string): Promise<boolean> {
+    const db = await getDB();
+
+    return new Promise((resolve, reject) => {
+      db.get(
+        `SELECT * FROM messages WHERE id = ?`,
+        [messageId],
+        function (err) {
+          if (err) return reject(err);
+          resolve(true);
+        }
+      );
+    });
+  }
+
+  static async getMessage(messageId: string): Promise<Message> {
+    const db = await getDB();
+
+    return new Promise((resolve, reject) => {
+      db.get(
+        `SELECT * FROM messages WHERE id = ?`,
+        [messageId],
+        (err, row: any) => {
+          if (err) return reject(err);
+          if (!row)
+            return reject(new Error(`Message with ID${messageId} not found}`));
+
+          console.log(row);
+
+          const message: Message = {
+            id: row.id,
+            authorId: row.authorId,
+            channelId: row.channelId,
+            content: row.content,
+            createdAt: row.createdAt,
+          };
+
+          resolve(message);
+        }
+      );
+    });
+  }
+
   static async getAllMessages() {
     const db = await getDB();
 
@@ -71,6 +114,17 @@ export class MessageRepo {
           resolve(allMessages);
         }
       );
+    });
+  }
+
+  static async deleteMessage(messageId: string) {
+    const db = await getDB();
+
+    return new Promise<void>((resolve, reject) => {
+      db.run(`DELETE FROM messages WHERE id = ?`, [messageId], function (err) {
+        if (err) return reject(err);
+        resolve();
+      });
     });
   }
 }
