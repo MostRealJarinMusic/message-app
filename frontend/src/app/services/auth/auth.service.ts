@@ -1,14 +1,15 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { AuthPayload, LoginCredentials, RegisterPayload } from '@common/types';
 import { SessionService } from '../session/session.service';
 import { PublicApiService } from '../api/public-api.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
-  constructor(private apiService: PublicApiService, private sessionService: SessionService) { }
+  private apiService = inject(PublicApiService);
+  private sessionService = inject(SessionService);
 
   async register(payload: RegisterPayload): Promise<boolean> {
     const data = await firstValueFrom(this.apiService.register(payload));

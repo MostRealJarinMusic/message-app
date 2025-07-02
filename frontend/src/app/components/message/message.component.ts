@@ -26,6 +26,8 @@ export class MessageComponent {
   @Input() message!: Message;
   @Input() isMine!: boolean;
 
+  protected currentlyEdited = this.messageService.currentlyEdited;
+
   // protected getUsername(id: string): string {
   //   return this.userService.getUsername(id);
   // }
@@ -47,7 +49,18 @@ export class MessageComponent {
     return `${dateStr}, ${timeStr}`;
   }
 
-  protected editMessage() {}
+  protected startMessageEdit() {
+    if (this.currentlyEdited() !== this.message.id) {
+      //Set it
+      //Opens the form
+    }
+  }
+
+  protected escapeMessageEdit() {}
+  protected enterMessageEdit() {
+    //Detect any edits
+    //If no edits - escape message edit
+  }
 
   protected deleteMessage() {
     this.messageService.deleteMessage(this.message.id);

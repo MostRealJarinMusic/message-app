@@ -16,6 +16,8 @@ export class MessageService {
   private apiService = inject(PrivateApiService);
 
   readonly messages = signal<Message[]>([]);
+  //Tracks the message ID of the message being currently edited
+  public currentlyEdited = signal<string | null>(null);
 
   constructor() {
     this.initWebSocket();
@@ -58,12 +60,21 @@ export class MessageService {
     //Deletes
     this.wsService.on<Message>(WSEventType.DELETED).subscribe((message) => {
       //Delete the message from the loaded channel if it exists in the history
-      console.log('Deleting message');
-      console.log(message);
-
       if (message.channelId === this.channelService.currentChannel()) {
         this.messages.update((current) =>
           current.filter((m) => m.id !== message.id)
+        );
+      }
+    });
+
+    //Edits
+    this.wsService.on<Message>(WSEventType.EDITED).subscribe((message) => {
+      //Edit message from the loaded channel if it exists in the history
+      if (message.channelId === this.channelService.currentChannel()) {
+        this.messages.update((currentMessages) =>
+          currentMessages.map((m) =>
+            m.id === message.id ? { ...m, content: message.content } : m
+          )
         );
       }
     });

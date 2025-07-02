@@ -51,8 +51,6 @@ export class MessageRepo {
           if (!row)
             return reject(new Error(`Message with ID${messageId} not found}`));
 
-          console.log(row);
-
           const message: Message = {
             id: row.id,
             authorId: row.authorId,
@@ -125,6 +123,21 @@ export class MessageRepo {
         if (err) return reject(err);
         resolve();
       });
+    });
+  }
+
+  static async editMessage(message: Message) {
+    const db = await getDB();
+
+    return new Promise<void>((resolve, reject) => {
+      db.run(
+        `UPDATE messages SET content = ?  WHERE id = ?`,
+        [message.content, message.id],
+        function (err) {
+          if (err) return reject(err);
+          resolve();
+        }
+      );
     });
   }
 }

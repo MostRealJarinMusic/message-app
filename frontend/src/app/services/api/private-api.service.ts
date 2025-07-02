@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { BaseApiService } from './base-api';
 import { HttpClient } from '@angular/common/http';
 import { filter, Observable, switchMap, take } from 'rxjs';
@@ -10,7 +10,9 @@ import { Channel } from '@common/types';
   providedIn: 'root',
 })
 export class PrivateApiService extends BaseApiService {
-  constructor(http: HttpClient, private tokenService: AuthTokenService) {
+  private tokenService = inject(AuthTokenService);
+
+  constructor(http: HttpClient) {
     super(http, 'http://localhost:3000/api/private');
   }
 

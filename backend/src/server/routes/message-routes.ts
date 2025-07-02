@@ -2,7 +2,7 @@ import { Router } from "express";
 import { authMiddleware } from "../../middleware/auth-middleware";
 import { MessageRepo } from "../../db/repos/message.repo";
 import { WebSocketManager } from "../ws/websocket-manager";
-import { UserSignature, WSEventType } from "../../../../common/types";
+import { Message, UserSignature, WSEventType } from "../../../../common/types";
 
 // const messageRoutes = Router();
 
@@ -30,8 +30,6 @@ export default function messageRoutes(wsManager: WebSocketManager): Router {
   const messageRoutes = Router();
 
   messageRoutes.delete("/:messageId", authMiddleware, async (req, res) => {
-    console.log("Got here");
-
     try {
       const messageId = req.params.messageId;
       const message = await MessageRepo.getMessage(messageId);
@@ -49,6 +47,29 @@ export default function messageRoutes(wsManager: WebSocketManager): Router {
       res.status(204).send();
     } catch (err) {
       res.status(500).json({ error: "Failed to delete message" });
+    }
+  });
+
+  messageRoutes.patch("/:messageId", authMiddleware, async (req, res) => {
+    try {
+      const messageId = req.params.messageId;
+      const newMessage = req.body.message as Message;
+      const oldMessage = await MessageRepo.getMessage(messageId);
+
+      if (oldMessage) {
+        await MessageRepo.editMessage(newMessage);
+      } else {
+        res.status(404).json({ error: "Message doesn't exist" });
+
+        return;
+      }
+
+      //Broadcast to users
+      wsManager.broadcast(WSEventType.EDITED, newMessage);
+
+      res.status(204).send();
+    } catch (err) {
+      res.status(500).json({ error: "Failed to edit message" });
     }
   });
 
