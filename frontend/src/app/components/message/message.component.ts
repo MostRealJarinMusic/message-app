@@ -1,4 +1,4 @@
-import { Component, inject, Input } from '@angular/core';
+import { Component, inject, Input, signal } from '@angular/core';
 import { Message } from '@common/types';
 import { AvatarModule } from 'primeng/avatar';
 import { AvatarGroupModule } from 'primeng/avatargroup';
@@ -8,6 +8,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'src/app/services/message/message.service';
 import { UserService } from 'src/app/services/user/user.service';
 import { CommonModule, NgIf } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-message',
   imports: [
@@ -16,6 +17,7 @@ import { CommonModule, NgIf } from '@angular/common';
     ButtonModule,
     TooltipModule,
     CommonModule,
+    FormsModule,
   ],
   templateUrl: './message.component.html',
   styleUrl: './message.component.scss',
@@ -27,6 +29,7 @@ export class MessageComponent {
   @Input() isMine!: boolean;
 
   protected currentlyEdited = this.messageService.currentlyEdited;
+  protected newContent = signal('');
 
   // protected getUsername(id: string): string {
   //   return this.userService.getUsername(id);
@@ -52,14 +55,46 @@ export class MessageComponent {
   protected startMessageEdit() {
     if (this.currentlyEdited() !== this.message.id) {
       //Set it
+      this.currentlyEdited.set(this.message.id);
+
       //Opens the form
+      this.newContent.set(this.message.content);
     }
   }
 
-  protected escapeMessageEdit() {}
+  protected escapeMessageEdit() {
+    this.currentlyEdited.set(null);
+    this.newContent.set('');
+  }
+
   protected enterMessageEdit() {
     //Detect any edits
     //If no edits - escape message edit
+    const editedContent = this.newContent().trim();
+    if (editedContent === this.message.content) {
+      console.log('No edits made');
+      this.escapeMessageEdit();
+      return;
+    }
+
+    //Edits
+    this.messageService.editMessage(this.message.id, this.newContent());
+    console.log('Edits made');
+
+    this.escapeMessageEdit();
+  }
+
+  protected onInputChange(message: string) {
+    this.newContent.set(message);
+  }
+
+  protected handleKeydown(event: KeyboardEvent) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      this.enterMessageEdit();
+    }
+
+    //Escape message edits
   }
 
   protected deleteMessage() {

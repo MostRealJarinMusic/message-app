@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { effect, inject, Injectable, signal } from '@angular/core';
 import { SocketService } from '../socket/socket.service';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { Message, PresenceUpdate, WSEventType } from '@common/types';
@@ -11,7 +11,6 @@ import { ChannelService } from '../channel/channel.service';
 })
 export class MessageService {
   private wsService = inject(SocketService);
-  private sessionService = inject(SessionService);
   private channelService = inject(ChannelService);
   private apiService = inject(PrivateApiService);
 
@@ -21,6 +20,9 @@ export class MessageService {
 
   constructor() {
     this.initWebSocket();
+    effect(() => {
+      console.log(this.currentlyEdited());
+    });
   }
 
   public sendMessage(content: string): void {
@@ -87,7 +89,17 @@ export class MessageService {
     // })
   }
 
-  public editMessage() {}
+  public editMessage(messageId: string, newContent: string) {
+    this.apiService.editMessage(messageId, newContent).subscribe({
+      next: () => {
+        console.log('Successful edit');
+      },
+      error: (err) => {
+        console.error('Unsuccessful edit', err);
+      },
+    });
+  }
+
   public deleteMessage(messageId: string) {
     //Make a HTTP request
     this.apiService.deleteMessage(messageId).subscribe({

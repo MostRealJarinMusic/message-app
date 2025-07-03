@@ -22,6 +22,12 @@ export abstract class BaseApiService {
       .pipe(catchError(this.handleError));
   }
 
+  protected patch<T>(endpoint: string, body: any): Observable<T> {
+    return this.http
+      .patch<T>(`${this.baseUrl}/${endpoint}`, body)
+      .pipe(catchError(this.handleError));
+  }
+
   protected handleError(error: HttpErrorResponse) {
     console.error('API error:', error);
 

@@ -126,13 +126,13 @@ export class MessageRepo {
     });
   }
 
-  static async editMessage(message: Message) {
+  static async editMessage(messageId: string, newContent: string) {
     const db = await getDB();
 
     return new Promise<void>((resolve, reject) => {
       db.run(
         `UPDATE messages SET content = ?  WHERE id = ?`,
-        [message.content, message.id],
+        [newContent, messageId],
         function (err) {
           if (err) return reject(err);
           resolve();

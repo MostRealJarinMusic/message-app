@@ -1,48 +1,73 @@
-<div class="relative group block min-w-0 my-1 mr-2 p-1 transition-colors duration-200 rounded-r-md  hover:bg-surface-700">
-  
-  
-  
-  @if (isMine) {
-    <div
-      class="absolute top-0 right-0 mt-[-1rem] mr-2 flex opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-    >
-      <div class="flex gap-2 bg-surface-900 px-2 py-1 rounded-border shadow-md">
-        <p-button
-          icon="pi pi-pencil"
-          styleClass="p-button-sm p-button-text p-button-rounded p-button-secondary !w-6 !h-6"
-          (click)="startMessageEdit()"
-          pTooltip="Edit"
-          tooltipPosition="top"
-          tooltipStyleClass="text-sm"
-        ></p-button>
+<div class="relative group block min-w-0 my-1 mr-2 p-1 transition-colors duration-200 rounded-r-md  hover:bg-surface-700"> 
 
-        <p-button
-          icon="pi pi-trash"
-          styleClass="p-button-sm p-button-text p-button-rounded p-button-danger !w-6 !h-6"
-          (click)="deleteMessage()"
-          pTooltip="Delete"
-          tooltipPosition="top"
-          tooltipStyleClass="text-sm"
-        ></p-button>
-      </div>
+  
+    @if (isMine) {
+      <div
+        class="absolute top-0 right-0 mt-[-1rem] mr-2 flex opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+      >
+        <div class="flex gap-2 bg-surface-900 px-2 py-1 rounded-border shadow-md">
+          <p-button
+            icon="pi pi-pencil"
+            styleClass="p-button-sm p-button-text p-button-rounded p-button-secondary !w-6 !h-6"
+            (click)="startMessageEdit()"
+            pTooltip="Edit"
+            tooltipPosition="top"
+            tooltipStyleClass="text-sm"
+          ></p-button>
 
-    </div>
-
-  }
-  <div class="flex items-start min-w-0">
-    <div class="mx-4 shrink-0">
-      <p-avatar icon="pi pi-user" shape="circle"></p-avatar>
-    </div>
-    
-    <div class="flex-1 min-w-0">
-      <div class="space-y-1">
-        <div class="text-xs font-semibold">{{ message.authorId }}
-          <span class="text-xs ml-2 font-light text-muted-color">{{ formatTime(message.createdAt) }}</span>
+          <p-button
+            icon="pi pi-trash"
+            styleClass="p-button-sm p-button-text p-button-rounded p-button-danger !w-6 !h-6"
+            (click)="deleteMessage()"
+            pTooltip="Delete"
+            tooltipPosition="top"
+            tooltipStyleClass="text-sm"
+          ></p-button>
         </div>
-        <div class="text-xs whitespace-pre-wrap break-words">{{ message.content}}</div>
+
+      </div>
+    }
+    
+    <div class="flex items-start min-w-0">
+      <div class="mx-4 shrink-0">
+        <p-avatar icon="pi pi-user" shape="circle"></p-avatar>
+      </div>
+      
+      <div class="flex-1 min-w-0">
+        <div class="space-y-1">
+          <div class="text-xs font-semibold">{{ message.authorId }}
+            <span class="text-xs ml-2 font-light text-muted-color">{{ formatTime(message.createdAt) }}</span>
+          </div>
+
+          @if (currentlyEdited() === null || currentlyEdited() !== message.id) {
+            <div class="text-xs whitespace-pre-wrap break-words">
+              {{ message.content }}
+            </div>
+          } @else {
+            <div>
+              <form (submit)="enterMessageEdit()">
+                <textarea
+                  pInputTextarea
+                  autoResize
+                  [ngModel]="newContent()"
+                  (ngModelChange)="onInputChange($event)"
+                  name="message"
+                  rows="1"
+                  class="w-full resize-none p-3  bg-surface-700 text-sm rounded-lg border-2 border-surface-100 focus:outline-none focus:ring-2 focus:ring-primary"
+                  (keydown)="handleKeydown($event)"
+                  style="max-height: 400px; overflow-y: auto;"
+                ></textarea>
+                <!-- <button pButton type="submit" icon="pi pi-send" label="Send"></button> -->
+              </form>
+            </div>
+          }
+        </div>
       </div>
     </div>
-  </div>
+  
+
+
+
 
 
   

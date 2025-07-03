@@ -39,6 +39,13 @@ export class PrivateApiService extends BaseApiService {
     );
   }
 
+  editMessage(messageId: string, content: string): Observable<void> {
+    console.log('Attempt to edit message');
+    return this.authorisedFetch<void>((_) =>
+      this.patch<void>(`messages/${messageId}`, { content })
+    );
+  }
+
   deleteMessage(messageId: string): Observable<void> {
     return this.authorisedFetch<void>((_) =>
       this.delete<void>(`messages/${messageId}`)

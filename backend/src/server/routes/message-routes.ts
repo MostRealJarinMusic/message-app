@@ -53,21 +53,18 @@ export default function messageRoutes(wsManager: WebSocketManager): Router {
   messageRoutes.patch("/:messageId", authMiddleware, async (req, res) => {
     try {
       const messageId = req.params.messageId;
-      const newMessage = req.body.message as Message;
+      const newContent = req.body.content as string;
       const oldMessage = await MessageRepo.getMessage(messageId);
 
       if (oldMessage) {
-        await MessageRepo.editMessage(newMessage);
+        await MessageRepo.editMessage(messageId, newContent);
+        const newMessage = await MessageRepo.getMessage(messageId);
+        //Broadcast to users
+        wsManager.broadcast(WSEventType.EDITED, newMessage);
+        res.status(204).send();
       } else {
         res.status(404).json({ error: "Message doesn't exist" });
-
-        return;
       }
-
-      //Broadcast to users
-      wsManager.broadcast(WSEventType.EDITED, newMessage);
-
-      res.status(204).send();
     } catch (err) {
       res.status(500).json({ error: "Failed to edit message" });
     }
