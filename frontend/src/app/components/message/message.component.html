@@ -42,6 +42,9 @@
           @if (currentlyEdited() === null || currentlyEdited() !== message.id) {
             <div class="text-xs whitespace-pre-wrap break-words">
               {{ message.content }}
+              @if (message.editedAt !== undefined) {
+                <span class="text-[10px] ml-1 font-light text-muted-color">{{ message.editedAt }}</span>
+              }
             </div>
           } @else {
             <div>

@@ -54,11 +54,12 @@ export default function messageRoutes(wsManager: WebSocketManager): Router {
     try {
       const messageId = req.params.messageId;
       const newContent = req.body.content as string;
-      const oldMessage = await MessageRepo.getMessage(messageId);
+      const messageExists = await MessageRepo.messageExists(messageId);
 
-      if (oldMessage) {
+      if (messageExists) {
         await MessageRepo.editMessage(messageId, newContent);
         const newMessage = await MessageRepo.getMessage(messageId);
+
         //Broadcast to users
         wsManager.broadcast(WSEventType.EDITED, newMessage);
         res.status(204).send();

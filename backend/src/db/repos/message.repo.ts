@@ -29,11 +29,11 @@ export class MessageRepo {
 
     return new Promise((resolve, reject) => {
       db.get(
-        `SELECT * FROM messages WHERE id = ?`,
+        `SELECT 1 FROM messages WHERE id = ? LIMIT 1`,
         [messageId],
-        function (err) {
+        (err, row) => {
           if (err) return reject(err);
-          resolve(true);
+          resolve(!!row);
         }
       );
     });
