@@ -9,6 +9,7 @@ import { MessageService } from 'src/app/services/message/message.service';
 import { UserService } from 'src/app/services/user/user.service';
 import { CommonModule, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TextareaModule } from 'primeng/textarea';
 @Component({
   selector: 'app-message',
   imports: [
@@ -18,6 +19,7 @@ import { FormsModule } from '@angular/forms';
     TooltipModule,
     CommonModule,
     FormsModule,
+    TextareaModule,
   ],
   templateUrl: './message.component.html',
   styleUrl: './message.component.scss',
@@ -78,7 +80,7 @@ export class MessageComponent {
     }
 
     //Edits
-    this.messageService.editMessage(this.message.id, this.newContent());
+    this.messageService.editMessage(this.message.id, editedContent);
     console.log('Edits made');
 
     this.escapeMessageEdit();
@@ -95,6 +97,10 @@ export class MessageComponent {
     }
 
     //Escape message edits
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      this.escapeMessageEdit();
+    }
   }
 
   protected deleteMessage() {

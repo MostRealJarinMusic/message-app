@@ -20,9 +20,6 @@ export class MessageService {
 
   constructor() {
     this.initWebSocket();
-    effect(() => {
-      console.log(this.currentlyEdited());
-    });
   }
 
   public sendMessage(content: string): void {

@@ -1,4 +1,4 @@
-<div class="relative group block min-w-0 my-1 mr-2 p-1 transition-colors duration-200 rounded-r-md  hover:bg-surface-700"> 
+<div class="relative group block w-full my-1 mr-2 p-1 transition-colors duration-200 rounded-r-md  hover:bg-surface-700"> 
 
   
     @if (isMine) {
@@ -28,37 +28,37 @@
       </div>
     }
     
-    <div class="flex items-start min-w-0">
+    <div class="flex items-start min-w-0 w-full">
       <div class="mx-4 shrink-0">
         <p-avatar icon="pi pi-user" shape="circle"></p-avatar>
       </div>
       
       <div class="flex-1 min-w-0">
         <div class="space-y-1">
-          <div class="text-xs font-semibold">{{ message.authorId }}
+          <div class="text-xs font-bold">{{ message.authorId }}
             <span class="text-xs ml-2 font-light text-muted-color">{{ formatTime(message.createdAt) }}</span>
           </div>
 
           @if (currentlyEdited() === null || currentlyEdited() !== message.id) {
-            <div class="text-xs whitespace-pre-wrap break-words">
+            <div class="text-xs whitespace-pre-line break-words">
               {{ message.content }}
-              @if (message.editedAt !== undefined) {
+              <!-- @if (message.editedAt !== undefined) {
                 <span class="text-[10px] ml-1 font-light text-muted-color">{{ message.editedAt }}</span>
-              }
+              } -->
             </div>
           } @else {
-            <div>
-              <form (submit)="enterMessageEdit()">
+            <div class="mr-2 w-full">
+              <form (submit)="enterMessageEdit()" class="w-full">
                 <textarea
-                  pInputTextarea
-                  autoResize
+                  pTextarea
+                  [autoResize]="true"
                   [ngModel]="newContent()"
                   (ngModelChange)="onInputChange($event)"
                   name="message"
                   rows="1"
-                  class="w-full resize-none p-3  bg-surface-700 text-sm rounded-lg border-2 border-surface-100 focus:outline-none focus:ring-2 focus:ring-primary"
+                  class="w-full p-2 bg-surface-700 text-sm rounded-lg border border-surface-100 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-200"
                   (keydown)="handleKeydown($event)"
-                  style="max-height: 400px; overflow-y: auto;"
+                  style="max-height: 400px; overflow-y: hidden;"
                 ></textarea>
                 <!-- <button pButton type="submit" icon="pi pi-send" label="Send"></button> -->
               </form>
@@ -67,13 +67,4 @@
         </div>
       </div>
     </div>
-  
-
-
-
-
-
-  
-
-
 </div>

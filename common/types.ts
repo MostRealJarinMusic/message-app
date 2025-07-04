@@ -31,21 +31,6 @@ export interface Message {
   deleted?: boolean;
 }
 
-// export interface MessageChange {
-//   changeType: MessageChangeType;
-//   channelId?: string;
-//   messageId: string;
-// }
-
-// export enum MessageChangeType {
-//   DELETE = "delete",
-//   EDIT = "edit",
-// }
-
-// export interface CommandStatus {
-//   status: boolean;
-// }
-
 export interface Channel {
   id: string;
   serverId: string;
