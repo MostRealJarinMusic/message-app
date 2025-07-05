@@ -1,12 +1,12 @@
 <div 
   class="relative group block w-full my-1 mr-2 p-2 transition-colors duration-800 rounded-r-md hover:bg-surface-700"
   [ngClass]="{
-    'bg-surface-700': currentlyEdited() === message.id
+    'bg-surface-700': isBeingEdited()
   }"
 > 
 
   
-  @if (isMine && !(currentlyEdited() === message.id)) {
+  @if (isMine && !isBeingEdited()) {
     <div
       class="absolute top-0 right-0 mt-[-1rem] mr-2 flex opacity-0 group-hover:opacity-100 transition-opacity duration-200"
     >
@@ -44,7 +44,7 @@
           <span class="text-xs ml-2 font-light text-muted-color">{{ formatTime(message.createdAt) }}</span>
         </div>
 
-        @if (currentlyEdited() === null || currentlyEdited() !== message.id) {
+        @if (!isBeingEdited()) {
           <div class="text-xs whitespace-pre-line break-words">
             {{ message.content }}
             <!-- @if (message.editedAt !== undefined) {
@@ -57,7 +57,7 @@
               <textarea
                 pTextarea
                 [autoResize]="true"
-                [ngModel]="newContent()"
+                [ngModel]="editContent()"
                 (ngModelChange)="onInputChange($event)"
                 name="message"
                 rows="1"

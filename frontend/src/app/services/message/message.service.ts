@@ -15,8 +15,6 @@ export class MessageService {
   private apiService = inject(PrivateApiService);
 
   readonly messages = signal<Message[]>([]);
-  //Tracks the message ID of the message being currently edited
-  public currentlyEdited = signal<string | null>(null);
 
   constructor() {
     this.initWebSocket();

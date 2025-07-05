@@ -10,6 +10,7 @@ import { UserService } from 'src/app/services/user/user.service';
 import { CommonModule, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TextareaModule } from 'primeng/textarea';
+import { MessageEditService } from 'src/app/services/message-edit/message-edit.service';
 @Component({
   selector: 'app-message',
   imports: [
@@ -26,18 +27,12 @@ import { TextareaModule } from 'primeng/textarea';
 })
 export class MessageComponent {
   private messageService = inject(MessageService);
+  private editService = inject(MessageEditService);
 
   @Input() message!: Message;
   @Input() isMine!: boolean;
 
-  protected currentlyEdited = this.messageService.currentlyEdited;
-  protected newContent = signal('');
-
-  // protected getUsername(id: string): string {
-  //   return this.userService.getUsername(id);
-  // }
-
-  //protected username$ = this.userService.getUsername(this.message.authorId);
+  protected editContent = this.editService.getContent();
 
   protected formatTime(timestamp: string): string {
     const dateTime = new Date(timestamp);
@@ -55,39 +50,32 @@ export class MessageComponent {
   }
 
   protected startMessageEdit() {
-    if (this.currentlyEdited() !== this.message.id) {
-      //Set it
-      this.currentlyEdited.set(this.message.id);
-
-      //Opens the form
-      this.newContent.set(this.message.content);
+    if (!this.editService.isEditing(this.message.id)) {
+      this.editService.startEdit(this.message.id, this.message.content);
     }
   }
 
   protected escapeMessageEdit() {
-    this.currentlyEdited.set(null);
-    this.newContent.set('');
+    this.editService.closeEdit();
   }
 
   protected enterMessageEdit() {
-    //Detect any edits
-    //If no edits - escape message edit
-    const editedContent = this.newContent().trim();
+    const editedContent = this.editContent().trim();
     if (editedContent === this.message.content) {
       console.log('No edits made');
       this.escapeMessageEdit();
       return;
     }
 
-    //Edits
-    this.messageService.editMessage(this.message.id, editedContent);
-    console.log('Edits made');
-
-    this.escapeMessageEdit();
+    //Empty edit content - register as attempt to delete
+    this.editService.saveEdit((id, content) => {
+      this.messageService.editMessage(id, content);
+      console.log('Edits made');
+    });
   }
 
   protected onInputChange(message: string) {
-    this.newContent.set(message);
+    this.editContent.set(message);
   }
 
   protected handleKeydown(event: KeyboardEvent) {
@@ -105,5 +93,9 @@ export class MessageComponent {
 
   protected deleteMessage() {
     this.messageService.deleteMessage(this.message.id);
+  }
+
+  protected isBeingEdited(): boolean {
+    return this.editService.isEditing(this.message.id);
   }
 }
