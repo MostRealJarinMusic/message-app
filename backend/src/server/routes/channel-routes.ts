@@ -33,7 +33,7 @@ export default function channelRoutes(wsManager: WebSocketManager): Router {
         await MessageRepo.insertMessage(message);
 
         //Broadcast to users
-        wsManager.broadcast(WSEventType.RECEIVE, message);
+        wsManager.broadcastToAll(WSEventType.RECEIVE, message);
 
         res.status(201).json(message);
       } catch (err) {

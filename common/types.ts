@@ -63,6 +63,7 @@ export enum WSEventType {
   EDITED = "message:edited",
   DELETED = "message:deleted",
   PRESENCE = "presence:update",
+  PRESENCE_BULK = "presence:bulk",
   PING = "ping",
   PONG = "pong",
 }

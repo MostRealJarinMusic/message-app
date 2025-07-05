@@ -2,8 +2,7 @@ import http from "http";
 import jwt from "jsonwebtoken";
 import WebSocket from "ws";
 import { config } from "../../config";
-import { Message, UserSignature, WSEvent } from "@common/types";
-import { MessageRepo } from "../../db/repos/message.repo";
+import { UserSignature, WSEvent } from "@common/types";
 
 const HEARTBEAT_INTERVAL = 60000;
 const TIMEOUT_LIMIT = 120000;
@@ -11,8 +10,13 @@ const TIMEOUT_LIMIT = 120000;
 export class WebSocketManager {
   private wss: WebSocket.Server;
   private clientLastPong = new Map<WebSocket, number>();
+  private userSockets: Map<string, Set<WebSocket>>;
+  private presenceStore: Map<string, string>;
 
   constructor(server: http.Server) {
+    this.userSockets = new Map<string, Set<WebSocket>>();
+    this.presenceStore = new Map<string, string>();
+
     this.wss = new WebSocket.Server({ server });
     this.wss.on("connection", this.handleConnection.bind(this));
     setInterval(this.heartbeat.bind(this), HEARTBEAT_INTERVAL);
@@ -26,18 +30,51 @@ export class WebSocketManager {
 
     try {
       const signature = jwt.verify(token, config.jwtSecret) as UserSignature;
+      const userId = signature.id;
       (ws as any).signature = signature;
-      console.log(`WS: ${signature.username} connected`);
+
       this.clientLastPong.set(ws, Date.now());
+
+      //Send initial presence
+      if (!this.userSockets.has(userId)) {
+        this.userSockets.set(userId, new Set());
+      }
+      this.userSockets.get(userId)?.add(ws);
+
+      if (this.userSockets.get(userId)?.size === 1) {
+        this.updatePresence(userId, "online");
+      }
 
       ws.on("message", async (message) => await this.routeMessage(ws, message));
       ws.on("close", () => {
+        const id = ((ws as any).signature as UserSignature).id;
+
         this.clientLastPong.delete(ws);
         console.log(`WS: ${(ws as any).signature.username} disconnected`);
+
+        const sockets = this.userSockets.get(id);
+        if (!sockets) return;
+
+        sockets.delete(ws);
+
+        if (sockets.size === 0) {
+          this.userSockets.delete(id);
+          this.updatePresence(id, "offline");
+        }
       });
     } catch {
       ws.close();
     }
+  }
+
+  private updatePresence(userId: string, status: string) {
+    const previous = this.presenceStore.get(userId);
+
+    if (previous === status) return;
+
+    this.presenceStore.set(userId, status);
+
+    this.broadcastToAll("presence:update", { userId: userId, status: status });
   }
 
   private async routeMessage(ws: WebSocket, message: WebSocket.RawData) {
@@ -49,7 +86,7 @@ export class WebSocketManager {
         case "presence:update":
           // const presenceUpdate: PresenceUpdate = { ...payload };
 
-          // broadcast("presence:update", { ...presenceUpdate });
+          // broadcastToAll("presence:update", { ...presenceUpdate });
           break;
         case "pong":
           this.clientLastPong.set(ws, Date.now());
@@ -63,14 +100,28 @@ export class WebSocketManager {
     }
   }
 
-  public broadcast(event: string, payload: any) {
-    const message = JSON.stringify({ event, payload });
+  private packageMessage(event: string, payload: any) {
+    return JSON.stringify({ event, payload });
+  }
+
+  public broadcastToAll(event: string, payload: any) {
+    const message = this.packageMessage(event, payload);
     this.wss.clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
         client.send(message);
       }
     });
   }
+
+  public broadcastToRelated(
+    event: string,
+    payload: any,
+    related: WebSocket[]
+  ) {}
+
+  public broadcastToServer(event: string, payload: any, serverId: string) {}
+
+  public broadcastToFriends(event: string, payload: any, userId: string) {}
 
   private heartbeat() {
     const now = Date.now();

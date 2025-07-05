@@ -42,7 +42,7 @@ export default function messageRoutes(wsManager: WebSocketManager): Router {
       }
 
       //Broadcast to users
-      wsManager.broadcast(WSEventType.DELETED, message);
+      wsManager.broadcastToAll(WSEventType.DELETED, message);
 
       res.status(204).send();
     } catch (err) {
@@ -61,7 +61,7 @@ export default function messageRoutes(wsManager: WebSocketManager): Router {
         const newMessage = await MessageRepo.getMessage(messageId);
 
         //Broadcast to users
-        wsManager.broadcast(WSEventType.EDITED, newMessage);
+        wsManager.broadcastToAll(WSEventType.EDITED, newMessage);
         res.status(204).send();
       } else {
         res.status(404).json({ error: "Message doesn't exist" });

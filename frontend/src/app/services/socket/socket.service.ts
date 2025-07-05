@@ -49,8 +49,6 @@ export class SocketService {
       return;
     }
 
-    //console.log(this.socket);
-
     if (!token) {
       console.log('Invalid token');
       return;
@@ -69,10 +67,10 @@ export class SocketService {
       //this.startHeartbeat();
 
       //Presence message
-      this.emit<PresenceUpdate>(WSEventType.PRESENCE, {
-        userId: this.sessionService.currentUser()!.id,
-        status: PresenceStatus.ONLINE,
-      });
+      // this.emit<PresenceUpdate>(WSEventType.PRESENCE, {
+      //   userId: this.sessionService.currentUser()!.id,
+      //   status: PresenceStatus.ONLINE,
+      // });
     };
 
     this.socket.onmessage = async (event) => {

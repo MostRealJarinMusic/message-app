@@ -7,7 +7,7 @@ import { MessageService } from 'src/app/services/message/message.service';
 import { DividerModule } from 'primeng/divider';
 import { MessageListComponent } from '../message-list/message-list.component';
 import { MessageInputComponent } from '../message-input/message-input.component';
-import { UserService } from 'src/app/services/user/user.service';
+import { UserListComponent } from '../user-list/user-list.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -17,6 +17,7 @@ import { UserService } from 'src/app/services/user/user.service';
     DividerModule,
     MessageListComponent,
     MessageInputComponent,
+    UserListComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
@@ -33,11 +34,13 @@ export class DashboardComponent {
     //Load the server
     this.serverService.loadServers();
 
+    //Load channels
     effect(() => {
       const currentServer = this.currentServer();
       if (currentServer) this.channelService.loadChannels(currentServer);
     });
 
+    //Load message history
     effect(() => {
       const currentChannel = this.currentChannel();
       if (currentChannel)

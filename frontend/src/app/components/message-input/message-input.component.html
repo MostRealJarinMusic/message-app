@@ -1,13 +1,13 @@
 <div>
   <form (submit)="sendMessage()">
     <textarea
-      pInputTextarea
+      pTextarea
       autoResize
       [ngModel]="newMessage()"
       (ngModelChange)="onInputChange($event)"
       name="message"
       rows="1"
-      class="w-full resize-none -p-3 text-sm rounded-lg border-none focus:outline-none focus:ring-2 focus:ring-primary"
+      class="w-full resize-none !py-4 !pl-8 !text-xx !bg-surface-700 rounded-lg border !border-surface-600 focus:outline-none focus:ring-2 focus:ring-primary"
       [placeholder]="placeholderMessage()"
       (keydown)="handleKeydown($event)"
       style="max-height: 300px; overflow-y: auto;"
