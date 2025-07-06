@@ -1,4 +1,4 @@
-import { Server } from "@common/types";
+import { ChannelCategory, Server } from "@common/types";
 import { getDB } from "../db";
 
 export class ServerRepo {
@@ -19,6 +19,31 @@ export class ServerRepo {
 
         resolve(allServers);
       });
+    });
+  }
+
+  static async getStructure(serverId: string) {
+    const db = await getDB();
+
+    return new Promise<ChannelCategory[]>((resolve, reject) => {
+      db.all(
+        `SELECT * FROM channel_categories WHERE serverId = ?`,
+        [serverId],
+        (err, rows) => {
+          if (err) {
+            console.log("Error retrieving server structure:", err);
+            return reject(err);
+          }
+
+          const structure: ChannelCategory[] = rows.map((row: any) => ({
+            id: row.id,
+            serverId: serverId,
+            name: row.name,
+          }));
+
+          resolve(structure);
+        }
+      );
     });
   }
 }

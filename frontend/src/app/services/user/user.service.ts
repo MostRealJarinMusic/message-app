@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { User } from '@common/types';
 import { BehaviorSubject, catchError, map, Observable, of, tap } from 'rxjs';
 import { PrivateApiService } from '../api/private-api.service';
@@ -7,14 +7,10 @@ import { PrivateApiService } from '../api/private-api.service';
   providedIn: 'root',
 })
 export class UserService {
+  private apiService = inject(PrivateApiService);
   readonly currentUser = signal<User | null>(null);
 
-  //Local user cache
-  private userCache = new Map<string, User>();
-
-  constructor(private apiService: PrivateApiService) {}
-
-  fetchCurrentUser(): Observable<User> {
+  fetchCurrentUser(): Observable<User | null> {
     return this.apiService.getCurrentUser().pipe(
       tap((user) => {
         this.currentUser.set(user);
@@ -22,7 +18,7 @@ export class UserService {
       catchError((err) => {
         console.error('Failed to fetch current user:', err);
         this.currentUser.set(null);
-        return of(null as any);
+        return of(null);
       })
     );
   }

@@ -19,6 +19,7 @@ export class ChannelRepo {
             id: row.id,
             serverId: row.serverId,
             name: row.name,
+            categoryId: row.categoryId,
           }));
 
           resolve(allChannels);

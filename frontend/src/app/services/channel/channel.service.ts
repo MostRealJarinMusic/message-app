@@ -1,5 +1,5 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { Channel } from '@common/types';
+import { Channel, ChannelCategory } from '@common/types';
 import { PrivateApiService } from '../api/private-api.service';
 
 @Injectable({
@@ -15,6 +15,8 @@ export class ChannelService {
       this.channels().find((channel) => channel.id === this.currentChannel())
         ?.name
   );
+
+  readonly categories = signal<ChannelCategory[]>([]);
 
   selectChannel(id: string) {
     this.currentChannel.set(id);
@@ -36,6 +38,15 @@ export class ChannelService {
         }
       },
       error: (err) => console.error('Failed to load channels', err),
+    });
+  }
+
+  loadStructure(serverId: string) {
+    this.apiService.getServerStructure(serverId).subscribe({
+      next: (categories) => {
+        this.categories.set(categories);
+      },
+      error: (err) => console.error('Failed to load server structure', err),
     });
   }
 }

@@ -1,5 +1,5 @@
-<div class="space-y-1">
-  @for (channel of channels(); track $index) {
+<!-- <div class="space-y-1">
+  @for (channel of channels().filter(c => !c.categoryId); track $index) {
   <li 
     [ngClass]="{
       'pl-3 py-1 list-none rounded-border transition-colors duration-200 cursor-pointer': true,
@@ -11,4 +11,95 @@
     <div>{{ channel.name }}</div>
   </li>
   }
+</div> -->
+
+<div class="mb-4">
+  @for (channel of groupedChannels().get(null) ?? []; track channel.id){
+    <li 
+      [ngClass]="{
+        'pl-3 py-1 list-none rounded-border transition-colors duration-200 cursor-pointer': true,
+        'text-color-emphasis bg-emphasis': channel.id === currentChannel(),
+        'text-muted-color hover:bg-emphasis hover:text-muted-color-emphasis': channel.id !== currentChannel()
+      }"
+      (click)="selectChannel(channel.id)"
+    >
+      <div>#  {{ channel.name }}</div>
+    </li>
+  }
 </div>
+
+
+@for (category of categories(); track category.id) {
+  <app-accordion-panel 
+    [header]="category.name"
+    (add)="startCreateChannel('category.id')"
+  >
+    @for (channel of groupedChannels().get(category.id) ?? []; track channel.id){
+      <li 
+        [ngClass]="{
+          'pl-3 py-1 list-none rounded-border transition-colors duration-200 cursor-pointer': true,
+          'text-color-emphasis bg-emphasis': channel.id === currentChannel(),
+          'text-muted-color hover:bg-emphasis hover:text-muted-color-emphasis': channel.id !== currentChannel()
+        }"
+        (click)="selectChannel(channel.id)"
+      >
+        <div>#  {{ channel.name }}</div>
+      </li>
+    }
+  </app-accordion-panel>
+}
+
+
+
+
+<!-- 
+
+<p-accordion [multiple]="true" styleClass="!duration-0">
+    <p-accordion-panel value="uncategorised">
+      <p-accordion-header>Uncategorised</p-accordion-header>
+
+      <p-accordion-content>
+          @for (channel of groupedChannels().get(null) ?? []; track channel.id){
+            <li 
+              [ngClass]="{
+                'pl-3 py-1 list-none rounded-border transition-colors duration-200 cursor-pointer': true,
+                'text-color-emphasis bg-emphasis': channel.id === currentChannel(),
+                'text-muted-color hover:bg-emphasis hover:text-muted-color-emphasis': channel.id !== currentChannel()
+              }"
+              (click)="selectChannel(channel.id)"
+            >
+              <div>{{ channel.name }}</div>
+            </li>
+          }
+      </p-accordion-content>
+
+  </p-accordion-panel>
+
+
+
+  @for (category of categories(); track category.id) {
+    <p-accordion-panel [value]="category.id">
+      <p-accordion-header>{{ category.name }}</p-accordion-header>
+
+
+      <p-accordion-content class="!p-0">
+        @for (channel of groupedChannels().get(category.id) ?? []; track channel.id){
+          <li 
+            [ngClass]="{
+              'pl-3 py-1 list-none rounded-border transition-colors duration-200 cursor-pointer': true,
+              'text-color-emphasis bg-emphasis': channel.id === currentChannel(),
+              'text-muted-color hover:bg-emphasis hover:text-muted-color-emphasis': channel.id !== currentChannel()
+            }"
+            (click)="selectChannel(channel.id)"
+          >
+            <div>{{ channel.name }}</div>
+          </li>
+        }
+
+      </p-accordion-content>
+    </p-accordion-panel>
+  }
+
+
+
+</p-accordion> -->

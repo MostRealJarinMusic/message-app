@@ -1,0 +1,17 @@
+::ng-deep .p-accordion-panel {
+  border: none !important;
+  border-bottom: none !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+}
+
+::ng-deep .p-accordion-header {
+  border: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+}
+
+::ng-deep .p-accordion-content {
+  border: none !important;
+  padding: 0.25rem 0.5rem;
+}

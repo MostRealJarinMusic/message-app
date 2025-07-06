@@ -19,6 +19,16 @@ userRoutes.get("/me", authMiddleware, async (req, res) => {
   }
 });
 
+//Temporary
+userRoutes.get("/", authMiddleware, async (req, res) => {
+  try {
+    const users = await UserRepo.getAllUsers();
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
 userRoutes.get("/:id", authMiddleware, async (req, res) => {
   try {
     const user = await UserRepo.getUserById(req.params.id);

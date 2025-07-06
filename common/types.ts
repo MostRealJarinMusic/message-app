@@ -39,6 +39,14 @@ export interface Channel {
   createdAt?: string;
   createdBy?: string;
   editedAt?: string;
+  categoryId?: string | null;
+}
+
+export interface ChannelCategory {
+  id: string;
+  serverId: string;
+  name: string;
+  position?: number;
 }
 
 export interface Server {

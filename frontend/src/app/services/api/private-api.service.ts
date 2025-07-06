@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { BaseApiService } from './base-api';
 import { HttpClient } from '@angular/common/http';
 import { filter, Observable, switchMap, take } from 'rxjs';
-import { Message, Server, User } from '@common/types';
+import { ChannelCategory, Message, Server, User } from '@common/types';
 import { AuthTokenService } from '../authtoken/auth-token.service';
 import { Channel } from '@common/types';
 
@@ -64,6 +64,12 @@ export class PrivateApiService extends BaseApiService {
   getChannels(serverId: string): Observable<Channel[]> {
     return this.authorisedFetch<Channel[]>((_) =>
       this.get<Channel[]>(`servers/${serverId}/channels`)
+    );
+  }
+
+  getServerStructure(serverId: string): Observable<ChannelCategory[]> {
+    return this.authorisedFetch<ChannelCategory[]>((_) =>
+      this.get<ChannelCategory[]>(`servers/${serverId}/structure`)
     );
   }
 

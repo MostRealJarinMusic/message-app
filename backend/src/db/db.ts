@@ -3,11 +3,17 @@ import { ulid } from "ulid";
 
 //Temporary
 const serverId = ulid();
+const category1Id = ulid();
+const category2Id = ulid();
+
 const generalChannelId = ulid();
 const memesChannelId = ulid();
 const botCommandsChannelId = ulid();
 
 const server2Id = ulid();
+
+const category3Id = ulid();
+const category4Id = ulid();
 const announcementsChannelId = ulid();
 const offTopicChannelId = ulid();
 const gamesChannelId = ulid();
@@ -44,6 +50,16 @@ export const getDB = async () => {
       id          TEXT PRIMARY KEY,
       serverId    TEXT NOT NULL,
       name        TEXT NOT NULL,
+      categoryId  TEXT,
+      FOREIGN KEY (serverId) REFERENCES servers(id) ON DELETE CASCADE
+    );
+  `);
+
+  dbInstance.exec(`
+    CREATE TABLE IF NOT EXISTS channel_categories ( 
+      id            TEXT PRIMARY KEY,
+      serverId      TEXT NOT NULL,
+      name          TEXT NOT NULL,
       FOREIGN KEY (serverId) REFERENCES servers(id) ON DELETE CASCADE
     );
   `);
@@ -63,11 +79,18 @@ export const getDB = async () => {
   // `);
 
   // dbInstance.exec(`
-  //   INSERT OR IGNORE INTO channels (id, serverId, name)
+  //   INSERT OR IGNORE INTO channel_categories (id, serverId, name)
   //   VALUES
-  //     ('${generalChannelId}', '${serverId}', 'General'),
-  //     ('${memesChannelId}', '${serverId}', 'Memes'),
-  //     ('${botCommandsChannelId}', '${serverId}', 'Bot Commands');
+  //     ('${category1Id}', '${serverId}', 'Text Channels'),
+  //     ('${category2Id}', '${serverId}', 'Fun Stuff');
+  // `);
+
+  // dbInstance.exec(`
+  //   INSERT OR IGNORE INTO channels (id, serverId, name, categoryId)
+  //   VALUES
+  //     ('${generalChannelId}', '${serverId}', 'General', '${category1Id}'),
+  //     ('${memesChannelId}', '${serverId}', 'Memes', '${category2Id}'),
+  //     ('${botCommandsChannelId}', '${serverId}', 'Bot Commands', NULL);
   // `);
 
   // dbInstance.exec(`

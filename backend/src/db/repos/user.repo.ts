@@ -86,4 +86,25 @@ export class UserRepo {
       );
     });
   }
+
+  static async getAllUsers() {
+    const db = await getDB();
+
+    return new Promise<User[]>((resolve, reject) => {
+      db.all(`SELECT * FROM users`, (err, rows) => {
+        if (err) {
+          console.log("Error retrieving users:", err);
+          return reject(err);
+        }
+
+        const allUsers: User[] = rows.map((row: any) => ({
+          id: row.id,
+          username: row.username,
+          email: row.email,
+        }));
+
+        resolve(allUsers);
+      });
+    });
+  }
 }

@@ -32,4 +32,15 @@ serverRoutes.get("/:serverId/channels", authMiddleware, async (req, res) => {
   }
 });
 
+serverRoutes.get("/:serverId/structure", authMiddleware, async (req, res) => {
+  try {
+    const serverId = req.params.serverId;
+    const categories = await ServerRepo.getStructure(serverId);
+
+    res.json(categories);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch structure" });
+  }
+});
+
 export default serverRoutes;

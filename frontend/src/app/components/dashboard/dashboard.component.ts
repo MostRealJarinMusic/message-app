@@ -37,7 +37,10 @@ export class DashboardComponent {
     //Load channels
     effect(() => {
       const currentServer = this.currentServer();
-      if (currentServer) this.channelService.loadChannels(currentServer);
+      if (currentServer) {
+        this.channelService.loadStructure(currentServer);
+        this.channelService.loadChannels(currentServer);
+      }
     });
 
     //Load message history
