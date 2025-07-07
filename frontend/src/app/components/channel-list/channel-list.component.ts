@@ -1,4 +1,11 @@
-import { Component, computed, inject, Signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  OnDestroy,
+  signal,
+  Signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Channel } from '@common/types';
 import { ButtonModule } from 'primeng/button';
@@ -7,6 +14,8 @@ import { ListboxModule } from 'primeng/listbox';
 import { NgClass } from '@angular/common';
 import { AccordionModule } from 'primeng/accordion';
 import { AccordionPanelComponent } from '../custom/accordion-panel/accordion-panel.component';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { ChannelCreateDialogComponent } from '../dialogs/channel-create-dialog/channel-create-dialog.component';
 
 @Component({
   selector: 'app-channel-list',
@@ -18,11 +27,15 @@ import { AccordionPanelComponent } from '../custom/accordion-panel/accordion-pan
     AccordionModule,
     AccordionPanelComponent,
   ],
+  providers: [DialogService],
   templateUrl: './channel-list.component.html',
   styleUrl: './channel-list.component.scss',
 })
-export class ChannelListComponent {
+export class ChannelListComponent implements OnDestroy {
+  protected dialogService = inject(DialogService);
   private channelService = inject(ChannelService);
+
+  protected createDialogRef!: DynamicDialogRef;
 
   protected categories = this.channelService.categories;
   protected channels = this.channelService.channels;
@@ -57,5 +70,27 @@ export class ChannelListComponent {
 
   protected startCreateChannel(categoryId: string) {
     console.log('Starting to create a new channel in category');
+    this.show();
+  }
+
+  show() {
+    this.createDialogRef = this.dialogService.open(
+      ChannelCreateDialogComponent,
+      {
+        header: 'Create Channel',
+        width: '30%',
+        baseZIndex: 10000,
+        modal: true,
+        dismissableMask: true,
+        closeOnEscape: true,
+        closable: true,
+      }
+    );
+
+    this.createDialogRef.onClose.subscribe();
+  }
+
+  ngOnDestroy(): void {
+    if (this.createDialogRef) this.createDialogRef.close();
   }
 }

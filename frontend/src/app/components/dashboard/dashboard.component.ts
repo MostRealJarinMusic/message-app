@@ -38,8 +38,8 @@ export class DashboardComponent {
     effect(() => {
       const currentServer = this.currentServer();
       if (currentServer) {
-        this.channelService.loadStructure(currentServer);
         this.channelService.loadChannels(currentServer);
+        this.channelService.loadStructure(currentServer);
       }
     });
 
