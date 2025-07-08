@@ -3,7 +3,7 @@ import { getDB } from "../db";
 import { Message } from "@common/types";
 
 export class MessageRepo {
-  static async insertMessage(message: Message): Promise<number> {
+  static async createMessage(message: Message): Promise<void> {
     const db = await getDB();
 
     return new Promise((resolve, reject) => {
@@ -18,7 +18,7 @@ export class MessageRepo {
         ],
         function (err) {
           if (err) return reject(err);
-          resolve(this.lastID);
+          resolve();
         }
       );
     });

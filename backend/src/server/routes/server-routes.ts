@@ -2,6 +2,7 @@ import { Router } from "express";
 import { authMiddleware } from "../..//middleware/auth-middleware";
 import { ChannelRepo } from "../..//db/repos/channel.repo";
 import { ServerRepo } from "../..//db/repos/server.repo";
+import { Channel } from "@common/types";
 
 const serverRoutes = Router();
 
@@ -29,6 +30,22 @@ serverRoutes.get("/:serverId/channels", authMiddleware, async (req, res) => {
   } catch (err) {
     console.error("Error getting channels", err);
     res.status(500).json({ error: "Failed to fetch channels" });
+  }
+});
+
+serverRoutes.post("/:serverId/channels", authMiddleware, async (req, res) => {
+  try {
+    const newChannel = req.body.content as Channel;
+
+    if (!newChannel) {
+      res.status(400).json({ error: "Channel data required" });
+    }
+
+    await ChannelRepo.createChannel(newChannel);
+
+    //Notify all users of a channel creation
+  } catch (err) {
+    res.status(500).json({ error: "Failed to create channel" });
   }
 });
 

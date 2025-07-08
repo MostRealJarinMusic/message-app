@@ -31,6 +31,14 @@ export interface Message {
   deleted?: boolean;
 }
 
+export interface MessageCreate {
+  content: string;
+}
+
+export interface MessageUpdate {
+  content: string;
+}
+
 export interface Channel {
   id: string;
   serverId: string;
@@ -40,6 +48,18 @@ export interface Channel {
   createdBy?: string;
   editedAt?: string;
   categoryId?: string | null;
+}
+
+export interface ChannelCreate {
+  name: string;
+  topic?: string;
+  categoryId?: string | null;
+}
+
+export interface ChannelUpdate {
+  name?: string;
+  topic?: string;
+  categoryId?: string;
 }
 
 export interface ChannelCategory {
@@ -70,6 +90,10 @@ export enum WSEventType {
   RECEIVE = "message:receive",
   EDITED = "message:edited",
   DELETED = "message:deleted",
+  CHANNEL_CREATE = "channel:create",
+  CHANNEL_UPDATE = "channel:update",
+  CHANNEL_DELETE = "channel:delete",
+
   PRESENCE = "presence:update",
   PRESENCE_BULK = "presence:bulk",
   PING = "ping",

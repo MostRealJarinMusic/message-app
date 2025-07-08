@@ -30,7 +30,7 @@ export default function channelRoutes(wsManager: WebSocketManager): Router {
           createdAt: new Date().toISOString(),
         };
 
-        await MessageRepo.insertMessage(message);
+        await MessageRepo.createMessage(message);
 
         //Broadcast to users
         wsManager.broadcastToAll(WSEventType.RECEIVE, message);

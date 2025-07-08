@@ -27,4 +27,41 @@ export class ChannelRepo {
       );
     });
   }
+
+  static async createChannel(channel: Channel): Promise<void> {
+    const db = await getDB();
+
+    return new Promise((resolve, reject) => {
+      db.run(
+        `INSERT INTO channels (id, serverId, name, categoryId) VALUES (?, ?, ?, ?)`,
+        [channel.id, channel.serverId, channel.name, channel.categoryId],
+        function (err) {
+          if (err) return reject(err);
+          resolve();
+        }
+      );
+    });
+  }
+
+  static async deleteChannel(channelId: string): Promise<void> {
+    const db = await getDB();
+
+    return new Promise((resolve, reject) => {
+      db.run(`DELETE FROM channels WHERE id = ?`, [channelId], function (err) {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
+  }
+
+  // static async editChannel(newChannel: Channel) {
+  //   const db = await getDB();
+
+  //   return new Promise((resolve, reject) => {
+  //     db.run(
+  //       `UPDATE channel SET name = ?, categoryId = ? WHERE id = ?`,
+  //       [newChannel.name, newChannel.categoryId, newChannel.id];
+  //     )
+  //   })
+  // }
 }
