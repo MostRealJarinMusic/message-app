@@ -45,8 +45,6 @@ export class MessageListComponent {
         message.authorId === this.sessionService.currentUser()?.id;
     }
 
-    // console.log(this.messageListRef.nativeElement?.scrollHeight);
-    // console.log(this.messageListRef.nativeElement?.scrollTop);
     setTimeout(() => this.scrollToBottom(), 0);
   }
 

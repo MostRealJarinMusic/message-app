@@ -70,10 +70,10 @@ export class ChannelListComponent implements OnDestroy {
 
   protected startCreateChannel(categoryId: string) {
     console.log('Starting to create a new channel in category');
-    this.show();
+    this.showCreateDialog();
   }
 
-  show() {
+  showCreateDialog() {
     this.createDialogRef = this.dialogService.open(
       ChannelCreateDialogComponent,
       {
