@@ -1,11 +1,4 @@
-import {
-  Component,
-  computed,
-  inject,
-  OnDestroy,
-  signal,
-  Signal,
-} from '@angular/core';
+import { Component, computed, inject, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Channel } from '@common/types';
 import { ButtonModule } from 'primeng/button';
@@ -70,10 +63,11 @@ export class ChannelListComponent implements OnDestroy {
 
   protected startCreateChannel(categoryId: string) {
     console.log('Starting to create a new channel in category');
-    this.showCreateDialog();
+    console.log(categoryId);
+    this.showCreateDialog(categoryId);
   }
 
-  showCreateDialog() {
+  showCreateDialog(categoryId: string) {
     this.createDialogRef = this.dialogService.open(
       ChannelCreateDialogComponent,
       {
@@ -85,10 +79,19 @@ export class ChannelListComponent implements OnDestroy {
         closeOnEscape: true,
         closable: true,
         styleClass: '!bg-surface-700',
+        data: {
+          categoryId: categoryId,
+        },
       }
     );
 
-    this.createDialogRef.onClose.subscribe();
+    this.createDialogRef.onClose.subscribe((result) => {
+      if (result) {
+        console.log('Dialog closed with:', result);
+      } else {
+        console.log('Dialog closed - no channel created.');
+      }
+    });
   }
 
   ngOnDestroy(): void {

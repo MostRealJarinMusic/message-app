@@ -49,4 +49,9 @@ export class ChannelService {
       error: (err) => console.error('Failed to load server structure', err),
     });
   }
+
+  getCategoryName(categoryId: string) {
+    return this.categories().find((category) => category.id === categoryId)
+      ?.name;
+  }
 }
