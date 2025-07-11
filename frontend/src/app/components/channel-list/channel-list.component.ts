@@ -78,7 +78,7 @@ export class ChannelListComponent implements OnDestroy {
         dismissableMask: true,
         closeOnEscape: true,
         closable: true,
-        styleClass: '!bg-surface-700',
+        styleClass: '!bg-surface-700 !pt-0',
         data: {
           categoryId: categoryId,
         },
