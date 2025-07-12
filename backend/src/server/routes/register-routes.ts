@@ -9,7 +9,7 @@ import messageRoutes from "./message-routes";
 export function registerRoutes(app: Application, wsManager: WebSocketManager) {
   app.use("/api/public/auth", authRoutes);
   app.use("/api/private/channels", channelRoutes(wsManager));
-  app.use("/api/private/servers", serverRoutes);
+  app.use("/api/private/servers", serverRoutes(wsManager));
   app.use("/api/private/users", userRoutes);
   app.use("/api/private/messages", messageRoutes(wsManager));
 

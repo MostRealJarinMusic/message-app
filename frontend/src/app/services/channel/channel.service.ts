@@ -1,7 +1,8 @@
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
-import { Channel, ChannelCreate } from '@common/types';
+import { Channel, ChannelCreate, WSEventType } from '@common/types';
 import { PrivateApiService } from '../api/private-api.service';
 import { ServerService } from '../server/server.service';
+import { SocketService } from '../socket/socket.service';
 
 @Injectable({
   providedIn: 'root',
@@ -9,6 +10,7 @@ import { ServerService } from '../server/server.service';
 export class ChannelService {
   private apiService = inject(PrivateApiService);
   private serverService = inject(ServerService);
+  private wsService = inject(SocketService);
 
   readonly currentChannel = signal<string | null>(null);
   readonly channels = signal<Channel[]>([]);
@@ -19,6 +21,8 @@ export class ChannelService {
   );
 
   constructor() {
+    this.initWebSocket();
+
     //Load channels
     effect(() => {
       const currentServer = this.serverService.currentServer();
@@ -49,5 +53,34 @@ export class ChannelService {
       },
       error: (err) => console.error('Failed to load channels', err),
     });
+  }
+
+  public createChannel(channelName: string, categoryId: string) {
+    const newChannelData: ChannelCreate = {
+      name: channelName,
+      categoryId: categoryId,
+    };
+
+    this.apiService
+      .createChannel(this.serverService.currentServer()!, newChannelData)
+      .subscribe({
+        next: (channel) => {
+          console.log('Successfuly channel creation');
+        },
+        error: (err) => {
+          console.error('Failed to create channel:', err);
+        },
+      });
+  }
+
+  private initWebSocket(): void {
+    //Listeners for channel creation, edits and deletes
+    this.wsService
+      .on<Channel>(WSEventType.CHANNEL_CREATE)
+      .subscribe((channel) => {
+        if (channel.serverId === this.serverService.currentServer()) {
+          this.channels.update((current) => [...current, channel]);
+        }
+      });
   }
 }

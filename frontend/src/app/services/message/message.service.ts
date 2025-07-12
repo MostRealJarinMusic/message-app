@@ -2,7 +2,6 @@ import { effect, inject, Injectable, signal } from '@angular/core';
 import { SocketService } from '../socket/socket.service';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { Message, PresenceUpdate, WSEventType } from '@common/types';
-import { SessionService } from '../session/session.service';
 import { PrivateApiService } from '../api/private-api.service';
 import { ChannelService } from '../channel/channel.service';
 
@@ -34,7 +33,6 @@ export class MessageService {
 
   public sendMessage(content: string): void {
     //this.dbService.saveMessage(message);
-    // this.wsService.emit(WSEventType.SEND, message);
 
     //Should use HTTP
     //Temporary message response code
