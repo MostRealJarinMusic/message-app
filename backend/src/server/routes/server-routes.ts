@@ -2,7 +2,8 @@ import { Router } from "express";
 import { authMiddleware } from "../..//middleware/auth-middleware";
 import { ChannelRepo } from "../..//db/repos/channel.repo";
 import { ServerRepo } from "../..//db/repos/server.repo";
-import { Channel } from "@common/types";
+import { Channel, ChannelCreate } from "@common/types";
+import { ulid } from "ulid";
 
 const serverRoutes = Router();
 
@@ -35,15 +36,28 @@ serverRoutes.get("/:serverId/channels", authMiddleware, async (req, res) => {
 
 serverRoutes.post("/:serverId/channels", authMiddleware, async (req, res) => {
   try {
-    const newChannel = req.body.content as Channel;
+    const serverId = req.params.serverId;
+    const newChannelData = req.body;
 
-    if (!newChannel) {
+    console.log(newChannelData);
+
+    if (!newChannelData) {
       res.status(400).json({ error: "Channel data required" });
+      return;
     }
+
+    const newChannel: Channel = {
+      name: newChannelData.name,
+      categoryId: newChannelData.categoryId,
+      serverId: serverId,
+      id: ulid(),
+    };
 
     await ChannelRepo.createChannel(newChannel);
 
     //Notify all users of a channel creation
+
+    res.status(201).json(newChannel);
   } catch (err) {
     res.status(500).json({ error: "Failed to create channel" });
   }

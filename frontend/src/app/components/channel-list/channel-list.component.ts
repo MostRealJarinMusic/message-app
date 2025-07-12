@@ -87,9 +87,10 @@ export class ChannelListComponent implements OnDestroy {
       }
     );
 
-    this.createDialogRef.onClose.subscribe((result) => {
-      if (result) {
-        console.log('Dialog closed with:', result);
+    this.createDialogRef.onClose.subscribe((newChannelName) => {
+      if (newChannelName) {
+        console.log('Dialog closed with:', newChannelName);
+        this.channelService.createChannel(newChannelName, categoryId);
       } else {
         console.log('Dialog closed - no channel created.');
       }

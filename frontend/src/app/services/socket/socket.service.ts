@@ -65,12 +65,6 @@ export class SocketService {
 
       this.reconnectAttempts = 0;
       //this.startHeartbeat();
-
-      //Presence message
-      // this.emit<PresenceUpdate>(WSEventType.PRESENCE, {
-      //   userId: this.sessionService.currentUser()!.id,
-      //   status: PresenceStatus.ONLINE,
-      // });
     };
 
     this.socket.onmessage = async (event) => {
@@ -108,7 +102,6 @@ export class SocketService {
       if (!this.explicitClose) {
         this.reconnect(token);
       }
-      //Presence message
     };
 
     this.socket.onerror = (err) => {
