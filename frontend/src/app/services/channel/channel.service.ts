@@ -1,5 +1,5 @@
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
-import { Channel, ChannelCategory } from '@common/types';
+import { Channel, ChannelCreate } from '@common/types';
 import { PrivateApiService } from '../api/private-api.service';
 import { ServerService } from '../server/server.service';
 
