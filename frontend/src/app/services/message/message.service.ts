@@ -18,6 +18,18 @@ export class MessageService {
 
   constructor() {
     this.initWebSocket();
+
+    //Load message history
+    effect(() => {
+      const currentChannel = this.channelService.currentChannel();
+      if (currentChannel) this.loadMessageHistory(currentChannel);
+
+      // const authorIds = [
+      //   ...new Set(this.messageService.messages().map((m) => m.authorId)),
+      // ];
+
+      // this.userService.preloadUsers(authorIds);
+    });
   }
 
   public sendMessage(content: string): void {

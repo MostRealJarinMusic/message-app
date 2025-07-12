@@ -1,12 +1,14 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { Channel, ChannelCategory } from '@common/types';
 import { PrivateApiService } from '../api/private-api.service';
+import { ServerService } from '../server/server.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ChannelService {
   private apiService = inject(PrivateApiService);
+  private serverService = inject(ServerService);
 
   readonly currentChannel = signal<string | null>(null);
   readonly channels = signal<Channel[]>([]);
@@ -17,6 +19,17 @@ export class ChannelService {
   );
 
   readonly categories = signal<ChannelCategory[]>([]);
+
+  constructor() {
+    //Load channels
+    effect(() => {
+      const currentServer = this.serverService.currentServer();
+      if (currentServer) {
+        this.loadChannels(currentServer);
+        this.loadStructure(currentServer);
+      }
+    });
+  }
 
   selectChannel(id: string) {
     this.currentChannel.set(id);

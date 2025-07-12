@@ -24,36 +24,14 @@ import { UserListComponent } from '../user-list/user-list.component';
 })
 export class DashboardComponent {
   private serverService = inject(ServerService);
-  private channelService = inject(ChannelService);
-  private messageService = inject(MessageService);
+  // private channelService = inject(ChannelService);
+  // private messageService = inject(MessageService);
 
-  private currentServer = this.serverService.currentServer;
-  private currentChannel = this.channelService.currentChannel;
+  // private currentServer = this.serverService.currentServer;
+  // private currentChannel = this.channelService.currentChannel;
 
   constructor() {
     //Load the server
     this.serverService.loadServers();
-
-    //Load channels
-    effect(() => {
-      const currentServer = this.currentServer();
-      if (currentServer) {
-        this.channelService.loadChannels(currentServer);
-        this.channelService.loadStructure(currentServer);
-      }
-    });
-
-    //Load message history
-    effect(() => {
-      const currentChannel = this.currentChannel();
-      if (currentChannel)
-        this.messageService.loadMessageHistory(currentChannel);
-
-      // const authorIds = [
-      //   ...new Set(this.messageService.messages().map((m) => m.authorId)),
-      // ];
-
-      // this.userService.preloadUsers(authorIds);
-    });
   }
 }

@@ -29,6 +29,6 @@
 
     <div class="flex justify-end gap-2">
         <p-button label="Cancel" severity="secondary" variant="text" (onClick)="close()" />
-        <p-button label="Save" [disabled]="channelName === ''" />
+        <p-button label="Save" [disabled]="!channelName" (onClick)="createChannel()" />
     </div>
 </div>

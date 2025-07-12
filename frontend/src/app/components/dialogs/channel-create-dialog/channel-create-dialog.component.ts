@@ -27,7 +27,11 @@ export class ChannelCreateDialogComponent {
     this.categoryName = this.channelService.getCategoryName(this.categoryId)!;
   }
 
-  close() {
+  protected close() {
     this.ref.close();
+  }
+
+  protected createChannel() {
+    this.ref.close(this.channelName);
   }
 }
