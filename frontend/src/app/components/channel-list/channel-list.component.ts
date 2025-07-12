@@ -1,4 +1,11 @@
-import { Component, computed, inject, OnDestroy } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Channel } from '@common/types';
 import { ButtonModule } from 'primeng/button';
@@ -10,6 +17,9 @@ import { AccordionPanelComponent } from '../custom/accordion-panel/accordion-pan
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ChannelCreateDialogComponent } from '../dialogs/channel-create-dialog/channel-create-dialog.component';
 import { ChannelCategoryService } from 'src/app/services/channel-category/channel-category.service';
+import { ChannelButtonComponent } from '../channel-button/channel-button.component';
+import { ContextMenu } from 'primeng/contextmenu';
+import { MenuItem } from 'primeng/api';
 
 @Component({
   selector: 'app-channel-list',
@@ -17,24 +27,28 @@ import { ChannelCategoryService } from 'src/app/services/channel-category/channe
     ButtonModule,
     FormsModule,
     ListboxModule,
-    NgClass,
     AccordionModule,
     AccordionPanelComponent,
+    ChannelButtonComponent,
+    ContextMenu,
   ],
   providers: [DialogService],
   templateUrl: './channel-list.component.html',
   styleUrl: './channel-list.component.scss',
 })
-export class ChannelListComponent implements OnDestroy {
+export class ChannelListComponent implements OnDestroy, OnInit {
   private dialogService = inject(DialogService);
   private channelService = inject(ChannelService);
   private categoryService = inject(ChannelCategoryService);
 
   protected createDialogRef!: DynamicDialogRef;
+  @ViewChild('cm') cm!: ContextMenu;
+  contextMenuItems: MenuItem[] = [];
 
   protected categories = this.categoryService.channelCategories;
   protected channels = this.channelService.channels;
   protected currentChannel = this.channelService.currentChannel;
+  protected contextMenuChannel: Channel | null = null;
 
   protected groupedChannels = computed(() => {
     const map = new Map<string | null, Channel[]>();
@@ -99,5 +113,24 @@ export class ChannelListComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     if (this.createDialogRef) this.createDialogRef.close();
+  }
+
+  ngOnInit(): void {
+    this.contextMenuItems = [
+      {
+        label: 'Delete Channel',
+        icon: 'pi pi-pencil',
+        command: () => {
+          this.channelService.deleteChannel(this.contextMenuChannel!.id);
+        },
+      },
+      { label: 'Edit Channel', icon: 'pi pi-trash' },
+    ];
+  }
+
+  showContextMenu(event: MouseEvent, channel: Channel) {
+    this.contextMenuChannel = channel;
+    console.log(this.contextMenuChannel);
+    this.cm.show(event);
   }
 }

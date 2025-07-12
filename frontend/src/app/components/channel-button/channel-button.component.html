@@ -1,0 +1,17 @@
+
+<div>
+  <li
+    #channelItem
+    [ngClass]="{
+      'pl-3 py-1 mb-1 list-none rounded-border transition-colors duration-200 cursor-pointer': true,
+      'text-color-emphasis bg-emphasis': isSelected(),
+      'text-muted-color hover:bg-emphasis hover:text-muted-color-emphasis': !isSelected()
+    }"
+    (click)="onClick()"
+    (contextmenu)="onRightClick($event)"
+  >
+    <div># {{ channel()!.name }}</div>
+  </li>
+</div>
+
+

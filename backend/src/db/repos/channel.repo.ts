@@ -54,6 +54,31 @@ export class ChannelRepo {
     });
   }
 
+  static async getChannel(channelId: string): Promise<Channel> {
+    const db = await getDB();
+
+    return new Promise((resolve, reject) => {
+      db.get(
+        `SELECT * FROM channels WHERE id = ?`,
+        [channelId],
+        (err, row: any) => {
+          if (err) return reject(err);
+          if (!row)
+            return reject(new Error(`Channel with ID${channelId} not found`));
+
+          const channel: Channel = {
+            id: row.id,
+            serverId: row.serverId,
+            name: row.name,
+            categoryId: row.categoryId,
+          };
+
+          resolve(channel);
+        }
+      );
+    });
+  }
+
   // static async editChannel(newChannel: Channel) {
   //   const db = await getDB();
 

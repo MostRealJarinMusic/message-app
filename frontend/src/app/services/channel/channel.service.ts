@@ -73,6 +73,17 @@ export class ChannelService {
       });
   }
 
+  public deleteChannel(channelId: string) {
+    this.apiService.deleteChannel(channelId).subscribe({
+      next: () => {
+        console.log('Successful channel deletion');
+      },
+      error: (err) => {
+        console.error('Unsuccessful channel deletion', err);
+      },
+    });
+  }
+
   private initWebSocket(): void {
     //Listeners for channel creation, edits and deletes
     this.wsService
@@ -80,6 +91,26 @@ export class ChannelService {
       .subscribe((channel) => {
         if (channel.serverId === this.serverService.currentServer()) {
           this.channels.update((current) => [...current, channel]);
+        }
+      });
+
+    //Deletes
+    this.wsService
+      .on<Channel>(WSEventType.CHANNEL_DELETE)
+      .subscribe((channel) => {
+        console.log(channel);
+
+        if (
+          channel.id === this.currentChannel() &&
+          this.channels().length > 0
+        ) {
+          this.selectChannel(this.channels()[0].id);
+        }
+
+        if (channel.serverId === this.serverService.currentServer()) {
+          this.channels.update((current) =>
+            current.filter((c) => c.id !== channel.id)
+          );
         }
       });
   }
