@@ -2,76 +2,80 @@ import { Router } from "express";
 import { authMiddleware } from "../..//middleware/auth-middleware";
 import { ChannelRepo } from "../..//db/repos/channel.repo";
 import { ServerRepo } from "../..//db/repos/server.repo";
-import { Channel, ChannelCreate } from "@common/types";
+import { Channel, ChannelCreate, WSEventType } from "../../../../common/types";
 import { ulid } from "ulid";
+import { WebSocketManager } from "../ws/websocket-manager";
 
-const serverRoutes = Router();
+export default function serverRoutes(wsManager: WebSocketManager): Router {
+  const serverRoutes = Router();
 
-//Temporarily fetches all servers
-serverRoutes.get("/", authMiddleware, async (req, res) => {
-  try {
-    //const userId = (req as any).signature.id;
-    //For now, we will assume that all users have access to all servers from login
+  //Temporarily fetches all servers
+  serverRoutes.get("/", authMiddleware, async (req, res) => {
+    try {
+      //const userId = (req as any).signature.id;
+      //For now, we will assume that all users have access to all servers from login
 
-    const servers = await ServerRepo.getServers();
-    res.json(servers);
-  } catch (err) {
-    console.error("Error getting servers", err);
-    res.status(500).json({ error: "Failed to fetch servers" });
-  }
-});
-
-serverRoutes.get("/:serverId/channels", authMiddleware, async (req, res) => {
-  try {
-    //console.log("HTTP: Attempt to get channels");
-    const serverId = req.params.serverId;
-    const channels = await ChannelRepo.getChannels(serverId);
-
-    res.json(channels);
-  } catch (err) {
-    console.error("Error getting channels", err);
-    res.status(500).json({ error: "Failed to fetch channels" });
-  }
-});
-
-serverRoutes.post("/:serverId/channels", authMiddleware, async (req, res) => {
-  try {
-    const serverId = req.params.serverId;
-    const newChannelData = req.body;
-
-    console.log(newChannelData);
-
-    if (!newChannelData) {
-      res.status(400).json({ error: "Channel data required" });
-      return;
+      const servers = await ServerRepo.getServers();
+      res.json(servers);
+    } catch (err) {
+      console.error("Error getting servers", err);
+      res.status(500).json({ error: "Failed to fetch servers" });
     }
+  });
 
-    const newChannel: Channel = {
-      name: newChannelData.name,
-      categoryId: newChannelData.categoryId,
-      serverId: serverId,
-      id: ulid(),
-    };
+  serverRoutes.get("/:serverId/channels", authMiddleware, async (req, res) => {
+    try {
+      //console.log("HTTP: Attempt to get channels");
+      const serverId = req.params.serverId;
+      const channels = await ChannelRepo.getChannels(serverId);
 
-    await ChannelRepo.createChannel(newChannel);
+      res.json(channels);
+    } catch (err) {
+      console.error("Error getting channels", err);
+      res.status(500).json({ error: "Failed to fetch channels" });
+    }
+  });
 
-    //Notify all users of a channel creation
+  serverRoutes.post("/:serverId/channels", authMiddleware, async (req, res) => {
+    try {
+      const serverId = req.params.serverId;
+      const newChannelData = req.body;
 
-    res.status(201).json(newChannel);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to create channel" });
-  }
-});
+      console.log(newChannelData);
 
-serverRoutes.get("/:serverId/structure", authMiddleware, async (req, res) => {
-  try {
-    const serverId = req.params.serverId;
-    const categories = await ServerRepo.getStructure(serverId);
+      if (!newChannelData) {
+        res.status(400).json({ error: "Channel data required" });
+        return;
+      }
 
-    res.json(categories);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to fetch structure" });
-  }
-});
+      const newChannel: Channel = {
+        name: newChannelData.name,
+        categoryId: newChannelData.categoryId,
+        serverId: serverId,
+        id: ulid(),
+      };
 
-export default serverRoutes;
+      await ChannelRepo.createChannel(newChannel);
+
+      //Notify all users of a channel creation
+      wsManager.broadcastToAll(WSEventType.CHANNEL_CREATE, newChannel);
+
+      res.status(201).json(newChannel);
+    } catch (err) {
+      res.status(500).json({ error: "Failed to create channel" });
+    }
+  });
+
+  serverRoutes.get("/:serverId/structure", authMiddleware, async (req, res) => {
+    try {
+      const serverId = req.params.serverId;
+      const categories = await ServerRepo.getStructure(serverId);
+
+      res.json(categories);
+    } catch (err) {
+      res.status(500).json({ error: "Failed to fetch structure" });
+    }
+  });
+
+  return serverRoutes;
+}
