@@ -1,7 +1,11 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'path';
+import * as url from 'url';
 
-let mainWindow: BrowserWindow | null; 
+const __filename = url.fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+let mainWindow: BrowserWindow | null;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -9,32 +13,32 @@ function createWindow() {
     height: 768,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
-      contextIsolation: true
-    }
+      contextIsolation: true,
+    },
   });
 
-  const startURL = process.env['NODE_ENV'] === 'development'
-    ? 'http://localhost:4200'
-    : `file://${path.join(__dirname, '../dist/frontend/index.html')}`;
+  const startURL =
+    process.env['NODE_ENV'] === 'development'
+      ? 'http://localhost:4200'
+      : `file://${path.join(__dirname, '../dist/frontend/index.html')}`;
 
   mainWindow.loadURL(startURL);
-  mainWindow.webContents.openDevTools()
+  mainWindow.webContents.openDevTools();
 
   mainWindow.on('closed', function () {
     mainWindow = null;
-  })
-
+  });
 }
 
 app.on('ready', createWindow);
 
 app.on('window-all-closed', function () {
-  if (process.platform !== 'darwin') app.quit()
-})
+  if (process.platform !== 'darwin') app.quit();
+});
 
 app.on('activate', function () {
-  if (mainWindow === null) createWindow()
-})
+  if (mainWindow === null) createWindow();
+});
 
 ipcMain.handle('localStorage:get', async (_event, key) => {
   // Renderer process will handle actual localStorage access

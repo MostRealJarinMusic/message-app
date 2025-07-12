@@ -1,5 +1,9 @@
 {
   "compilerOptions": {
+    "target": "es2020",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
     "types": ["node"]
   },
   "include": ["main.ts"]

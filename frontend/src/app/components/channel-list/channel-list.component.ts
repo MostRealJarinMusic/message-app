@@ -10,6 +10,7 @@ import { AccordionPanelComponent } from '../custom/accordion-panel/accordion-pan
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ChannelCreateDialogComponent } from '../dialogs/channel-create-dialog/channel-create-dialog.component';
 import { ChannelCategoryService } from 'src/app/services/channel-category/channel-category.service';
+import { ChannelButtonComponent } from '../channel-button/channel-button.component';
 
 @Component({
   selector: 'app-channel-list',
@@ -17,9 +18,9 @@ import { ChannelCategoryService } from 'src/app/services/channel-category/channe
     ButtonModule,
     FormsModule,
     ListboxModule,
-    NgClass,
     AccordionModule,
     AccordionPanelComponent,
+    ChannelButtonComponent,
   ],
   providers: [DialogService],
   templateUrl: './channel-list.component.html',
