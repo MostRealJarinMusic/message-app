@@ -17,6 +17,8 @@ export class ServerService {
   }
 
   loadServers() {
+    console.log('Loading servers');
+
     this.apiService.getServers().subscribe({
       next: (servers) => {
         this.servers.set(servers);

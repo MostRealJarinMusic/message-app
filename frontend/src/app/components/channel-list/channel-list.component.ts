@@ -9,6 +9,7 @@ import { AccordionModule } from 'primeng/accordion';
 import { AccordionPanelComponent } from '../custom/accordion-panel/accordion-panel.component';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ChannelCreateDialogComponent } from '../dialogs/channel-create-dialog/channel-create-dialog.component';
+import { ChannelCategoryService } from 'src/app/services/channel-category/channel-category.service';
 
 @Component({
   selector: 'app-channel-list',
@@ -25,12 +26,13 @@ import { ChannelCreateDialogComponent } from '../dialogs/channel-create-dialog/c
   styleUrl: './channel-list.component.scss',
 })
 export class ChannelListComponent implements OnDestroy {
-  protected dialogService = inject(DialogService);
+  private dialogService = inject(DialogService);
   private channelService = inject(ChannelService);
+  private categoryService = inject(ChannelCategoryService);
 
   protected createDialogRef!: DynamicDialogRef;
 
-  protected categories = this.channelService.categories;
+  protected categories = this.categoryService.channelCategories;
   protected channels = this.channelService.channels;
   protected currentChannel = this.channelService.currentChannel;
 
@@ -80,7 +82,7 @@ export class ChannelListComponent implements OnDestroy {
         closable: true,
         styleClass: '!bg-surface-700 !pt-0',
         data: {
-          categoryId: categoryId,
+          categoryName: this.categoryService.getCategoryName(categoryId),
         },
       }
     );

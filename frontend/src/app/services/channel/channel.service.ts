@@ -18,15 +18,12 @@ export class ChannelService {
         ?.name
   );
 
-  readonly categories = signal<ChannelCategory[]>([]);
-
   constructor() {
     //Load channels
     effect(() => {
       const currentServer = this.serverService.currentServer();
       if (currentServer) {
         this.loadChannels(currentServer);
-        this.loadStructure(currentServer);
       }
     });
   }
@@ -35,7 +32,7 @@ export class ChannelService {
     this.currentChannel.set(id);
   }
 
-  loadChannels(serverId: string) {
+  private loadChannels(serverId: string) {
     this.apiService.getChannels(serverId).subscribe({
       next: (channels) => {
         this.channels.set(channels);
@@ -52,19 +49,5 @@ export class ChannelService {
       },
       error: (err) => console.error('Failed to load channels', err),
     });
-  }
-
-  loadStructure(serverId: string) {
-    this.apiService.getServerStructure(serverId).subscribe({
-      next: (categories) => {
-        this.categories.set(categories);
-      },
-      error: (err) => console.error('Failed to load server structure', err),
-    });
-  }
-
-  getCategoryName(categoryId: string) {
-    return this.categories().find((category) => category.id === categoryId)
-      ?.name;
   }
 }
