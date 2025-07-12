@@ -1,6 +1,6 @@
 # Encrypted Messaging App
 
-_A simple Discord-like messaging app_ <br>
+_A simple Discord-like messaging app_ \
 Intended as a side project / exercise in learning the following technologies:
 
 - REST APIs
@@ -19,7 +19,7 @@ Intended as a side project / exercise in learning the following technologies:
 
 - Angular
 - Electron
-- PrimeNG
+- PrimeNG - component library
 
 ### Backend:
 
