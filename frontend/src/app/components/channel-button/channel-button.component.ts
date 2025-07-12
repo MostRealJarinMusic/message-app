@@ -10,13 +10,14 @@ import { MenuItem } from 'primeng/api';
   templateUrl: './channel-button.component.html',
   styleUrl: './channel-button.component.scss',
 })
-export class ChannelButtonComponent implements OnInit {
+export class ChannelButtonComponent {
   items: MenuItem[] = [];
 
   channel = input<Channel | null>(null);
   isSelected = input(false);
 
   select = output<string>();
+  openContextMenu = output<MouseEvent>();
 
   onClick() {
     this.select.emit(this.channel()!.id);
@@ -24,12 +25,6 @@ export class ChannelButtonComponent implements OnInit {
 
   onRightClick(event: MouseEvent) {
     event.preventDefault();
-  }
-
-  ngOnInit(): void {
-    this.items = [
-      { label: 'Delete Channel', icon: 'pi pi-pencil' },
-      { label: 'Edit Channel', icon: 'pi pi-trash' },
-    ];
+    this.openContextMenu.emit(event);
   }
 }

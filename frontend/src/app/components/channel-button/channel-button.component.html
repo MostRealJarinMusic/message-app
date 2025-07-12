@@ -8,15 +8,10 @@
       'text-muted-color hover:bg-emphasis hover:text-muted-color-emphasis': !isSelected()
     }"
     (click)="onClick()"
+    (contextmenu)="onRightClick($event)"
   >
     <div># {{ channel()!.name }}</div>
   </li>
-  <p-contextmenu 
-    global="true"
-    [target]="channelItem" 
-    [model]="items" 
-    appendTo="body"
-  />
 </div>
 
 

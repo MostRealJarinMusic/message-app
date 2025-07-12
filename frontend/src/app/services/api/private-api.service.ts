@@ -66,7 +66,7 @@ export class PrivateApiService extends BaseApiService {
   //   return this.authorisedFetch<User>((_) => this.get<User>(`users/${userId}`));
   // }
 
-  //Channel and Server CRUD
+  //Channel CRUD
   getChannels(serverId: string): Observable<Channel[]> {
     return this.authorisedFetch<Channel[]>((_) =>
       this.get<Channel[]>(`servers/${serverId}/channels`)
@@ -80,12 +80,20 @@ export class PrivateApiService extends BaseApiService {
     );
   }
 
+  deleteChannel(channelId: string) {
+    return this.authorisedFetch<void>((_) =>
+      this.delete<void>(`channels/${channelId}`)
+    );
+  }
+
+  //Channel Category CRUD
   getServerStructure(serverId: string): Observable<ChannelCategory[]> {
     return this.authorisedFetch<ChannelCategory[]>((_) =>
       this.get<ChannelCategory[]>(`servers/${serverId}/structure`)
     );
   }
 
+  //Server CRUD
   getServers(): Observable<Server[]> {
     return this.authorisedFetch<Server[]>((_) => this.get<Server[]>('servers'));
   }

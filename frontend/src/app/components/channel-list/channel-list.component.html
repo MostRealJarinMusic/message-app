@@ -12,6 +12,8 @@
   </li>
   }
 </div> -->
+<div>
+
 
 <div class="mb-4">
   @for (channel of groupedChannels().get(null) ?? []; track channel.id){
@@ -19,6 +21,7 @@
       [channel]="channel"
       [isSelected]="channel.id === currentChannel()"
       (select)="selectChannel($event)"
+      (openContextMenu)="showContextMenu($event, channel)"
     />
   }
 </div>
@@ -34,7 +37,28 @@
         [channel]="channel"
         [isSelected]="channel.id === currentChannel()"
         (select)="selectChannel($event)"
+        (openContextMenu)="showContextMenu($event, channel)"
       />
+      <!-- <li
+        #channelItem
+        [ngClass]="{
+          'pl-3 py-1 mb-1 list-none rounded-border transition-colors duration-200 cursor-pointer': true,
+          'text-color-emphasis bg-emphasis': channel.id === currentChannel(),
+          'text-muted-color hover:bg-emphasis hover:text-muted-color-emphasis': channel.id !== currentChannel()
+        }"
+        (click)="currentChannel.set(channel.id)"
+        (contextmenu)="showContextMenu($event)"
+      >
+        <div># {{ channel.name }}</div>
+      </li> -->
       }
   </app-accordion-panel>
 }
+
+<p-contextmenu 
+  #cm
+  [model]="contextMenuItems" 
+  (onHide)="contextMenuChannel = null"
+/>
+
+</div>
