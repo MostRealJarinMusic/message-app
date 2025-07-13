@@ -19,6 +19,7 @@ import { ChannelCategoryService } from 'src/app/services/channel-category/channe
 import { ChannelButtonComponent } from '../channel-button/channel-button.component';
 import { ContextMenu } from 'primeng/contextmenu';
 import { MenuItem } from 'primeng/api';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-channel-list',
@@ -48,6 +49,8 @@ export class ChannelListComponent implements OnDestroy, OnInit {
   protected channels = this.channelService.channels;
   protected currentChannel = this.channelService.currentChannel;
   protected contextMenuChannel: Channel | null = null;
+
+  private router = inject(Router);
 
   protected groupedChannels = computed(() => {
     const map = new Map<string | null, Channel[]>();
@@ -112,7 +115,13 @@ export class ChannelListComponent implements OnDestroy, OnInit {
 
   ngOnInit(): void {
     this.contextMenuItems = [
-      { label: 'Edit Channel', icon: 'pi pi-trash' },
+      {
+        label: 'Edit Channel',
+        icon: 'pi pi-trash',
+        command: () => {
+          this.router.navigate(['/channel/edit', this.contextMenuChannel!.id]);
+        },
+      },
       {
         separator: true,
       },
