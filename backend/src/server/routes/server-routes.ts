@@ -41,8 +41,6 @@ export default function serverRoutes(wsManager: WebSocketManager): Router {
       const serverId = req.params.serverId;
       const newChannelData = req.body;
 
-      console.log(newChannelData);
-
       if (!newChannelData) {
         res.status(400).json({ error: "Channel data required" });
         return;

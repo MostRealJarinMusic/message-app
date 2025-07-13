@@ -11,7 +11,6 @@ import { Channel } from '@common/types';
 import { ButtonModule } from 'primeng/button';
 import { ChannelService } from 'src/app/services/channel/channel.service';
 import { ListboxModule } from 'primeng/listbox';
-import { NgClass } from '@angular/common';
 import { AccordionModule } from 'primeng/accordion';
 import { AccordionPanelComponent } from '../custom/accordion-panel/accordion-panel.component';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -20,6 +19,7 @@ import { ChannelCategoryService } from 'src/app/services/channel-category/channe
 import { ChannelButtonComponent } from '../channel-button/channel-button.component';
 import { ContextMenu } from 'primeng/contextmenu';
 import { MenuItem } from 'primeng/api';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-channel-list',
@@ -50,6 +50,8 @@ export class ChannelListComponent implements OnDestroy, OnInit {
   protected currentChannel = this.channelService.currentChannel;
   protected contextMenuChannel: Channel | null = null;
 
+  private router = inject(Router);
+
   protected groupedChannels = computed(() => {
     const map = new Map<string | null, Channel[]>();
 
@@ -62,8 +64,6 @@ export class ChannelListComponent implements OnDestroy, OnInit {
 
       map.get(key)!.push(channel);
     }
-
-    console.log(map);
 
     return map;
   });
@@ -78,8 +78,6 @@ export class ChannelListComponent implements OnDestroy, OnInit {
   }
 
   protected startCreateChannel(categoryId: string) {
-    console.log('Starting to create a new channel in category');
-    console.log(categoryId);
     this.showCreateDialog(categoryId);
   }
 
@@ -118,19 +116,27 @@ export class ChannelListComponent implements OnDestroy, OnInit {
   ngOnInit(): void {
     this.contextMenuItems = [
       {
+        label: 'Edit Channel',
+        icon: 'pi pi-trash',
+        command: () => {
+          this.router.navigate(['/channel/edit', this.contextMenuChannel!.id]);
+        },
+      },
+      {
+        separator: true,
+      },
+      {
         label: 'Delete Channel',
         icon: 'pi pi-pencil',
         command: () => {
           this.channelService.deleteChannel(this.contextMenuChannel!.id);
         },
       },
-      { label: 'Edit Channel', icon: 'pi pi-trash' },
     ];
   }
 
   showContextMenu(event: MouseEvent, channel: Channel) {
     this.contextMenuChannel = channel;
-    console.log(this.contextMenuChannel);
     this.cm.show(event);
   }
 }

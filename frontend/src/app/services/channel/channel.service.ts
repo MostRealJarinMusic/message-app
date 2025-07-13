@@ -114,4 +114,8 @@ export class ChannelService {
         }
       });
   }
+
+  getChannelById(id: string): Channel | undefined {
+    return this.channels().find((channel) => channel.id === id);
+  }
 }

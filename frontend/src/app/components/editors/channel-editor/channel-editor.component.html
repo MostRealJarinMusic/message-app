@@ -1,0 +1,15 @@
+<div class="w-full h-screen p-6 bg-surface-700 text-white flex flex-col gap-4">
+  <div class="flex justify-between items-center">
+    <h2 class="text-xl font-semibold">Edit Channel</h2>
+    <p-button label="Close" (click)="closeEditor()" icon="pi pi-times" />
+  </div>
+
+  <div class="flex flex-col gap-2">
+    <label for="channelName">Channel Name</label>
+    <input id="channelName" type="text" [(ngModel)]="channelName" pInputText />
+  </div>
+
+  <div class="mt-auto">
+    <p-button label="Save" icon="pi pi-check" (click)="saveChanges()" />
+  </div>
+</div>
