@@ -8,6 +8,7 @@ import { DividerModule } from 'primeng/divider';
 import { MessageListComponent } from '../message-list/message-list.component';
 import { MessageInputComponent } from '../message-input/message-input.component';
 import { UserListComponent } from '../user-list/user-list.component';
+import { ChannelTitleBarComponent } from '../channel-title-bar/channel-title-bar.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -18,6 +19,7 @@ import { UserListComponent } from '../user-list/user-list.component';
     MessageListComponent,
     MessageInputComponent,
     UserListComponent,
+    ChannelTitleBarComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
