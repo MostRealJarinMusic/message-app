@@ -13,33 +13,31 @@
   }
 </div> -->
 <div>
-
-
-<div class="mb-4">
-  @for (channel of groupedChannels().get(null) ?? []; track channel.id){
+  <div class="mb-4">
+    @for (channel of groupedChannels().get(null) ?? []; track channel.id){
     <app-channel-button
       [channel]="channel"
       [isSelected]="channel.id === currentChannel()"
       (select)="selectChannel($event)"
       (openContextMenu)="showContextMenu($event, channel)"
     />
-  }
-</div>
+    }
+  </div>
 
-
-@for (category of categories(); track category.id) {
-  <app-accordion-panel 
+  @for (category of categories(); track category.id) {
+  <app-accordion-panel
     [header]="category.name"
     (add)="startCreateChannel(category.id)"
   >
-    @for (channel of groupedChannels().get(category.id) ?? []; track channel.id){
-      <app-channel-button
-        [channel]="channel"
-        [isSelected]="channel.id === currentChannel()"
-        (select)="selectChannel($event)"
-        (openContextMenu)="showContextMenu($event, channel)"
-      />
-      <!-- <li
+    @for (channel of groupedChannels().get(category.id) ?? []; track
+    channel.id){
+    <app-channel-button
+      [channel]="channel"
+      [isSelected]="channel.id === currentChannel()"
+      (select)="selectChannel($event)"
+      (openContextMenu)="showContextMenu($event, channel)"
+    />
+    <!-- <li
         #channelItem
         [ngClass]="{
           'pl-3 py-1 mb-1 list-none rounded-border transition-colors duration-200 cursor-pointer': true,
@@ -51,14 +49,13 @@
       >
         <div># {{ channel.name }}</div>
       </li> -->
-      }
+    }
   </app-accordion-panel>
-}
+  }
 
-<p-contextmenu 
-  #cm
-  [model]="contextMenuItems" 
-  (onHide)="contextMenuChannel = null"
-/>
-
+  <p-contextmenu
+    #cm
+    [model]="contextMenuItems"
+    (onHide)="contextMenuChannel = null"
+  />
 </div>

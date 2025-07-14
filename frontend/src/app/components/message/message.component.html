@@ -1,87 +1,87 @@
-<div 
+<div
   class="relative group block w-full my-1 mr-2 p-2 transition-colors duration-800 rounded-r-md hover:bg-surface-700"
   [ngClass]="{
     'bg-surface-700': isBeingEdited()
   }"
-> 
-
-  
+>
   @if (isMine && !isBeingEdited()) {
-    <div
-      class="absolute top-0 right-0 mt-[-1rem] mr-2 flex opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-    >
-      <div class="flex gap-2 bg-surface-900 px-2 py-1 rounded-border shadow-md">
-        <p-button
-          icon="pi pi-pencil"
-          styleClass="p-button-sm p-button-text p-button-rounded p-button-secondary !w-6 !h-6"
-          (click)="startMessageEdit()"
-          pTooltip="Edit"
-          tooltipPosition="top"
-          tooltipStyleClass="text-sm"
-        ></p-button>
+  <div
+    class="absolute top-0 right-0 mt-[-1rem] mr-2 flex opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+  >
+    <div class="flex gap-2 bg-surface-900 px-2 py-1 rounded-border shadow-md">
+      <p-button
+        icon="pi pi-pencil"
+        styleClass="p-button-sm p-button-text p-button-rounded p-button-secondary !w-6 !h-6"
+        (click)="startMessageEdit()"
+        pTooltip="Edit"
+        tooltipPosition="top"
+        tooltipStyleClass="text-sm"
+      ></p-button>
 
-        <p-button
-          icon="pi pi-trash"
-          styleClass="p-button-sm p-button-text p-button-rounded p-button-danger !w-6 !h-6"
-          (click)="deleteMessage()"
-          pTooltip="Delete"
-          tooltipPosition="top"
-          tooltipStyleClass="text-sm"
-        ></p-button>
-      </div>
-
+      <p-button
+        icon="pi pi-trash"
+        styleClass="p-button-sm p-button-text p-button-rounded p-button-danger !w-6 !h-6"
+        (click)="deleteMessage()"
+        pTooltip="Delete"
+        tooltipPosition="top"
+        tooltipStyleClass="text-sm"
+      ></p-button>
     </div>
+  </div>
   }
-  
+
   <div class="flex items-start min-w-0 w-full pr-2">
     <div class="mx-4 shrink-0">
       <p-avatar icon="pi pi-user" shape="circle"></p-avatar>
     </div>
-    
+
     <div class="flex-1 min-w-0">
       <div class="space-y-1">
-        <div class="text-xs font-bold">{{ message.authorId }}
-          <span class="text-xs ml-2 font-light text-muted-color">{{ formatTime(message.createdAt) }}</span>
+        <div class="text-xs font-bold">
+          {{ message.authorId }}
+          <span class="text-xs ml-2 font-light text-muted-color">{{
+            formatTime(message.createdAt)
+          }}</span>
         </div>
 
         @if (!isBeingEdited()) {
-          <div class="text-xs whitespace-pre-line break-words">
-            {{ message.content }}
-            <!-- @if (message.editedAt !== undefined) {
+        <div class="text-xs whitespace-pre-line break-words">
+          {{ message.content }}
+          <!-- @if (message.editedAt !== undefined) {
               <span class="text-[10px] ml-1 font-light text-muted-color">{{ message.editedAt }}</span>
             } -->
-          </div>
+        </div>
         } @else {
-          <div class="mr-4 w-full">
-            <form (submit)="enterMessageEdit()" class="w-full">
-              <textarea
-                pTextarea
-                [autoResize]="true"
-                [ngModel]="editContent()"
-                (ngModelChange)="onInputChange($event)"
-                name="message"
-                rows="1"
-                class="w-full p-2 !text-xs !bg-surface-700 rounded-lg border !border-surface-600 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-200"
-                (keydown)="handleKeydown($event)"
-                style="max-height: 400px; overflow-y: auto;"
-              ></textarea>
-              <!-- <button pButton type="submit" icon="pi pi-send" label="Send"></button> -->
-            </form>
-            <div class="flex-row items-start space-x-2">
-              <p-button 
-                styleClass="p-button-sm !text-xs" 
-                label="Save" 
-                severity="secondary"
-                (click)="enterMessageEdit()"
-              />
-              <p-button 
-                styleClass="p-button-sm !text-xs" 
-                label="Cancel" 
-                severity="secondary"
-                (click)="escapeMessageEdit()"
-              />
-            </div>
+        <div class="mr-4 w-full">
+          <form (submit)="enterMessageEdit()" class="w-full">
+            <textarea
+              pTextarea
+              [autoResize]="true"
+              [ngModel]="editContent()"
+              (ngModelChange)="onInputChange($event)"
+              name="message"
+              rows="1"
+              class="w-full p-2 !text-xs !bg-surface-700 rounded-lg border !border-surface-600 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-200"
+              (keydown)="handleKeydown($event)"
+              style="max-height: 400px; overflow-y: auto"
+            ></textarea>
+            <!-- <button pButton type="submit" icon="pi pi-send" label="Send"></button> -->
+          </form>
+          <div class="flex-row items-start space-x-2">
+            <p-button
+              styleClass="p-button-sm !text-xs"
+              label="Save"
+              severity="secondary"
+              (click)="enterMessageEdit()"
+            />
+            <p-button
+              styleClass="p-button-sm !text-xs"
+              label="Cancel"
+              severity="secondary"
+              (click)="escapeMessageEdit()"
+            />
           </div>
+        </div>
         }
       </div>
     </div>
