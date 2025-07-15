@@ -9,6 +9,7 @@ import { MessageListComponent } from '../message-list/message-list.component';
 import { MessageInputComponent } from '../message-input/message-input.component';
 import { UserListComponent } from '../user-list/user-list.component';
 import { ChannelTitleBarComponent } from '../channel-title-bar/channel-title-bar.component';
+import { ServerTitleBarComponent } from '../server-title-bar/server-title-bar.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -20,6 +21,7 @@ import { ChannelTitleBarComponent } from '../channel-title-bar/channel-title-bar
     MessageInputComponent,
     UserListComponent,
     ChannelTitleBarComponent,
+    ServerTitleBarComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',

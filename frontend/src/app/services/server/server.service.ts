@@ -30,4 +30,8 @@ export class ServerService {
       error: (err) => console.error('Failed to load channels', err),
     });
   }
+
+  getServerById(id: string): Server | undefined {
+    return this.servers().find((server) => server.id === id);
+  }
 }

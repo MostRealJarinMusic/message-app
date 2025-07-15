@@ -1,7 +1,15 @@
 <div class="flex h-screen bg-surface-900">
   <app-server-list class="w-32 p-2 overflow-y-auto"></app-server-list>
   <p-divider layout="vertical" styleClass="!mx-0" />
-  <app-channel-list class="w-72 p-2 overflow-y-auto"></app-channel-list>
+
+  <div class="w-72 flex-col">
+    <app-server-title-bar></app-server-title-bar>
+
+    <p-divider layout="horizontal" styleClass="!my-0"></p-divider>
+    <app-channel-list
+      class="flex flex-col flex-1 m-2 overflow-y-auto"
+    ></app-channel-list>
+  </div>
 
   <div class="flex flex-col flex-1 bg-surface-800">
     <app-channel-title-bar></app-channel-title-bar>
