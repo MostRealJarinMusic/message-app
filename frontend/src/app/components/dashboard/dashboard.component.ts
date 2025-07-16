@@ -28,11 +28,6 @@ import { ServerTitleBarComponent } from '../server-title-bar/server-title-bar.co
 })
 export class DashboardComponent {
   private serverService = inject(ServerService);
-  // private channelService = inject(ChannelService);
-  // private messageService = inject(MessageService);
-
-  // private currentServer = this.serverService.currentServer;
-  // private currentChannel = this.channelService.currentChannel;
 
   constructor() {
     //Load the server

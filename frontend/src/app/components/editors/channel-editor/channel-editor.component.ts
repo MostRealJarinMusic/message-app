@@ -33,7 +33,6 @@ export class ChannelEditorComponent implements OnInit {
   }
 
   saveChanges() {
-    //this.channelService.updateChannel(this.channelId
     this.closeEditor();
   }
 

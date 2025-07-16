@@ -1,5 +1,5 @@
-<!-- <div>
-  @for (entry of presenceEntries; track entry[0]) {
-    <p>{{ entry[0] }} - {{ entry[1] }}</p>
+<div>
+  @for (entry of presenceEntries; track $index) {
+  <p>{{ entry[0] }} - {{ entry[1] }}</p>
   }
-</div> -->
+</div>
