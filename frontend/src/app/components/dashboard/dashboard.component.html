@@ -1,4 +1,4 @@
-<div class="flex h-screen bg-surface-900">
+<!-- <div class="flex h-screen bg-surface-900">
   <app-server-list class="w-32 p-2 overflow-y-auto"></app-server-list>
   <p-divider layout="vertical" styleClass="!mx-0" />
 
@@ -28,5 +28,50 @@
         <app-user-list></app-user-list>
       </div>
     </div>
+  </div>
+</div> -->
+
+<div class="grid h-screen bg-surface-900 grid-cols-layout grid-rows-layout">
+  <app-server-list class="row-span-3 p-2 overflow-y-auto"></app-server-list>
+
+  <p-divider
+    class="row-span-3 col-start-2 row-start-1 !mx-0"
+    layout="vertical"
+  />
+
+  <app-server-title-bar
+    class="col-start-3 row-start-1 h-full justify-center"
+  ></app-server-title-bar>
+
+  <p-divider
+    layout="horizontal"
+    class="col-span-4 col-start-3 row-start-2"
+    styleClass="!my-0"
+  ></p-divider>
+
+  <app-channel-list
+    class="col-start-3 row-start-3 m-2 overflow-y-auto"
+  ></app-channel-list>
+
+  <app-channel-title-bar
+    class="col-span-3 col-start-4 row-start-1 bg-surface-800"
+  ></app-channel-title-bar>
+
+  <!-- Messages + Input + Users (Row 2) -->
+  <div
+    class="col-start-4 row-start-3 grid grid-rows-[1fr_auto] overflow-hidden bg-surface-800"
+  >
+    <!-- <app-message-list class="overflow-hidden"></app-message-list>
+    <app-message-input class="pb-4 px-4"></app-message-input> -->
+
+    <app-message-list class="flex-1 overflow-hidden"></app-message-list>
+    <app-message-input class="pb-4 px-4"></app-message-input>
+  </div>
+
+  <!-- Divider -->
+  <p-divider class="col-start-5 row-start-3 !mx-0" layout="vertical" />
+
+  <div class="col-start-6 row-start-3 p-2 overflow-y-auto bg-surface-800">
+    <app-user-list></app-user-list>
   </div>
 </div>
