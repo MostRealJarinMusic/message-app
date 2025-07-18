@@ -85,13 +85,6 @@ export class MessageService {
         );
       }
     });
-
-    //Prsence service code - here
-    // this.wsService.on<PresenceUpdate>(WSEventType.PRESENCE).subscribe({
-    //   next: (update) => {
-    //     console.log(`${update.userId} is ${update.status}`)
-    //   }
-    // })
   }
 
   public editMessage(messageId: string, newContent: string) {

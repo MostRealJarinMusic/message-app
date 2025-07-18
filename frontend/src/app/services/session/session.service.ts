@@ -14,14 +14,11 @@ export class SessionService {
   readonly currentUser = this.userService.currentUser;
 
   constructor() {
-    //console.log("Session service created")
-
     const savedToken = this.tokenService.getSavedToken();
     if (savedToken) this.resumeSession(savedToken);
   }
 
   async startSession(token: string): Promise<void> {
-    console.log('Starting session');
     this.tokenService.setToken(token);
     try {
       await firstValueFrom(this.userService.fetchCurrentUser());
@@ -32,13 +29,11 @@ export class SessionService {
   }
 
   endSession(): void {
-    console.log('Ending session');
     this.tokenService.clearToken();
     this.currentUser.set(null);
   }
 
   private async resumeSession(token: string): Promise<void> {
-    console.log('Resuming session');
     this.tokenService.setToken(token);
     try {
       await firstValueFrom(this.userService.fetchCurrentUser());
