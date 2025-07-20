@@ -1,5 +1,10 @@
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
-import { Channel, ChannelCreate, WSEventType } from '@common/types';
+import {
+  Channel,
+  ChannelCreate,
+  ChannelUpdate,
+  WSEventType,
+} from '@common/types';
 import { PrivateApiService } from '../api/private-api.service';
 import { ServerService } from '../server/server.service';
 import { SocketService } from '../socket/socket.service';
@@ -71,6 +76,17 @@ export class ChannelService {
           console.error('Failed to create channel:', err);
         },
       });
+  }
+
+  public editChannel(channelid: string, channelUpdate: ChannelUpdate) {
+    this.apiService.editChannel(channelid, channelUpdate).subscribe({
+      next: () => {
+        console.log('Succcessful edit');
+      },
+      error: (err) => {
+        console.error('Unsuccessful edit', err);
+      },
+    });
   }
 
   public deleteChannel(channelId: string) {

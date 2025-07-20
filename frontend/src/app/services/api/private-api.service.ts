@@ -5,6 +5,7 @@ import { filter, Observable, switchMap, take } from 'rxjs';
 import {
   ChannelCategory,
   ChannelCreate,
+  ChannelUpdate,
   Message,
   Server,
   User,
@@ -77,6 +78,15 @@ export class PrivateApiService extends BaseApiService {
     console.log(newChannelData);
     return this.authorisedFetch<Channel>((_) =>
       this.post<Channel>(`servers/${serverId}/channels`, newChannelData)
+    );
+  }
+
+  editChannel(
+    channelId: string,
+    channelUpdate: ChannelUpdate
+  ): Observable<void> {
+    return this.authorisedFetch<void>((_) =>
+      this.patch<void>(`channels/${channelId}`, { channelUpdate })
     );
   }
 
