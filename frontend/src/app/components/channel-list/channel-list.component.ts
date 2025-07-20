@@ -4,6 +4,7 @@ import {
   inject,
   OnDestroy,
   OnInit,
+  signal,
   ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -20,6 +21,8 @@ import { ChannelButtonComponent } from '../channel-button/channel-button.compone
 import { ContextMenu } from 'primeng/contextmenu';
 import { MenuItem } from 'primeng/api';
 import { Router } from '@angular/router';
+import { FullscreenOverlayComponent } from '../custom/fullscreen-overlay/fullscreen-overlay.component';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'app-channel-list',
@@ -31,6 +34,8 @@ import { Router } from '@angular/router';
     AccordionPanelComponent,
     ChannelButtonComponent,
     ContextMenu,
+    FullscreenOverlayComponent,
+    InputTextModule,
   ],
   providers: [DialogService],
   templateUrl: './channel-list.component.html',
@@ -49,6 +54,8 @@ export class ChannelListComponent implements OnDestroy, OnInit {
   protected channels = this.channelService.channels;
   protected currentChannel = this.channelService.currentChannel;
   protected contextMenuChannel: Channel | null = null;
+
+  protected editOverlayVisible = signal(false);
 
   private router = inject(Router);
 
@@ -119,7 +126,9 @@ export class ChannelListComponent implements OnDestroy, OnInit {
         label: 'Edit Channel',
         icon: 'pi pi-trash',
         command: () => {
-          this.router.navigate(['/channel/edit', this.contextMenuChannel!.id]);
+          //this.router.navigate(['/channel/edit', this.contextMenuChannel!.id]);
+          //Open the channel editor overlay
+          this.editOverlayVisible.set(true);
         },
       },
       {

@@ -51,6 +51,7 @@ export const getDB = async () => {
       serverId    TEXT NOT NULL,
       name        TEXT NOT NULL,
       categoryId  TEXT,
+      topic       TEXT,
       FOREIGN KEY (serverId) REFERENCES servers(id) ON DELETE CASCADE
     );
   `);
