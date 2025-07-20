@@ -87,11 +87,11 @@ export const getDB = async () => {
   // `);
 
   // dbInstance.exec(`
-  //   INSERT OR IGNORE INTO channels (id, serverId, name, categoryId)
+  //   INSERT OR IGNORE INTO channels (id, serverId, name, categoryId, topic)
   //   VALUES
-  //     ('${generalChannelId}', '${serverId}', 'General', '${category1Id}'),
-  //     ('${memesChannelId}', '${serverId}', 'Memes', '${category2Id}'),
-  //     ('${botCommandsChannelId}', '${serverId}', 'Bot Commands', NULL);
+  //     ('${generalChannelId}', '${serverId}', 'General', '${category1Id}', NULL),
+  //     ('${memesChannelId}', '${serverId}', 'Memes', '${category2Id}', NULL),
+  //     ('${botCommandsChannelId}', '${serverId}', 'Bot Commands', NULL, NULL);
   // `);
 
   // dbInstance.exec(`

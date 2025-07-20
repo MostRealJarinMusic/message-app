@@ -20,9 +20,25 @@ export class ChannelRepo {
             serverId: row.serverId,
             name: row.name,
             categoryId: row.categoryId,
+            topic: row.topic,
           }));
 
           resolve(allChannels);
+        }
+      );
+    });
+  }
+
+  static async channelExists(channelId: string): Promise<boolean> {
+    const db = await getDB();
+
+    return new Promise((resolve, reject) => {
+      db.get(
+        `SELECT 1 FROM channels WHERE id = ? LIMIT 1`,
+        [channelId],
+        (err, row) => {
+          if (err) return reject(err);
+          resolve(!!row);
         }
       );
     });
@@ -33,8 +49,14 @@ export class ChannelRepo {
 
     return new Promise((resolve, reject) => {
       db.run(
-        `INSERT INTO channels (id, serverId, name, categoryId) VALUES (?, ?, ?, ?)`,
-        [channel.id, channel.serverId, channel.name, channel.categoryId],
+        `INSERT INTO channels (id, serverId, name, categoryId, topic) VALUES (?, ?, ?, ?, ?)`,
+        [
+          channel.id,
+          channel.serverId,
+          channel.name,
+          channel.categoryId,
+          channel.topic,
+        ],
         function (err) {
           if (err) return reject(err);
           resolve();
@@ -71,6 +93,7 @@ export class ChannelRepo {
             serverId: row.serverId,
             name: row.name,
             categoryId: row.categoryId,
+            topic: row.topic,
           };
 
           resolve(channel);
@@ -79,14 +102,23 @@ export class ChannelRepo {
     });
   }
 
-  // static async editChannel(newChannel: Channel) {
-  //   const db = await getDB();
+  static async editChannel(newChannel: Channel) {
+    const db = await getDB();
 
-  //   return new Promise((resolve, reject) => {
-  //     db.run(
-  //       `UPDATE channel SET name = ?, categoryId = ? WHERE id = ?`,
-  //       [newChannel.name, newChannel.categoryId, newChannel.id];
-  //     )
-  //   })
-  // }
+    return new Promise<void>((resolve, reject) => {
+      db.run(
+        `UPDATE channel SET name = ?, categoryId = ?, topic = ? WHERE id = ?`,
+        [
+          newChannel.name,
+          newChannel.categoryId,
+          newChannel.id,
+          newChannel.topic,
+        ],
+        function (err) {
+          if (err) return reject(err);
+          resolve();
+        }
+      );
+    });
+  }
 }

@@ -113,6 +113,19 @@ export class ChannelService {
           );
         }
       });
+
+    //Edits
+    this.wsService
+      .on<Channel>(WSEventType.CHANNEL_UPDATE)
+      .subscribe((channel) => {
+        if (channel.serverId === this.serverService.currentServer()) {
+          this.channels.update((currentChannels) =>
+            currentChannels.map((m) =>
+              m.id === channel.id ? { ...m, ...channel } : m
+            )
+          );
+        }
+      });
   }
 
   getChannelById(id: string): Channel | undefined {
