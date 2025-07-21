@@ -107,12 +107,12 @@ export class ChannelRepo {
 
     return new Promise<void>((resolve, reject) => {
       db.run(
-        `UPDATE channel SET name = ?, categoryId = ?, topic = ? WHERE id = ?`,
+        `UPDATE channels SET name = ?, categoryId = ?, topic = ? WHERE id = ?`,
         [
           newChannel.name,
           newChannel.categoryId,
-          newChannel.id,
           newChannel.topic,
+          newChannel.id,
         ],
         function (err) {
           if (err) return reject(err);

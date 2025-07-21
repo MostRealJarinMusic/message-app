@@ -67,13 +67,12 @@ export class ChannelListComponent implements OnDestroy, OnInit {
   protected contextMenuChannel: Channel | null = null;
 
   protected editOverlayVisible = signal(false);
-  protected channelEdits = this.channelEditService.getEdit();
 
   protected channelEditForm = this.formBuilder.group({
     name: new FormControl<string>(''),
     topic: new FormControl<string | null | undefined>(null),
   });
-
+  protected isSaving = signal(false);
   private router = inject(Router);
 
   constructor() {
@@ -154,25 +153,27 @@ export class ChannelListComponent implements OnDestroy, OnInit {
           //this.router.navigate(['/channel/edit', this.contextMenuChannel!.id]);
           //Open the channel editor overlay
           this.editOverlayVisible.set(true);
-
           const channel = this.channelService.getChannelById(
             this.contextMenuChannel!.id
           );
 
-          const channelUpdate: ChannelUpdate = {
-            name: channel!.name,
-            topic: channel!.topic,
-          };
+          // const channelUpdate: ChannelUpdate = {
+          //   name: channel!.name,
+          //   topic: channel!.topic,
+          // };
 
-          this.channelEditService.startEdit(
-            this.contextMenuChannel!.id,
-            channelUpdate
-          );
+          // this.channelEditService.startEdit(
+          //   this.contextMenuChannel!.id,
+          //   channelUpdate
+          // );
 
-          this.channelEditForm.setValue({
+          this.channelEditForm.reset({
             name: channel!.name,
             topic: channel!.topic ?? null,
           });
+
+          this.channelEditForm.markAsPristine();
+          this.channelEditService.startEdit(this.contextMenuChannel!.id);
 
           this.cm.hide();
         },
@@ -193,5 +194,29 @@ export class ChannelListComponent implements OnDestroy, OnInit {
   showContextMenu(event: MouseEvent, channel: Channel) {
     this.contextMenuChannel = channel;
     this.cm.show(event);
+  }
+
+  protected async saveChannelEdit() {
+    if (this.channelEditForm.invalid) return;
+
+    this.isSaving.set(true);
+
+    try {
+      const updates: ChannelUpdate = {
+        name: this.channelEditForm.value.name!,
+        topic: this.channelEditForm.value.topic!,
+      };
+
+      this.channelService.editChannel(
+        this.channelEditService.currentlyEditedId()!,
+        updates
+      );
+
+      this.editOverlayVisible.set(false);
+    } catch (err) {
+      console.error('Failed to update channel:', err);
+    } finally {
+      this.isSaving.set(false);
+    }
   }
 }

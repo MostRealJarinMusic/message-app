@@ -14,12 +14,17 @@ import { InputTextModule } from 'primeng/inputtext';
 export class ChannelTitleBarComponent {
   private channelService = inject(ChannelService);
   protected channelName: string | undefined;
+  protected channelTopic: string | undefined;
 
   constructor() {
     effect(() => {
       this.channelName = this.channelService.getChannelById(
         this.channelService.currentChannel()!
       )?.name;
+
+      this.channelTopic = this.channelService.getChannelById(
+        this.channelService.currentChannel()!
+      )?.topic;
     });
   }
 }

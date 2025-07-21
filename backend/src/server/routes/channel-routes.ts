@@ -88,7 +88,6 @@ export default function channelRoutes(wsManager: WebSocketManager): Router {
       if (channel) {
         const proposedChannel = { ...channel, ...channelUpdate } as Channel;
         await ChannelRepo.editChannel(proposedChannel);
-
         const updatedChannel = await ChannelRepo.getChannel(channelId);
 
         //Broadcast to users
