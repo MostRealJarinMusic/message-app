@@ -72,7 +72,6 @@ export class ChannelListComponent implements OnDestroy, OnInit {
     name: new FormControl<string>(''),
     topic: new FormControl<string | null | undefined>(null),
   });
-  protected isSaving = signal(false);
   private router = inject(Router);
 
   constructor() {
@@ -157,16 +156,6 @@ export class ChannelListComponent implements OnDestroy, OnInit {
             this.contextMenuChannel!.id
           );
 
-          // const channelUpdate: ChannelUpdate = {
-          //   name: channel!.name,
-          //   topic: channel!.topic,
-          // };
-
-          // this.channelEditService.startEdit(
-          //   this.contextMenuChannel!.id,
-          //   channelUpdate
-          // );
-
           this.channelEditForm.reset({
             name: channel!.name,
             topic: channel!.topic ?? null,
@@ -199,8 +188,6 @@ export class ChannelListComponent implements OnDestroy, OnInit {
   protected async saveChannelEdit() {
     if (this.channelEditForm.invalid) return;
 
-    this.isSaving.set(true);
-
     try {
       const updates: ChannelUpdate = {
         name: this.channelEditForm.value.name!,
@@ -212,11 +199,10 @@ export class ChannelListComponent implements OnDestroy, OnInit {
         updates
       );
 
-      this.editOverlayVisible.set(false);
+      //this.editOverlayVisible.set(false);
+      this.channelEditForm.markAsPristine();
     } catch (err) {
       console.error('Failed to update channel:', err);
-    } finally {
-      this.isSaving.set(false);
     }
   }
 }
