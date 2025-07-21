@@ -1,7 +1,12 @@
 import { Router } from "express";
 import { authMiddleware } from "../../middleware/auth-middleware";
 import { MessageRepo } from "../../db/repos/message.repo";
-import { Message, WSEventType } from "../../../../common/types";
+import {
+  Channel,
+  ChannelUpdate,
+  Message,
+  WSEventType,
+} from "../../../../common/types";
 import { ulid } from "ulid";
 import { WebSocketManager } from "../ws/websocket-manager";
 import { ChannelRepo } from "../../db/repos/channel.repo";
@@ -73,6 +78,28 @@ export default function channelRoutes(wsManager: WebSocketManager): Router {
       res.json(messages);
     }
   );
+
+  channelRoutes.patch("/:channelId", authMiddleware, async (req, res) => {
+    try {
+      const channelId = req.params.channelId;
+      const channelUpdate = req.body.channelUpdate as ChannelUpdate;
+      const channel = await ChannelRepo.getChannel(channelId);
+
+      if (channel) {
+        const proposedChannel = { ...channel, ...channelUpdate } as Channel;
+        await ChannelRepo.editChannel(proposedChannel);
+        const updatedChannel = await ChannelRepo.getChannel(channelId);
+
+        //Broadcast to users
+        wsManager.broadcastToAll(WSEventType.CHANNEL_UPDATE, updatedChannel);
+        res.status(204).send();
+      } else {
+        res.status(404).json({ error: "Channel doesn't exist" });
+      }
+    } catch (err) {
+      res.status(500).json({ error: "Failed to edit channel" });
+    }
+  });
 
   return channelRoutes;
 }

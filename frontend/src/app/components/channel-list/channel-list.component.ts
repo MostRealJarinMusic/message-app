@@ -1,13 +1,21 @@
 import {
   Component,
   computed,
+  effect,
   inject,
   OnDestroy,
   OnInit,
+  signal,
   ViewChild,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { Channel } from '@common/types';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
+import { Channel, ChannelUpdate } from '@common/types';
 import { ButtonModule } from 'primeng/button';
 import { ChannelService } from 'src/app/services/channel/channel.service';
 import { ListboxModule } from 'primeng/listbox';
@@ -20,17 +28,23 @@ import { ChannelButtonComponent } from '../channel-button/channel-button.compone
 import { ContextMenu } from 'primeng/contextmenu';
 import { MenuItem } from 'primeng/api';
 import { Router } from '@angular/router';
+import { FullscreenOverlayComponent } from '../custom/fullscreen-overlay/fullscreen-overlay.component';
+import { InputTextModule } from 'primeng/inputtext';
+import { ChannelEditService } from 'src/app/services/channel-edit/channel-edit.service';
 
 @Component({
   selector: 'app-channel-list',
   imports: [
     ButtonModule,
     FormsModule,
+    ReactiveFormsModule,
     ListboxModule,
     AccordionModule,
     AccordionPanelComponent,
     ChannelButtonComponent,
     ContextMenu,
+    FullscreenOverlayComponent,
+    InputTextModule,
   ],
   providers: [DialogService],
   templateUrl: './channel-list.component.html',
@@ -39,7 +53,9 @@ import { Router } from '@angular/router';
 export class ChannelListComponent implements OnDestroy, OnInit {
   private dialogService = inject(DialogService);
   private channelService = inject(ChannelService);
+  private channelEditService = inject(ChannelEditService);
   private categoryService = inject(ChannelCategoryService);
+  private formBuilder = inject(FormBuilder);
 
   protected createDialogRef!: DynamicDialogRef;
   @ViewChild('cm') cm!: ContextMenu;
@@ -50,7 +66,22 @@ export class ChannelListComponent implements OnDestroy, OnInit {
   protected currentChannel = this.channelService.currentChannel;
   protected contextMenuChannel: Channel | null = null;
 
+  protected editOverlayVisible = signal(false);
+
+  protected channelEditForm = this.formBuilder.group({
+    name: new FormControl<string>(''),
+    topic: new FormControl<string | null | undefined>(null),
+  });
+  protected isSaving = signal(false);
   private router = inject(Router);
+
+  constructor() {
+    effect(() => {
+      if (!this.editOverlayVisible()) {
+        this.channelEditService.closeEdit();
+      }
+    });
+  }
 
   protected groupedChannels = computed(() => {
     const map = new Map<string | null, Channel[]>();
@@ -119,7 +150,32 @@ export class ChannelListComponent implements OnDestroy, OnInit {
         label: 'Edit Channel',
         icon: 'pi pi-trash',
         command: () => {
-          this.router.navigate(['/channel/edit', this.contextMenuChannel!.id]);
+          //this.router.navigate(['/channel/edit', this.contextMenuChannel!.id]);
+          //Open the channel editor overlay
+          this.editOverlayVisible.set(true);
+          const channel = this.channelService.getChannelById(
+            this.contextMenuChannel!.id
+          );
+
+          // const channelUpdate: ChannelUpdate = {
+          //   name: channel!.name,
+          //   topic: channel!.topic,
+          // };
+
+          // this.channelEditService.startEdit(
+          //   this.contextMenuChannel!.id,
+          //   channelUpdate
+          // );
+
+          this.channelEditForm.reset({
+            name: channel!.name,
+            topic: channel!.topic ?? null,
+          });
+
+          this.channelEditForm.markAsPristine();
+          this.channelEditService.startEdit(this.contextMenuChannel!.id);
+
+          this.cm.hide();
         },
       },
       {
@@ -138,5 +194,29 @@ export class ChannelListComponent implements OnDestroy, OnInit {
   showContextMenu(event: MouseEvent, channel: Channel) {
     this.contextMenuChannel = channel;
     this.cm.show(event);
+  }
+
+  protected async saveChannelEdit() {
+    if (this.channelEditForm.invalid) return;
+
+    this.isSaving.set(true);
+
+    try {
+      const updates: ChannelUpdate = {
+        name: this.channelEditForm.value.name!,
+        topic: this.channelEditForm.value.topic!,
+      };
+
+      this.channelService.editChannel(
+        this.channelEditService.currentlyEditedId()!,
+        updates
+      );
+
+      this.editOverlayVisible.set(false);
+    } catch (err) {
+      console.error('Failed to update channel:', err);
+    } finally {
+      this.isSaving.set(false);
+    }
   }
 }

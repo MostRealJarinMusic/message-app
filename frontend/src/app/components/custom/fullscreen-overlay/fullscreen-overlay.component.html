@@ -1,0 +1,18 @@
+@if (visible) {
+<div class="fixed inset-0 z-50 bg-surface-800 grid grid-cols-[3fr_1fr]">
+  <div class="p-12">
+    <ng-content></ng-content>
+  </div>
+
+  <div class="p-12">
+    <button
+      pButton
+      pRipple
+      style="font-size: 2rem"
+      class="p-button-rounded p-button-text fixed"
+      icon="pi pi-times-circle"
+      (click)="close()"
+    ></button>
+  </div>
+</div>
+}

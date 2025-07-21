@@ -1,5 +1,10 @@
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
-import { Channel, ChannelCreate, WSEventType } from '@common/types';
+import {
+  Channel,
+  ChannelCreate,
+  ChannelUpdate,
+  WSEventType,
+} from '@common/types';
 import { PrivateApiService } from '../api/private-api.service';
 import { ServerService } from '../server/server.service';
 import { SocketService } from '../socket/socket.service';
@@ -73,6 +78,17 @@ export class ChannelService {
       });
   }
 
+  public editChannel(channelid: string, channelUpdate: ChannelUpdate) {
+    this.apiService.editChannel(channelid, channelUpdate).subscribe({
+      next: () => {
+        console.log('Succcessful edit');
+      },
+      error: (err) => {
+        console.error('Unsuccessful edit', err);
+      },
+    });
+  }
+
   public deleteChannel(channelId: string) {
     this.apiService.deleteChannel(channelId).subscribe({
       next: () => {
@@ -110,6 +126,19 @@ export class ChannelService {
         if (channel.serverId === this.serverService.currentServer()) {
           this.channels.update((current) =>
             current.filter((c) => c.id !== channel.id)
+          );
+        }
+      });
+
+    //Edits
+    this.wsService
+      .on<Channel>(WSEventType.CHANNEL_UPDATE)
+      .subscribe((channel) => {
+        if (channel.serverId === this.serverService.currentServer()) {
+          this.channels.update((currentChannels) =>
+            currentChannels.map((m) =>
+              m.id === channel.id ? { ...m, ...channel } : m
+            )
           );
         }
       });
