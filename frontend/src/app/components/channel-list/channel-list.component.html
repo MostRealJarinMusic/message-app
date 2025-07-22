@@ -50,21 +50,20 @@
         />
       </div>
 
+      <p-divider class="!mx-0" layout="horizontal" />
+
       <div class="w-full flex flex-col gap-2">
         <label for="topic">Channel Topic</label>
         <textarea
           id="topic"
           type="text"
-          class="w-full !p-4 !text-sm !bg-surface-700 rounded-lg border !border-surface-600 !focus:outline-none !focus:ring-2 focus:ring-primary"
+          class="w-full !p-4 !text-sm !bg-surface-700 rounded-lg !border !border-surface-600 !focus:outline-none !focus:ring-2 !focus:ring-primary"
           pTextarea
           rows="5"
           formControlName="topic"
           placeholder="Write a channel topic."
           style="resize: none"
         ></textarea>
-        <p class="text-xs text-surface-400">
-          Let everyone know what this channel is for.
-        </p>
       </div>
     </form>
 
@@ -72,7 +71,12 @@
       class="flex justify-between items-center pt-4 border-t border-surface-600"
     >
       <button pButton label="Cancel" class="p-button-text"></button>
-      <button pButton label="Save Changes" (click)="saveChannelEdit()"></button>
+      <button
+        pButton
+        label="Save Changes"
+        (click)="saveChannelEdit()"
+        [disabled]="!channelEditForm.dirty || channelEditForm.invalid"
+      ></button>
     </div>
   </div>
 </app-fullscreen-overlay>

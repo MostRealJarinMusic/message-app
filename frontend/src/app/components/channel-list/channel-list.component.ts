@@ -31,6 +31,8 @@ import { Router } from '@angular/router';
 import { FullscreenOverlayComponent } from '../custom/fullscreen-overlay/fullscreen-overlay.component';
 import { InputTextModule } from 'primeng/inputtext';
 import { ChannelEditService } from 'src/app/services/channel-edit/channel-edit.service';
+import { TextareaModule } from 'primeng/textarea';
+import { DividerModule } from 'primeng/divider';
 
 @Component({
   selector: 'app-channel-list',
@@ -45,6 +47,8 @@ import { ChannelEditService } from 'src/app/services/channel-edit/channel-edit.s
     ContextMenu,
     FullscreenOverlayComponent,
     InputTextModule,
+    TextareaModule,
+    DividerModule,
   ],
   providers: [DialogService],
   templateUrl: './channel-list.component.html',
@@ -72,7 +76,6 @@ export class ChannelListComponent implements OnDestroy, OnInit {
     name: new FormControl<string>(''),
     topic: new FormControl<string | null | undefined>(null),
   });
-  protected isSaving = signal(false);
   private router = inject(Router);
 
   constructor() {
@@ -157,16 +160,6 @@ export class ChannelListComponent implements OnDestroy, OnInit {
             this.contextMenuChannel!.id
           );
 
-          // const channelUpdate: ChannelUpdate = {
-          //   name: channel!.name,
-          //   topic: channel!.topic,
-          // };
-
-          // this.channelEditService.startEdit(
-          //   this.contextMenuChannel!.id,
-          //   channelUpdate
-          // );
-
           this.channelEditForm.reset({
             name: channel!.name,
             topic: channel!.topic ?? null,
@@ -199,8 +192,6 @@ export class ChannelListComponent implements OnDestroy, OnInit {
   protected async saveChannelEdit() {
     if (this.channelEditForm.invalid) return;
 
-    this.isSaving.set(true);
-
     try {
       const updates: ChannelUpdate = {
         name: this.channelEditForm.value.name!,
@@ -212,11 +203,10 @@ export class ChannelListComponent implements OnDestroy, OnInit {
         updates
       );
 
-      this.editOverlayVisible.set(false);
+      //this.editOverlayVisible.set(false);
+      this.channelEditForm.markAsPristine();
     } catch (err) {
       console.error('Failed to update channel:', err);
-    } finally {
-      this.isSaving.set(false);
     }
   }
 }
