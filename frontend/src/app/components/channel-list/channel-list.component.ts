@@ -31,6 +31,7 @@ import { Router } from '@angular/router';
 import { FullscreenOverlayComponent } from '../custom/fullscreen-overlay/fullscreen-overlay.component';
 import { InputTextModule } from 'primeng/inputtext';
 import { ChannelEditService } from 'src/app/services/channel-edit/channel-edit.service';
+import { TextareaModule } from 'primeng/textarea';
 
 @Component({
   selector: 'app-channel-list',
@@ -45,6 +46,7 @@ import { ChannelEditService } from 'src/app/services/channel-edit/channel-edit.s
     ContextMenu,
     FullscreenOverlayComponent,
     InputTextModule,
+    TextareaModule,
   ],
   providers: [DialogService],
   templateUrl: './channel-list.component.html',
