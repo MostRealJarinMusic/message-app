@@ -1,8 +1,14 @@
-<div class="flex items-center justify-between w-full h-full p-2">
-  <h1 class="ml-10 text-lg font-medium text-muted-color-emphasis">
-    {{ channelName }} - {{ channelTopic }}
-  </h1>
-  <div class="flex items-center space-x-2">
+<div class="flex items-center justify-between w-full h-full p-2 px-4">
+  <div class="flex ml-10 items-center gap-x-8">
+    <h1 class="text-lg font-medium text-muted-color-emphasis">
+      {{ channelName }}
+    </h1>
+    <p class="text-sm font-medium text-muted-color">
+      {{ channelTopic }}
+    </p>
+  </div>
+
+  <div class="flex items-center gap-x-2">
     <button
       pButton
       pRipple
@@ -23,7 +29,12 @@
     ></button>
     <p-iconfield>
       <p-inputicon styleClass="pi pi-search" />
-      <input type="text" pInputText placeholder="Search" />
+      <input
+        type="text"
+        class="w-full !text-sm !bg-surface-700 rounded-lg border !border-surface-600 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-200"
+        pInputText
+        placeholder="Search"
+      />
     </p-iconfield>
   </div>
 </div>
