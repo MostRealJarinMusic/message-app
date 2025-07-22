@@ -2,7 +2,13 @@ import { Router } from "express";
 import { authMiddleware } from "../..//middleware/auth-middleware";
 import { ChannelRepo } from "../..//db/repos/channel.repo";
 import { ServerRepo } from "../..//db/repos/server.repo";
-import { Channel, ChannelCreate, WSEventType } from "../../../../common/types";
+import {
+  Channel,
+  ChannelCreate,
+  Server,
+  ServerCreate,
+  WSEventType,
+} from "../../../../common/types";
 import { ulid } from "ulid";
 import { WebSocketManager } from "../ws/websocket-manager";
 
@@ -23,6 +29,7 @@ export default function serverRoutes(wsManager: WebSocketManager): Router {
     }
   });
 
+  //Accessing server channels
   serverRoutes.get("/:serverId/channels", authMiddleware, async (req, res) => {
     try {
       //console.log("HTTP: Attempt to get channels");
@@ -36,6 +43,7 @@ export default function serverRoutes(wsManager: WebSocketManager): Router {
     }
   });
 
+  //Creating channel in server
   serverRoutes.post("/:serverId/channels", authMiddleware, async (req, res) => {
     try {
       const serverId = req.params.serverId;
@@ -64,6 +72,7 @@ export default function serverRoutes(wsManager: WebSocketManager): Router {
     }
   });
 
+  //Accessing server categories
   serverRoutes.get("/:serverId/structure", authMiddleware, async (req, res) => {
     try {
       const serverId = req.params.serverId;
@@ -74,6 +83,37 @@ export default function serverRoutes(wsManager: WebSocketManager): Router {
       res.status(500).json({ error: "Failed to fetch structure" });
     }
   });
+
+  //Creating a server
+  serverRoutes.post("/", authMiddleware, async (req, res) => {
+    try {
+      const newServerData = req.body as ServerCreate;
+
+      if (!newServerData) {
+        res.status(400).json({ error: "Server data required" });
+        return;
+      }
+
+      const newServer: Server = {
+        id: ulid(),
+        name: newServerData.name,
+        description: newServerData.description,
+      };
+
+      //Create channel
+
+      //Create categories
+      // - Tect channel
+
+      // - Create general
+    } catch (err) {
+      res.status(500).json({ error: "Failed to create server" });
+    }
+  });
+
+  //Deleting a server
+
+  //Editing a server
 
   return serverRoutes;
 }

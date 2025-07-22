@@ -46,4 +46,16 @@ export class ServerRepo {
       );
     });
   }
+
+  static async serverExists(serverId: string): Promise<boolean> {
+    return false;
+  }
+
+  static async createServer(server: Server) {}
+
+  static async deleteServer(server: Server) {}
+
+  static async getServver(serverId: string) {}
+
+  static async editServer(serverId: string) {}
 }

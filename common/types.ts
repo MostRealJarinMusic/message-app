@@ -76,6 +76,12 @@ export interface Server {
   serverAccess?: ServerAccess;
 }
 
+export interface ServerCreate {
+  name: string;
+  description?: string;
+  serverAccess?: ServerAccess;
+}
+
 export enum ServerAccess {
   INVITE_ONLY = "inviteonly",
   APPLICATION = "application",
@@ -98,9 +104,14 @@ export enum WSEventType {
   RECEIVE = "message:receive",
   EDITED = "message:edited",
   DELETED = "message:deleted",
+
   CHANNEL_CREATE = "channel:create",
   CHANNEL_UPDATE = "channel:update",
   CHANNEL_DELETE = "channel:delete",
+
+  SERVER_CREATE = "server:create",
+  SERVER_UPDATE = "server:update",
+  SERVER_DELETE = "server:delete",
 
   PRESENCE = "presence:update",
   PRESENCE_BULK = "presence:bulk",
