@@ -32,6 +32,7 @@ import { FullscreenOverlayComponent } from '../custom/fullscreen-overlay/fullscr
 import { InputTextModule } from 'primeng/inputtext';
 import { ChannelEditService } from 'src/app/services/channel-edit/channel-edit.service';
 import { TextareaModule } from 'primeng/textarea';
+import { DividerModule } from 'primeng/divider';
 
 @Component({
   selector: 'app-channel-list',
@@ -47,6 +48,7 @@ import { TextareaModule } from 'primeng/textarea';
     FullscreenOverlayComponent,
     InputTextModule,
     TextareaModule,
+    DividerModule,
   ],
   providers: [DialogService],
   templateUrl: './channel-list.component.html',
