@@ -1,9 +1,10 @@
 import { Router } from "express";
-import { authMiddleware } from "../..//middleware/auth-middleware";
-import { ChannelRepo } from "../..//db/repos/channel.repo";
-import { ServerRepo } from "../..//db/repos/server.repo";
+import { authMiddleware } from "../../middleware/auth-middleware";
+import { ChannelRepo } from "../../db/repos/channel.repo";
+import { ServerRepo } from "../../db/repos/server.repo";
 import {
   Channel,
+  ChannelCategory,
   Server,
   ServerCreate,
   WSEventType,
@@ -108,12 +109,30 @@ export default function serverRoutes(wsManager: WebSocketManager): Router {
         description: newServerData.description,
       };
 
-      //Create channel
-
-      //Create categories
-      // - Tect channel
+      await ServerRepo.createServer(newServer);
+      //Create category
+      // - Text channel
+      const newCategory: ChannelCategory = {
+        id: ulid(),
+        serverId: newServer.id,
+        name: "Text Channels",
+      };
+      await ChannelCategoryRepo.createCategory(newCategory);
 
       // - Create general
+      const newChannel: Channel = {
+        id: ulid(),
+        serverId: newServer.id,
+        name: "General",
+        categoryId: newCategory.id,
+      };
+      await ChannelRepo.createChannel(newChannel);
+
+      //Notify all users of server creation - temporarily
+      //In reality - only notify the person who created the server
+      // With public servers, we may have to notify people
+
+      res.status(201).json(newServer);
     } catch (err) {
       res.status(500).json({ error: "Failed to create server" });
     }

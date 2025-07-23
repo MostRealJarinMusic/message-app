@@ -23,14 +23,69 @@ export class ServerRepo {
   }
 
   static async serverExists(serverId: string): Promise<boolean> {
-    return false;
+    const db = await getDB();
+
+    return new Promise((resolve, reject) => {
+      db.get(
+        `SELECT 1 FROM servers WHERE id = ? LIMIT 1`,
+        [serverId],
+        (err, row) => {
+          if (err) return reject(err);
+          resolve(!!row);
+        }
+      );
+    });
   }
 
-  static async createServer(server: Server) {}
+  static async createServer(server: Server): Promise<void> {
+    const db = await getDB();
 
-  static async deleteServer(server: Server) {}
+    return new Promise((resolve, reject) => {
+      db.run(
+        `INSERT INTO servers (id, name, description) VALUES (?, ?, ?)`,
+        [server.id, server.name, server.description],
+        function (err) {
+          if (err) return reject(err);
+          resolve();
+        }
+      );
+    });
+  }
 
-  static async getServver(serverId: string) {}
+  static async deleteServer(serverId: string): Promise<void> {
+    const db = await getDB();
+
+    return new Promise((resolve, reject) => {
+      db.run(`DELETE FROM servers WHERE id = ?`, [serverId], function (err) {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
+  }
+
+  static async getServver(serverId: string): Promise<Server> {
+    const db = await getDB();
+
+    return new Promise((resolve, reject) => {
+      db.get(
+        `SELECT * FROM servers WHERE id = ?`,
+        [serverId],
+        (err, row: any) => {
+          if (err) return reject(err);
+          if (!row)
+            return reject(new Error(`Channel with ID${serverId} not found`));
+
+          const server: Server = {
+            id: row.id,
+            name: row.name,
+            description: row.description,
+          };
+
+          resolve(server);
+        }
+      );
+    });
+  }
 
   static async editServer(serverId: string) {}
 }

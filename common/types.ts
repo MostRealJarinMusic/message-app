@@ -73,20 +73,18 @@ export interface Server {
   id: string;
   name: string;
   description?: string;
-  serverAccess?: ServerAccess;
 }
 
 export interface ServerCreate {
   name: string;
   description?: string;
-  serverAccess?: ServerAccess;
 }
 
-export enum ServerAccess {
-  INVITE_ONLY = "inviteonly",
-  APPLICATION = "application",
-  DISCOVERABLE = "discoverable",
-}
+// export enum ServerAccess {
+//   INVITE_ONLY = "inviteonly",
+//   APPLICATION = "application",
+//   DISCOVERABLE = "discoverable",
+// }
 
 export interface ServerMember {
   userId: string;

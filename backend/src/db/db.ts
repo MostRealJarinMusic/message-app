@@ -69,6 +69,7 @@ export const getDB = async () => {
     CREATE TABLE IF NOT EXISTS servers (
       id            TEXT PRIMARY KEY,
       name          TEXT NOT NULL
+      description   TEXT,
     );    
   `);
 
