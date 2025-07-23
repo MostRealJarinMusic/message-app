@@ -1,16 +1,22 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { Server } from '@common/types';
+import { Server, WSEventType } from '@common/types';
 import { BehaviorSubject } from 'rxjs';
 import { PrivateApiService } from '../api/private-api.service';
+import { SocketService } from '../socket/socket.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ServerService {
   private apiService = inject(PrivateApiService);
+  private wsService = inject(SocketService);
 
   readonly servers = signal<Server[]>([]);
   readonly currentServer = signal<string | null>(null);
+
+  constructor() {
+    this.initWebSocket();
+  }
 
   selectServer(id: string) {
     this.currentServer.set(id);
@@ -33,5 +39,23 @@ export class ServerService {
 
   getServerById(id: string): Server | undefined {
     return this.servers().find((server) => server.id === id);
+  }
+
+  private initWebSocket(): void {
+    //Listeners for server creation, edits and deletes
+    this.wsService.on<Server>(WSEventType.SERVER_CREATE).subscribe((server) => {
+      this.servers.update((current) => [...current, server]);
+    });
+
+    //Deletes
+    this.wsService.on<Server>(WSEventType.SERVER_DELETE).subscribe((server) => {
+      if (server.id === this.currentServer() && this.servers().length > 0) {
+        this.selectServer(this.servers()[0].id);
+      }
+
+      this.servers.update((current) =>
+        current.filter((s) => s.id !== server.id)
+      );
+    });
   }
 }
