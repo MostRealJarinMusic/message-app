@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { Server, WSEventType } from '@common/types';
+import { Server, ServerCreate, WSEventType } from '@common/types';
 import { BehaviorSubject } from 'rxjs';
 import { PrivateApiService } from '../api/private-api.service';
 import { SocketService } from '../socket/socket.service';
@@ -56,6 +56,21 @@ export class ServerService {
       this.servers.update((current) =>
         current.filter((s) => s.id !== server.id)
       );
+    });
+  }
+
+  public createServer(serverName: string) {
+    const newServerData: ServerCreate = {
+      name: serverName,
+    };
+
+    this.apiService.createServer(newServerData).subscribe({
+      next: (server) => {
+        console.log('Successful server creation');
+      },
+      error: (err) => {
+        console.error('Failed to create server:', err);
+      },
     });
   }
 }
