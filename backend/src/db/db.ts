@@ -68,8 +68,8 @@ export const getDB = async () => {
   dbInstance.exec(`
     CREATE TABLE IF NOT EXISTS servers (
       id            TEXT PRIMARY KEY,
-      name          TEXT NOT NULL
-      description   TEXT,
+      name          TEXT NOT NULL,
+      description   TEXT
     );    
   `);
 
