@@ -22,31 +22,6 @@ export class ServerRepo {
     });
   }
 
-  static async getStructure(serverId: string) {
-    const db = await getDB();
-
-    return new Promise<ChannelCategory[]>((resolve, reject) => {
-      db.all(
-        `SELECT * FROM channel_categories WHERE serverId = ?`,
-        [serverId],
-        (err, rows) => {
-          if (err) {
-            console.log("Error retrieving server structure:", err);
-            return reject(err);
-          }
-
-          const structure: ChannelCategory[] = rows.map((row: any) => ({
-            id: row.id,
-            serverId: serverId,
-            name: row.name,
-          }));
-
-          resolve(structure);
-        }
-      );
-    });
-  }
-
   static async serverExists(serverId: string): Promise<boolean> {
     return false;
   }

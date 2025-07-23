@@ -4,13 +4,13 @@ import { ChannelRepo } from "../..//db/repos/channel.repo";
 import { ServerRepo } from "../..//db/repos/server.repo";
 import {
   Channel,
-  ChannelCreate,
   Server,
   ServerCreate,
   WSEventType,
 } from "../../../../common/types";
 import { ulid } from "ulid";
 import { WebSocketManager } from "../ws/websocket-manager";
+import { ChannelCategoryRepo } from "../../db/repos/category.repo";
 
 export default function serverRoutes(wsManager: WebSocketManager): Router {
   const serverRoutes = Router();
@@ -76,13 +76,21 @@ export default function serverRoutes(wsManager: WebSocketManager): Router {
   serverRoutes.get("/:serverId/structure", authMiddleware, async (req, res) => {
     try {
       const serverId = req.params.serverId;
-      const categories = await ServerRepo.getStructure(serverId);
+      const categories = await ChannelCategoryRepo.getCategories(serverId);
 
       res.json(categories);
     } catch (err) {
       res.status(500).json({ error: "Failed to fetch structure" });
     }
   });
+
+  //Creating categories
+
+  //Deleting categories
+
+  //Editing categories
+
+  //Reordering categories
 
   //Creating a server
   serverRoutes.post("/", authMiddleware, async (req, res) => {
@@ -114,6 +122,8 @@ export default function serverRoutes(wsManager: WebSocketManager): Router {
   //Deleting a server
 
   //Editing a server
+
+  //Reordering servers
 
   return serverRoutes;
 }
