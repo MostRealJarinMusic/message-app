@@ -1,4 +1,4 @@
-import { ChannelCategory, Server } from "@common/types";
+import { Server } from "@common/types";
 import { getDB } from "../db";
 
 export class ServerRepo {
@@ -73,7 +73,7 @@ export class ServerRepo {
         (err, row: any) => {
           if (err) return reject(err);
           if (!row)
-            return reject(new Error(`Channel with ID${serverId} not found`));
+            return reject(new Error(`Server with ID${serverId} not found`));
 
           const server: Server = {
             id: row.id,

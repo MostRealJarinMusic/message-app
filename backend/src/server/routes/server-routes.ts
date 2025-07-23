@@ -132,6 +132,10 @@ export default function serverRoutes(wsManager: WebSocketManager): Router {
       //In reality - only notify the person who created the server
       // With public servers, we may have to notify people
 
+      //For now notify everyone
+
+      wsManager.broadcastToAll(WSEventType.SERVER_CREATE, newServer);
+
       res.status(201).json(newServer);
     } catch (err) {
       res.status(500).json({ error: "Failed to create server" });

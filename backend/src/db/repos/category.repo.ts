@@ -82,7 +82,7 @@ export class ChannelCategoryRepo {
         (err, row: any) => {
           if (err) return reject(err);
           if (!row)
-            return reject(new Error(`Channel with ID${categoryId} not found`));
+            return reject(new Error(`Category with ID${categoryId} not found`));
 
           const category: ChannelCategory = {
             id: row.id,
