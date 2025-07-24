@@ -63,7 +63,7 @@ export class ServerRepo {
     });
   }
 
-  static async getServver(serverId: string): Promise<Server> {
+  static async getServer(serverId: string): Promise<Server> {
     const db = await getDB();
 
     return new Promise((resolve, reject) => {

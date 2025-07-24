@@ -143,6 +143,25 @@ export default function serverRoutes(wsManager: WebSocketManager): Router {
   });
 
   //Deleting a server
+  serverRoutes.delete("/:serverId", authMiddleware, async (req, res) => {
+    try {
+      const serverId = req.params.serverId;
+      const server = await ServerRepo.getServer(serverId);
+
+      if (server) {
+        await ServerRepo.deleteServer(serverId);
+      } else {
+        res.status(404).json({ error: "Server doesn't exist" });
+        return;
+      }
+
+      wsManager.broadcastToAll(WSEventType.SERVER_DELETE, server);
+
+      res.status(204).send();
+    } catch (err) {
+      res.status(500).json({ error: "Failed to delete server" });
+    }
+  });
 
   //Editing a server
 

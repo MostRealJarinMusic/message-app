@@ -8,6 +8,7 @@
         server.id !== currentServer()
     }"
     (click)="selectServer(server.id)"
+    (contextmenu)="showContextMenu($event, server)"
   >
     {{ server.name }}
   </li>
@@ -17,5 +18,11 @@
     [rounded]="true"
     (click)="createServer()"
     severity="secondary"
+  />
+
+  <p-contextmenu
+    #serverContextMenu
+    [model]="contextMenuItems"
+    (onHide)="contextMenuServer.set(null)"
   />
 </div>

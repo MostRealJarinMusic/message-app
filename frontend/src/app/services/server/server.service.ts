@@ -75,4 +75,15 @@ export class ServerService {
       },
     });
   }
+
+  public deleteServer(serverId: string) {
+    this.apiService.deleteServer(serverId).subscribe({
+      next: () => {
+        console.log('Successful server deletion');
+      },
+      error: (err) => {
+        console.error('Unsuccessful server deletion', err);
+      },
+    });
+  }
 }

@@ -114,4 +114,10 @@ export class PrivateApiService extends BaseApiService {
       this.post<Server>(`servers/`, newServerData)
     );
   }
+
+  deleteServer(serverId: string) {
+    return this.authorisedFetch<void>((_) =>
+      this.delete<void>(`servers/${serverId}`)
+    );
+  }
 }
