@@ -104,15 +104,41 @@ export class ChannelListComponent implements OnDestroy, OnInit {
     });
   }
 
-  protected selectChannel(id: string) {
-    this.channelService.selectChannel(id);
+  ngOnInit(): void {
+    this.initContextMenu();
   }
 
-  protected startCreateChannel(categoryId: string) {
-    this.showCreateDialog(categoryId);
+  ngOnDestroy(): void {
+    if (this.createDialogRef) this.createDialogRef.close();
   }
 
-  protected showCreateDialog(categoryId: string) {
+  private initContextMenu(): void {
+    this.contextMenuItems = [
+      {
+        label: 'Edit Channel',
+        command: () => {
+          this.startChannelEdit();
+        },
+      },
+      {
+        separator: true,
+      },
+      {
+        label: 'Delete Channel',
+        command: () => {
+          this.channelService.deleteChannel(this.contextMenuChannel!.id);
+          this.contextMenuChannel = null;
+        },
+      },
+    ];
+  }
+
+  protected showContextMenu(event: MouseEvent, channel: Channel) {
+    this.contextMenuChannel = channel;
+    this.cm.show(event);
+  }
+
+  protected startChannelCreate(categoryId: string) {
     this.createDialogRef = this.dialogService.open(
       ChannelCreateDialogComponent,
       {
@@ -140,35 +166,6 @@ export class ChannelListComponent implements OnDestroy, OnInit {
     });
   }
 
-  ngOnDestroy(): void {
-    if (this.createDialogRef) this.createDialogRef.close();
-  }
-
-  ngOnInit(): void {
-    this.initContextMenu();
-  }
-
-  private initContextMenu(): void {
-    this.contextMenuItems = [
-      {
-        label: 'Edit Channel',
-        command: () => {
-          this.startChannelEdit();
-        },
-      },
-      {
-        separator: true,
-      },
-      {
-        label: 'Delete Channel',
-        command: () => {
-          this.channelService.deleteChannel(this.contextMenuChannel!.id);
-          this.contextMenuChannel = null;
-        },
-      },
-    ];
-  }
-
   private startChannelEdit(): void {
     //Open the channel editor overlay
     this.editOverlayVisible.set(true);
@@ -185,11 +182,6 @@ export class ChannelListComponent implements OnDestroy, OnInit {
     this.channelEditService.startEdit(this.contextMenuChannel!.id);
 
     this.cm.hide();
-  }
-
-  protected showContextMenu(event: MouseEvent, channel: Channel) {
-    this.contextMenuChannel = channel;
-    this.cm.show(event);
   }
 
   protected async saveChannelEdit() {
@@ -211,5 +203,9 @@ export class ChannelListComponent implements OnDestroy, OnInit {
     } catch (err) {
       console.error('Failed to update channel:', err);
     }
+  }
+
+  protected selectChannel(id: string) {
+    this.channelService.selectChannel(id);
   }
 }
