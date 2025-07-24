@@ -11,7 +11,6 @@ import {
 import {
   FormBuilder,
   FormControl,
-  FormGroup,
   FormsModule,
   ReactiveFormsModule,
 } from '@angular/forms';
@@ -27,7 +26,6 @@ import { ChannelCategoryService } from 'src/app/services/channel-category/channe
 import { ChannelButtonComponent } from '../channel-button/channel-button.component';
 import { ContextMenu } from 'primeng/contextmenu';
 import { MenuItem } from 'primeng/api';
-import { Router } from '@angular/router';
 import { FullscreenOverlayComponent } from '../custom/fullscreen-overlay/fullscreen-overlay.component';
 import { InputTextModule } from 'primeng/inputtext';
 import { ChannelEditService } from 'src/app/services/channel-edit/channel-edit.service';
