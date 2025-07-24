@@ -61,30 +61,23 @@ export class ChannelListComponent implements OnDestroy, OnInit {
   private categoryService = inject(ChannelCategoryService);
   private formBuilder = inject(FormBuilder);
 
-  protected createDialogRef!: DynamicDialogRef;
-  @ViewChild('cm') cm!: ContextMenu;
-  contextMenuItems: MenuItem[] = [];
+  //Context menu
+  @ViewChild('cm') private cm!: ContextMenu;
+  protected contextMenuItems: MenuItem[] = [];
 
-  protected categories = this.categoryService.channelCategories;
-  protected channels = this.channelService.channels;
-  protected currentChannel = this.channelService.currentChannel;
-  protected contextMenuChannel: Channel | null = null;
+  //Creating
+  private createDialogRef!: DynamicDialogRef;
 
+  //Editing - keeping track of overlay, and editing form
   protected editOverlayVisible = signal(false);
-
   protected channelEditForm = this.formBuilder.group({
     name: new FormControl<string>(''),
     topic: new FormControl<string | null | undefined>(null),
   });
 
-  constructor() {
-    effect(() => {
-      if (!this.editOverlayVisible()) {
-        this.channelEditService.closeEdit();
-      }
-    });
-  }
-
+  //Current values tracked
+  protected categories = this.categoryService.channelCategories;
+  protected channels = this.channelService.channels;
   protected groupedChannels = computed(() => {
     const map = new Map<string | null, Channel[]>();
 
@@ -100,8 +93,18 @@ export class ChannelListComponent implements OnDestroy, OnInit {
 
     return map;
   });
+  protected currentChannel = this.channelService.currentChannel;
+  protected contextMenuChannel: Channel | null = null;
 
-  selectChannel(id: string) {
+  constructor() {
+    effect(() => {
+      if (!this.editOverlayVisible()) {
+        this.channelEditService.closeEdit();
+      }
+    });
+  }
+
+  protected selectChannel(id: string) {
     this.channelService.selectChannel(id);
   }
 
@@ -109,7 +112,7 @@ export class ChannelListComponent implements OnDestroy, OnInit {
     this.showCreateDialog(categoryId);
   }
 
-  showCreateDialog(categoryId: string) {
+  protected showCreateDialog(categoryId: string) {
     this.createDialogRef = this.dialogService.open(
       ChannelCreateDialogComponent,
       {
@@ -142,27 +145,15 @@ export class ChannelListComponent implements OnDestroy, OnInit {
   }
 
   ngOnInit(): void {
+    this.initContextMenu();
+  }
+
+  private initContextMenu(): void {
     this.contextMenuItems = [
       {
         label: 'Edit Channel',
-        icon: 'pi pi-pencil',
         command: () => {
-          //this.router.navigate(['/channel/edit', this.contextMenuChannel!.id]);
-          //Open the channel editor overlay
-          this.editOverlayVisible.set(true);
-          const channel = this.channelService.getChannelById(
-            this.contextMenuChannel!.id
-          );
-
-          this.channelEditForm.reset({
-            name: channel!.name,
-            topic: channel!.topic ?? null,
-          });
-
-          this.channelEditForm.markAsPristine();
-          this.channelEditService.startEdit(this.contextMenuChannel!.id);
-
-          this.cm.hide();
+          this.startChannelEdit();
         },
       },
       {
@@ -170,15 +161,33 @@ export class ChannelListComponent implements OnDestroy, OnInit {
       },
       {
         label: 'Delete Channel',
-        icon: 'pi pi-trash',
         command: () => {
           this.channelService.deleteChannel(this.contextMenuChannel!.id);
+          this.contextMenuChannel = null;
         },
       },
     ];
   }
 
-  showContextMenu(event: MouseEvent, channel: Channel) {
+  private startChannelEdit(): void {
+    //Open the channel editor overlay
+    this.editOverlayVisible.set(true);
+    const channel = this.channelService.getChannelById(
+      this.contextMenuChannel!.id
+    );
+
+    this.channelEditForm.reset({
+      name: channel!.name,
+      topic: channel!.topic ?? null,
+    });
+
+    this.channelEditForm.markAsPristine();
+    this.channelEditService.startEdit(this.contextMenuChannel!.id);
+
+    this.cm.hide();
+  }
+
+  protected showContextMenu(event: MouseEvent, channel: Channel) {
     this.contextMenuChannel = channel;
     this.cm.show(event);
   }
