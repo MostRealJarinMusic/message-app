@@ -5,6 +5,7 @@ import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ContextMenu } from 'primeng/contextmenu';
 import { DialogService } from 'primeng/dynamicdialog';
+import { ChannelCategoryService } from 'src/app/services/channel-category/channel-category.service';
 import { ServerService } from 'src/app/services/server/server.service';
 
 @Component({
@@ -16,6 +17,7 @@ import { ServerService } from 'src/app/services/server/server.service';
 })
 export class ServerListComponent implements OnInit {
   private serverService = inject(ServerService);
+  private categoryService = inject(ChannelCategoryService);
 
   //Context menu
   @ViewChild('serverContextMenu') serverContextMenu!: ContextMenu;
@@ -52,7 +54,12 @@ export class ServerListComponent implements OnInit {
       },
       {
         label: 'Create Category',
-        command: () => {},
+        command: () => {
+          this.categoryService.createCategory(
+            this.contextMenuServer()!.id,
+            'TEST CATEGORY'
+          );
+        },
       },
       {
         label: 'Create Channel',

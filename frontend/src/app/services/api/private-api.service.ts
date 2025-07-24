@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { filter, Observable, switchMap, take } from 'rxjs';
 import {
   ChannelCategory,
+  ChannelCategoryCreate,
   ChannelCreate,
   ChannelUpdate,
   Message,
@@ -101,6 +102,12 @@ export class PrivateApiService extends BaseApiService {
   getServerStructure(serverId: string): Observable<ChannelCategory[]> {
     return this.authorisedFetch<ChannelCategory[]>((_) =>
       this.get<ChannelCategory[]>(`servers/${serverId}/structure`)
+    );
+  }
+
+  createCategory(serverId: string, newCategoryData: ChannelCategoryCreate) {
+    return this.authorisedFetch<Channel>((_) =>
+      this.post<Channel>(`servers/${serverId}/categories`, newCategoryData)
     );
   }
 

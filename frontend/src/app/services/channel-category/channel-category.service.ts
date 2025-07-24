@@ -1,7 +1,11 @@
 import { effect, inject, Injectable, signal } from '@angular/core';
 import { PrivateApiService } from '../api/private-api.service';
 import { ServerService } from '../server/server.service';
-import { ChannelCategory, WSEventType } from '@common/types';
+import {
+  ChannelCategory,
+  ChannelCategoryCreate,
+  WSEventType,
+} from '@common/types';
 import { SocketService } from '../socket/socket.service';
 
 @Injectable({
@@ -61,5 +65,20 @@ export class ChannelCategoryService {
           );
         }
       });
+  }
+
+  public createCategory(serverId: string, categoryName: string) {
+    const newCategoryData: ChannelCategoryCreate = {
+      name: categoryName,
+    };
+
+    this.apiService.createCategory(serverId, newCategoryData).subscribe({
+      next: (category) => {
+        console.log('Successfuly category creation');
+      },
+      error: (err) => {
+        console.error('Failed to create categpry:', err);
+      },
+    });
   }
 }
