@@ -76,7 +76,6 @@ export class ChannelListComponent implements OnDestroy, OnInit {
     name: new FormControl<string>(''),
     topic: new FormControl<string | null | undefined>(null),
   });
-  private router = inject(Router);
 
   constructor() {
     effect(() => {
@@ -104,11 +103,6 @@ export class ChannelListComponent implements OnDestroy, OnInit {
 
   selectChannel(id: string) {
     this.channelService.selectChannel(id);
-  }
-
-  onChannelChange(event: any) {
-    const selected: Channel = event.value;
-    this.selectChannel(selected.id);
   }
 
   protected startCreateChannel(categoryId: string) {
@@ -151,7 +145,7 @@ export class ChannelListComponent implements OnDestroy, OnInit {
     this.contextMenuItems = [
       {
         label: 'Edit Channel',
-        icon: 'pi pi-trash',
+        icon: 'pi pi-pencil',
         command: () => {
           //this.router.navigate(['/channel/edit', this.contextMenuChannel!.id]);
           //Open the channel editor overlay
@@ -176,7 +170,7 @@ export class ChannelListComponent implements OnDestroy, OnInit {
       },
       {
         label: 'Delete Channel',
-        icon: 'pi pi-pencil',
+        icon: 'pi pi-trash',
         command: () => {
           this.channelService.deleteChannel(this.contextMenuChannel!.id);
         },

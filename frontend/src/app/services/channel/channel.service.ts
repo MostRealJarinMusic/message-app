@@ -114,8 +114,6 @@ export class ChannelService {
     this.wsService
       .on<Channel>(WSEventType.CHANNEL_DELETE)
       .subscribe((channel) => {
-        console.log(channel);
-
         if (
           channel.id === this.currentChannel() &&
           this.channels().length > 0
@@ -134,8 +132,6 @@ export class ChannelService {
     this.wsService
       .on<Channel>(WSEventType.CHANNEL_UPDATE)
       .subscribe((channel) => {
-        console.log(channel);
-
         if (channel.serverId === this.serverService.currentServer()) {
           this.channels.update((currentChannels) =>
             currentChannels.map((m) =>

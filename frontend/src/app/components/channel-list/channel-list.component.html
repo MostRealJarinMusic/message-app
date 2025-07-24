@@ -1,4 +1,5 @@
 <div>
+  @if(groupedChannels().get(null)) {
   <div class="mb-4">
     @for (channel of groupedChannels().get(null) ?? []; track channel.id){
     <app-channel-button
@@ -9,8 +10,7 @@
     />
     }
   </div>
-
-  @for (category of categories(); track category.id) {
+  } @for (category of categories(); track category.id) {
   <app-accordion-panel
     [header]="category.name"
     (add)="startCreateChannel(category.id)"

@@ -8,6 +8,7 @@ import {
   ChannelUpdate,
   Message,
   Server,
+  ServerCreate,
   User,
 } from '@common/types';
 import { AuthTokenService } from '../authtoken/auth-token.service';
@@ -106,5 +107,17 @@ export class PrivateApiService extends BaseApiService {
   //Server CRUD
   getServers(): Observable<Server[]> {
     return this.authorisedFetch<Server[]>((_) => this.get<Server[]>('servers'));
+  }
+
+  createServer(newServerData: ServerCreate) {
+    return this.authorisedFetch<Server>((_) =>
+      this.post<Server>(`servers/`, newServerData)
+    );
+  }
+
+  deleteServer(serverId: string) {
+    return this.authorisedFetch<void>((_) =>
+      this.delete<void>(`servers/${serverId}`)
+    );
   }
 }
