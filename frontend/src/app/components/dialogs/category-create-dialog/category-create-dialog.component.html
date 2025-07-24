@@ -1,0 +1,25 @@
+<div class="card flex flex-col gap-4">
+  <div class="w-full flex flex-col gap-2">
+    <label for="name">Category Name</label>
+    <input
+      type="text"
+      class="!w-full !py-4 !pl-4 !text-sm !bg-surface-800 rounded-lg border !border-surface-600 focus:outline-none focus:ring-2 focus:ring-primary"
+      pInputText
+      [(ngModel)]="categoryName"
+    />
+  </div>
+
+  <div class="flex justify-end gap-2">
+    <p-button
+      label="Cancel"
+      severity="secondary"
+      variant="text"
+      (onClick)="close()"
+    />
+    <p-button
+      label="Save"
+      [disabled]="!categoryName"
+      (onClick)="createCategory()"
+    />
+  </div>
+</div>

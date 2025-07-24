@@ -16,6 +16,7 @@ import { ChannelCategoryService } from 'src/app/services/channel-category/channe
 import { ServerService } from 'src/app/services/server/server.service';
 import { ChannelCreateDialogComponent } from '../dialogs/channel-create-dialog/channel-create-dialog.component';
 import { ChannelService } from 'src/app/services/channel/channel.service';
+import { CategoryCreateDialogComponent } from '../dialogs/category-create-dialog/category-create-dialog.component';
 
 @Component({
   selector: 'app-server-list',
@@ -37,9 +38,12 @@ export class ServerListComponent implements OnInit, OnDestroy {
   //Channel creation
   private createChannelDialogRef!: DynamicDialogRef;
 
+  //Category creation
+  private createCategoryDialogRef!: DynamicDialogRef;
+
   protected servers = this.serverService.servers;
   protected currentServer = this.serverService.currentServer;
-  protected contextMenuServer = signal<Server | null>(null);
+  protected contextMenuServer: Server | null = null;
 
   selectServer(id: string) {
     this.serverService.selectServer(id);
@@ -56,6 +60,7 @@ export class ServerListComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     if (this.createChannelDialogRef) this.createChannelDialogRef.close();
+    if (this.createCategoryDialogRef) this.createCategoryDialogRef.close();
   }
 
   private initContextMenu() {
@@ -67,8 +72,8 @@ export class ServerListComponent implements OnInit, OnDestroy {
       {
         label: 'Delete Server',
         command: () => {
-          this.serverService.deleteServer(this.contextMenuServer()!.id);
-          this.contextMenuServer.set(null);
+          this.serverService.deleteServer(this.contextMenuServer!.id);
+          this.contextMenuServer = null;
         },
       },
       {
@@ -77,10 +82,12 @@ export class ServerListComponent implements OnInit, OnDestroy {
       {
         label: 'Create Category',
         command: () => {
-          this.categoryService.createCategory(
-            this.contextMenuServer()!.id,
-            'TEST CATEGORY'
-          );
+          // this.categoryService.createCategory(
+          //   this.contextMenuServer()!.id,
+          //   'TEST CATEGORY'
+          // );
+          console.log(this.contextMenuServer);
+          this.startCategoryCreate();
         },
       },
       {
@@ -93,7 +100,7 @@ export class ServerListComponent implements OnInit, OnDestroy {
   }
 
   showContextMenu(event: MouseEvent, server: Server) {
-    this.contextMenuServer.set(server);
+    this.contextMenuServer = server;
     this.serverContextMenu.show(event);
   }
 
@@ -119,6 +126,38 @@ export class ServerListComponent implements OnInit, OnDestroy {
       if (newChannelName) {
         console.log('Dialog closed with:', newChannelName);
         this.channelService.createChannel(newChannelName, null);
+      } else {
+        console.log('Dialog closed - no channel created.');
+      }
+    });
+  }
+
+  protected startCategoryCreate() {
+    this.createCategoryDialogRef = this.dialogService.open(
+      CategoryCreateDialogComponent,
+      {
+        header: 'Create Category',
+        width: '30%',
+        baseZIndex: 10000,
+        modal: true,
+        dismissableMask: true,
+        closeOnEscape: true,
+        closable: true,
+        styleClass: '!bg-surface-700 !pt-0',
+      }
+    );
+
+    this.createCategoryDialogRef.onClose.subscribe((newCategoryName) => {
+      if (newCategoryName) {
+        console.log('Dialog closed with:', newCategoryName);
+
+        console.log(this.contextMenuServer);
+
+        this.categoryService.createCategory(
+          this.contextMenuServer!.id,
+          newCategoryName
+        );
+        this.contextMenuServer = null;
       } else {
         console.log('Dialog closed - no channel created.');
       }
