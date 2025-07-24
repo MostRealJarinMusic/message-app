@@ -69,6 +69,10 @@ export interface ChannelCategory {
   position?: number;
 }
 
+export interface ChannelCategoryCreate {
+  name: string;
+}
+
 export interface Server {
   id: string;
   name: string;
@@ -107,12 +111,16 @@ export enum WSEventType {
   CHANNEL_UPDATE = "channel:update",
   CHANNEL_DELETE = "channel:delete",
 
+  CATEGORY_CREATE = "category:create",
+  CATEGORY_DELETE = "category:delete",
+
   SERVER_CREATE = "server:create",
   SERVER_UPDATE = "server:update",
   SERVER_DELETE = "server:delete",
 
   PRESENCE = "presence:update",
   PRESENCE_BULK = "presence:bulk",
+
   PING = "ping",
   PONG = "pong",
 }
