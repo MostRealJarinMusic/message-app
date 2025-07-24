@@ -60,7 +60,7 @@ export class ChannelService {
     });
   }
 
-  public createChannel(channelName: string, categoryId: string) {
+  public createChannel(channelName: string, categoryId: string | null) {
     const newChannelData: ChannelCreate = {
       name: channelName,
       categoryId: categoryId,
