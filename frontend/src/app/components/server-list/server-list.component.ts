@@ -4,17 +4,20 @@ import { Server } from '@common/types';
 import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ContextMenu } from 'primeng/contextmenu';
+import { DialogService } from 'primeng/dynamicdialog';
 import { ServerService } from 'src/app/services/server/server.service';
 
 @Component({
   selector: 'app-server-list',
   imports: [NgClass, ButtonModule, CommonModule, ContextMenu],
+  providers: [DialogService],
   templateUrl: './server-list.component.html',
   styleUrl: './server-list.component.scss',
 })
 export class ServerListComponent implements OnInit {
   private serverService = inject(ServerService);
 
+  //Context menu
   @ViewChild('serverContextMenu') serverContextMenu!: ContextMenu;
   protected contextMenuItems: MenuItem[] = [];
   protected contextMenuServer = signal<Server | null>(null);
@@ -34,20 +37,26 @@ export class ServerListComponent implements OnInit {
   ngOnInit(): void {
     this.contextMenuItems = [
       {
-        label: 'Edit Server',
-        icon: 'pi pi-pencil',
+        label: 'Server Settings',
         command: () => {},
+      },
+      {
+        label: 'Delete Server',
+        command: () => {
+          this.serverService.deleteServer(this.contextMenuServer()!.id);
+          //this.contextMenuServer.set(null);
+        },
       },
       {
         separator: true,
       },
       {
-        label: 'Delete Server',
-        icon: 'pi pi-trash',
-        command: () => {
-          //this.channelService.deleteChannel(this.contextMenuChannel!.id);
-          this.serverService.deleteServer(this.contextMenuServer()!.id);
-        },
+        label: 'Create Category',
+        command: () => {},
+      },
+      {
+        label: 'Create Channel',
+        command: () => {},
       },
     ];
   }

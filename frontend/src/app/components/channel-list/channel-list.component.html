@@ -13,7 +13,7 @@
   } @for (category of categories(); track category.id) {
   <app-accordion-panel
     [header]="category.name"
-    (add)="startCreateChannel(category.id)"
+    (add)="startChannelCreate(category.id)"
   >
     @for (channel of groupedChannels().get(category.id) ?? []; track
     channel.id){
