@@ -1,8 +1,8 @@
-<div class="space-y-1">
+<div class="flex flex-col items-center space-y-3">
   @for (server of servers(); track $index) {
   <li
     [ngClass]="{
-      'pl-3 py-1 list-none rounded-border transition-colors duration-200 cursor-pointer': true,
+      'py-2 px-3 w-full list-none rounded-border transition-colors duration-200 cursor-pointer': true,
       'text-color-emphasis bg-emphasis': server.id === currentServer(),
       'text-muted-color hover:bg-emphasis hover:text-muted-color-emphasis':
         server.id !== currentServer()
@@ -12,4 +12,10 @@
     {{ server.name }}
   </li>
   }
+  <p-button
+    icon="pi pi-plus"
+    [rounded]="true"
+    (click)="createServer()"
+    severity="secondary"
+  />
 </div>

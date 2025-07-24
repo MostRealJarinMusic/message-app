@@ -43,6 +43,8 @@ export class ServerService {
 
   private initWebSocket(): void {
     //Listeners for server creation, edits and deletes
+
+    //Currently for all servers -
     this.wsService.on<Server>(WSEventType.SERVER_CREATE).subscribe((server) => {
       this.servers.update((current) => [...current, server]);
     });
