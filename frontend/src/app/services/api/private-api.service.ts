@@ -111,6 +111,12 @@ export class PrivateApiService extends BaseApiService {
     );
   }
 
+  deleteCategory(categoryId: string) {
+    return this.authorisedFetch<void>((_) =>
+      this.delete<void>(`categories/${categoryId}`)
+    );
+  }
+
   //Server CRUD
   getServers(): Observable<Server[]> {
     return this.authorisedFetch<Server[]>((_) => this.get<Server[]>('servers'));

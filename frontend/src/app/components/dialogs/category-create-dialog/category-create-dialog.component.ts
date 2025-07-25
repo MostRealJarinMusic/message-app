@@ -13,7 +13,7 @@ import { InputTextModule } from 'primeng/inputtext';
 })
 export class CategoryCreateDialogComponent {
   protected ref = inject(DynamicDialogRef);
-  //protected config = inject(DynamicDialogConfig);
+  protected config = inject(DynamicDialogConfig);
 
   visible = input(false);
   categoryName = '';

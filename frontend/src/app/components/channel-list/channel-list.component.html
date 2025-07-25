@@ -6,7 +6,7 @@
       [channel]="channel"
       [isSelected]="channel.id === currentChannel()"
       (select)="selectChannel($event)"
-      (openContextMenu)="showContextMenu($event, channel)"
+      (openContextMenu)="showChannelContextMenu($event, channel)"
     />
     }
   </div>
@@ -14,6 +14,7 @@
   <app-accordion-panel
     [header]="category.name"
     (add)="startChannelCreate(category.id)"
+    (contextmenu)="showCategoryContextMenu($event, category)"
   >
     @for (channel of groupedChannels().get(category.id) ?? []; track
     channel.id){
@@ -21,17 +22,17 @@
       [channel]="channel"
       [isSelected]="channel.id === currentChannel()"
       (select)="selectChannel($event)"
-      (openContextMenu)="showContextMenu($event, channel)"
+      (openContextMenu)="showChannelContextMenu($event, channel)"
     />
     }
   </app-accordion-panel>
   }
 
-  <p-contextmenu
-    #cm
-    [model]="contextMenuItems"
-    (onHide)="contextMenuChannel = null"
-  />
+  <p-contextmenu #channelContextMenu [model]="channelContextMenuItems" />
+
+  <p-contextmenu #categoryContextMenu [model]="categoryContextMenuItems" />
+  <!-- 
+      (onHide)="contextMenuChannel = null" -->
 </div>
 
 <app-fullscreen-overlay [(visible)]="editOverlayVisible">

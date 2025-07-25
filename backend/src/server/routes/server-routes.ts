@@ -116,12 +116,6 @@ export default function serverRoutes(wsManager: WebSocketManager): Router {
     }
   );
 
-  //Deleting categories
-
-  //Editing categories
-
-  //Reordering categories
-
   //Creating a server
   serverRoutes.post("/", authMiddleware, async (req, res) => {
     try {

@@ -7,6 +7,7 @@ import {
   WSEventType,
 } from '@common/types';
 import { SocketService } from '../socket/socket.service';
+import { ChannelService } from '../channel/channel.service';
 
 @Injectable({
   providedIn: 'root',
@@ -15,6 +16,7 @@ export class ChannelCategoryService {
   private apiService = inject(PrivateApiService);
   private serverService = inject(ServerService);
   private wsService = inject(SocketService);
+  private channelService = inject(ChannelService);
 
   readonly channelCategories = signal<ChannelCategory[]>([]);
 
@@ -78,6 +80,17 @@ export class ChannelCategoryService {
       },
       error: (err) => {
         console.error('Failed to create categpry:', err);
+      },
+    });
+  }
+
+  public deleteCategory(categoryId: string) {
+    this.apiService.deleteCategory(categoryId).subscribe({
+      next: () => {
+        console.log('Successful category deletion');
+      },
+      error: (err) => {
+        console.error('Unsuccessful edit', err);
       },
     });
   }

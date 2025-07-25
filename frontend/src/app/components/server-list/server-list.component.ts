@@ -82,11 +82,6 @@ export class ServerListComponent implements OnInit, OnDestroy {
       {
         label: 'Create Category',
         command: () => {
-          // this.categoryService.createCategory(
-          //   this.contextMenuServer()!.id,
-          //   'TEST CATEGORY'
-          // );
-          console.log(this.contextMenuServer);
           this.startCategoryCreate();
         },
       },
@@ -124,10 +119,8 @@ export class ServerListComponent implements OnInit, OnDestroy {
 
     this.createChannelDialogRef.onClose.subscribe((newChannelName) => {
       if (newChannelName) {
-        console.log('Dialog closed with:', newChannelName);
         this.channelService.createChannel(newChannelName, null);
-      } else {
-        console.log('Dialog closed - no channel created.');
+        this.contextMenuServer = null;
       }
     });
   }
@@ -149,17 +142,11 @@ export class ServerListComponent implements OnInit, OnDestroy {
 
     this.createCategoryDialogRef.onClose.subscribe((newCategoryName) => {
       if (newCategoryName) {
-        console.log('Dialog closed with:', newCategoryName);
-
-        console.log(this.contextMenuServer);
-
         this.categoryService.createCategory(
           this.contextMenuServer!.id,
           newCategoryName
         );
         this.contextMenuServer = null;
-      } else {
-        console.log('Dialog closed - no channel created.');
       }
     });
   }

@@ -14,7 +14,7 @@ import {
   FormsModule,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { Channel, ChannelUpdate } from '@common/types';
+import { Channel, ChannelCategory, ChannelUpdate } from '@common/types';
 import { ButtonModule } from 'primeng/button';
 import { ChannelService } from 'src/app/services/channel/channel.service';
 import { ListboxModule } from 'primeng/listbox';
@@ -31,6 +31,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ChannelEditService } from 'src/app/services/channel-edit/channel-edit.service';
 import { TextareaModule } from 'primeng/textarea';
 import { DividerModule } from 'primeng/divider';
+import { CommonModule, NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-channel-list',
@@ -47,6 +48,7 @@ import { DividerModule } from 'primeng/divider';
     InputTextModule,
     TextareaModule,
     DividerModule,
+    CommonModule,
   ],
   providers: [DialogService],
   templateUrl: './channel-list.component.html',
@@ -59,9 +61,13 @@ export class ChannelListComponent implements OnDestroy, OnInit {
   private categoryService = inject(ChannelCategoryService);
   private formBuilder = inject(FormBuilder);
 
-  //Context menu
-  @ViewChild('cm') private cm!: ContextMenu;
-  protected contextMenuItems: MenuItem[] = [];
+  //Channel button context menu
+  @ViewChild('channelContextMenu') channelContextMenu!: ContextMenu;
+  protected channelContextMenuItems: MenuItem[] = [];
+
+  //Category button context menu
+  @ViewChild('categoryContextMenu') categoryContextMenu!: ContextMenu;
+  protected categoryContextMenuItems: MenuItem[] = [];
 
   //Creating
   private createDialogRef!: DynamicDialogRef;
@@ -93,25 +99,28 @@ export class ChannelListComponent implements OnDestroy, OnInit {
   });
   protected currentChannel = this.channelService.currentChannel;
   protected contextMenuChannel: Channel | null = null;
+  protected contextMenuCategory: ChannelCategory | null = null;
 
   constructor() {
     effect(() => {
       if (!this.editOverlayVisible()) {
         this.channelEditService.closeEdit();
+        this.contextMenuChannel = null;
       }
     });
   }
 
   ngOnInit(): void {
-    this.initContextMenu();
+    this.initChannelContextMenu();
+    this.initCategoryContextMenu();
   }
 
   ngOnDestroy(): void {
     if (this.createDialogRef) this.createDialogRef.close();
   }
 
-  private initContextMenu(): void {
-    this.contextMenuItems = [
+  private initChannelContextMenu(): void {
+    this.channelContextMenuItems = [
       {
         label: 'Edit Channel',
         command: () => {
@@ -131,9 +140,32 @@ export class ChannelListComponent implements OnDestroy, OnInit {
     ];
   }
 
-  protected showContextMenu(event: MouseEvent, channel: Channel) {
+  private initCategoryContextMenu(): void {
+    this.categoryContextMenuItems = [
+      {
+        label: 'Edit Category',
+        command: () => {},
+      },
+      {
+        label: 'Delete Category',
+        command: () => {
+          this.categoryService.deleteCategory(this.contextMenuCategory!.id);
+          this.contextMenuCategory = null;
+        },
+      },
+      {
+        separator: true,
+      },
+      {
+        label: 'Copy Category ID',
+        command: () => {},
+      },
+    ];
+  }
+
+  protected showChannelContextMenu(event: MouseEvent, channel: Channel) {
     this.contextMenuChannel = channel;
-    this.cm.show(event);
+    this.channelContextMenu.show(event);
   }
 
   protected startChannelCreate(categoryId: string) {
@@ -179,7 +211,7 @@ export class ChannelListComponent implements OnDestroy, OnInit {
     this.channelEditForm.markAsPristine();
     this.channelEditService.startEdit(this.contextMenuChannel!.id);
 
-    this.cm.hide();
+    this.channelContextMenu.hide();
   }
 
   protected async saveChannelEdit() {
@@ -205,5 +237,14 @@ export class ChannelListComponent implements OnDestroy, OnInit {
 
   protected selectChannel(id: string) {
     this.channelService.selectChannel(id);
+  }
+
+  protected showCategoryContextMenu(
+    event: MouseEvent,
+    category: ChannelCategory
+  ) {
+    event.preventDefault();
+    this.contextMenuCategory = category;
+    this.categoryContextMenu.show(event);
   }
 }
