@@ -8,6 +8,7 @@ import {
 import { PrivateApiService } from '../api/private-api.service';
 import { ServerService } from '../server/server.service';
 import { SocketService } from '../socket/socket.service';
+import { ChannelCategoryService } from '../channel-category/channel-category.service';
 
 @Injectable({
   providedIn: 'root',
@@ -16,6 +17,7 @@ export class ChannelService {
   private apiService = inject(PrivateApiService);
   private serverService = inject(ServerService);
   private wsService = inject(SocketService);
+  private categoryService = inject(ChannelCategoryService);
 
   readonly currentChannel = signal<string | null>(null);
   readonly channels = signal<Channel[]>([]);
@@ -24,6 +26,21 @@ export class ChannelService {
       this.channels().find((channel) => channel.id === this.currentChannel())
         ?.name
   );
+  readonly groupedChannels = computed(() => {
+    const map = new Map<string | null, Channel[]>();
+
+    for (const channel of this.channels()) {
+      const key = channel.categoryId ?? null;
+
+      if (!map.has(key)) {
+        map.set(key, []);
+      }
+
+      map.get(key)!.push(channel);
+    }
+
+    return map;
+  });
 
   constructor() {
     this.initWebSocket();
@@ -31,7 +48,8 @@ export class ChannelService {
     //Load channels
     effect(() => {
       const currentServer = this.serverService.currentServer();
-      if (currentServer) {
+      const currentCategories = this.categoryService.channelCategories();
+      if (currentServer && currentCategories) {
         this.loadChannels(currentServer);
       }
     });
@@ -55,6 +73,8 @@ export class ChannelService {
         ) {
           this.selectChannel(channels[0].id);
         }
+
+        console.log(this.channels());
       },
       error: (err) => console.error('Failed to load channels', err),
     });

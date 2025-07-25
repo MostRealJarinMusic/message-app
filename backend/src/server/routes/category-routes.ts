@@ -3,6 +3,7 @@ import { WebSocketManager } from "../ws/websocket-manager";
 import { authMiddleware } from "../../middleware/auth-middleware";
 import { ChannelCategoryRepo } from "../../db/repos/category.repo";
 import { WSEventType } from "../../../../common/types";
+import { ChannelRepo } from "../../db/repos/channel.repo";
 
 export default function categoryRoutes(wsManager: WebSocketManager): Router {
   const categoryRoutes = Router();
@@ -14,7 +15,10 @@ export default function categoryRoutes(wsManager: WebSocketManager): Router {
       const category = await ChannelCategoryRepo.getCategory(categoryId);
 
       if (category) {
+        const serverId = category.serverId;
+
         await ChannelCategoryRepo.deleteCategory(categoryId);
+        console.log(await ChannelRepo.getChannels(serverId));
       } else {
         res.status(404).json({ error: "Category doesn't exist" });
         return;

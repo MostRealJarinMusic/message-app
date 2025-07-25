@@ -69,10 +69,10 @@ export class ChannelListComponent implements OnDestroy, OnInit {
   @ViewChild('categoryContextMenu') categoryContextMenu!: ContextMenu;
   protected categoryContextMenuItems: MenuItem[] = [];
 
-  //Creating
-  private createDialogRef!: DynamicDialogRef;
+  //Creating channels
+  private createChannelDialogRef!: DynamicDialogRef;
 
-  //Editing - keeping track of overlay, and editing form
+  //Editing channels - keeping track of overlay, and editing form
   protected editOverlayVisible = signal(false);
   protected channelEditForm = this.formBuilder.group({
     name: new FormControl<string>(''),
@@ -82,21 +82,7 @@ export class ChannelListComponent implements OnDestroy, OnInit {
   //Current values tracked
   protected categories = this.categoryService.channelCategories;
   protected channels = this.channelService.channels;
-  protected groupedChannels = computed(() => {
-    const map = new Map<string | null, Channel[]>();
-
-    for (const channel of this.channels()) {
-      const key = channel.categoryId ?? null;
-
-      if (!map.has(key)) {
-        map.set(key, []);
-      }
-
-      map.get(key)!.push(channel);
-    }
-
-    return map;
-  });
+  protected groupedChannels = this.channelService.groupedChannels;
   protected currentChannel = this.channelService.currentChannel;
   protected contextMenuChannel: Channel | null = null;
   protected contextMenuCategory: ChannelCategory | null = null;
@@ -116,7 +102,7 @@ export class ChannelListComponent implements OnDestroy, OnInit {
   }
 
   ngOnDestroy(): void {
-    if (this.createDialogRef) this.createDialogRef.close();
+    if (this.createChannelDialogRef) this.createChannelDialogRef.close();
   }
 
   private initChannelContextMenu(): void {
@@ -169,7 +155,7 @@ export class ChannelListComponent implements OnDestroy, OnInit {
   }
 
   protected startChannelCreate(categoryId: string) {
-    this.createDialogRef = this.dialogService.open(
+    this.createChannelDialogRef = this.dialogService.open(
       ChannelCreateDialogComponent,
       {
         header: 'Create Channel',
@@ -186,7 +172,7 @@ export class ChannelListComponent implements OnDestroy, OnInit {
       }
     );
 
-    this.createDialogRef.onClose.subscribe((newChannelName) => {
+    this.createChannelDialogRef.onClose.subscribe((newChannelName) => {
       if (newChannelName) {
         console.log('Dialog closed with:', newChannelName);
         this.channelService.createChannel(newChannelName, categoryId);

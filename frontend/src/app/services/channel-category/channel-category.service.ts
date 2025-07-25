@@ -7,7 +7,6 @@ import {
   WSEventType,
 } from '@common/types';
 import { SocketService } from '../socket/socket.service';
-import { ChannelService } from '../channel/channel.service';
 
 @Injectable({
   providedIn: 'root',
@@ -16,7 +15,6 @@ export class ChannelCategoryService {
   private apiService = inject(PrivateApiService);
   private serverService = inject(ServerService);
   private wsService = inject(SocketService);
-  private channelService = inject(ChannelService);
 
   readonly channelCategories = signal<ChannelCategory[]>([]);
 
@@ -36,6 +34,7 @@ export class ChannelCategoryService {
     this.apiService.getServerStructure(serverId).subscribe({
       next: (categories) => {
         this.channelCategories.set(categories);
+        console.log(categories);
       },
       error: (err) => console.error('Failed to load server structure', err),
     });
