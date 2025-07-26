@@ -122,7 +122,7 @@ export class ChannelCategoryService {
         console.log('Successful category edit');
       },
       error: (err) => {
-        console.error('Unsuccesful category edit', err);
+        console.error('Unsuccessful category edit', err);
       },
     });
   }
