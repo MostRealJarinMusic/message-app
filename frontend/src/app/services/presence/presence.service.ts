@@ -32,17 +32,6 @@ export class PresenceService {
         console.error('Error with presence update', err);
       },
     });
-
-    // this.socketService
-    //   .on<PresenceUpdate[]>(WSEventType.PRESENCE_BATCH)
-    //   .subscribe({
-    //     next: (updates) => {
-    //       updates.forEach((update) => this.handlePresenceUpdate(update));
-    //     },
-    //     error: (err) => {
-    //       console.error('Error with initial presence payload', err);
-    //     },
-    //   });
   }
 
   private handlePresenceUpdate(update: PresenceUpdate) {
