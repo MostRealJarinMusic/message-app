@@ -1,4 +1,4 @@
-import { Component, inject, Input, signal } from '@angular/core';
+import { Component, computed, inject, Input, signal } from '@angular/core';
 import { Message } from '@common/types';
 import { AvatarModule } from 'primeng/avatar';
 import { AvatarGroupModule } from 'primeng/avatargroup';
@@ -27,6 +27,7 @@ import { MessageEditService } from 'src/app/services/message-edit/message-edit.s
 })
 export class MessageComponent {
   private messageService = inject(MessageService);
+  protected userService = inject(UserService);
   private editService = inject(MessageEditService);
 
   @Input() message!: Message;

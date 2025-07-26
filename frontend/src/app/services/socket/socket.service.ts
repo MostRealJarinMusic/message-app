@@ -12,9 +12,6 @@ import { AuthTokenService } from '../authtoken/auth-token.service';
 
 @Injectable({ providedIn: 'root' })
 export class SocketService {
-  private sessionService = inject(SessionService);
-  private tokenService = inject(AuthTokenService);
-
   private socket?: WebSocket;
   private eventStream$ = new Subject<WSEvent>();
   public isConnected = false;
@@ -25,20 +22,6 @@ export class SocketService {
 
   private heartBeatInterval?: ReturnType<typeof setInterval>;
   private readonly heartbeatRate = 30000;
-
-  constructor() {
-    //console.log("Socket service created")
-    effect(() => {
-      const user = this.sessionService.currentUser();
-      const token = this.tokenService.getToken();
-
-      if (user && token && !this.isConnected) {
-        this.connect(token);
-      } else if (!user && this.isConnected) {
-        this.disconnect();
-      }
-    });
-  }
 
   connect(token: string | null): void {
     if (
@@ -76,15 +59,6 @@ export class SocketService {
           const latency = Date.now() - data.payload.timestamp;
           //console.log(`Latency: ${latency}`);
           this.emit(WSEventType.PONG, { timestamp: Date.now() });
-        }
-
-        //Temporary
-        if (
-          data.event === WSEventType.PRESENCE &&
-          data.payload.userId !== this.sessionService.currentUser()!.id
-        ) {
-          //
-          console.log(`User ${data.payload.userId} is ${data.payload.status}`);
         }
 
         this.eventStream$.next(data);

@@ -62,13 +62,21 @@ export class PrivateApiService extends BaseApiService {
   }
 
   //Users CRUD
+  //#region
   getCurrentUser(): Observable<User> {
     return this.authorisedFetch<User>((_) => this.get<User>('users/me'));
   }
 
-  // getUserById(userId: string): Observable<User> {
-  //   return this.authorisedFetch<User>((_) => this.get<User>(`users/${userId}`));
-  // }
+  getUserById(userId: string): Observable<User> {
+    return this.authorisedFetch<User>((_) => this.get<User>(`users/${userId}`));
+  }
+
+  getServerUsers(serverId: string) {
+    return this.authorisedFetch<User[]>((_) =>
+      this.get<User[]>(`servers/${serverId}/users`)
+    );
+  }
+  //#endregion
 
   //Channel CRUD
   getChannels(serverId: string): Observable<Channel[]> {
@@ -106,9 +114,15 @@ export class PrivateApiService extends BaseApiService {
     );
   }
 
-  createCategory(serverId: string, newCategoryData: ChannelCategoryCreate): Observable<ChannelCategory> {
+  createCategory(
+    serverId: string,
+    newCategoryData: ChannelCategoryCreate
+  ): Observable<ChannelCategory> {
     return this.authorisedFetch<ChannelCategory>((_) =>
-      this.post<ChannelCategory>(`servers/${serverId}/categories`, newCategoryData)
+      this.post<ChannelCategory>(
+        `servers/${serverId}/categories`,
+        newCategoryData
+      )
     );
   }
 
