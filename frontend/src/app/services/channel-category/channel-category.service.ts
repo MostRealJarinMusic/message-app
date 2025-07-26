@@ -47,6 +47,10 @@ export class ChannelCategoryService {
     )?.name;
   }
 
+  getCategoryById(id: string): ChannelCategory | undefined {
+    return this.channelCategories().find((category) => category.id === id);
+  }
+
   private initWebSocket(): void {
     //Listeners for category creation, edits and deletes
     this.wsService

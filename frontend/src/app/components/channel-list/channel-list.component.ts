@@ -14,7 +14,12 @@ import {
   FormsModule,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { Channel, ChannelCategory, ChannelUpdate } from '@common/types';
+import {
+  Channel,
+  ChannelCategory,
+  ChannelCategoryUpdate,
+  ChannelUpdate,
+} from '@common/types';
 import { ButtonModule } from 'primeng/button';
 import { ChannelService } from 'src/app/services/channel/channel.service';
 import { ListboxModule } from 'primeng/listbox';
@@ -32,6 +37,7 @@ import { ChannelEditService } from 'src/app/services/channel-edit/channel-edit.s
 import { TextareaModule } from 'primeng/textarea';
 import { DividerModule } from 'primeng/divider';
 import { CommonModule, NgClass } from '@angular/common';
+import { ChannelCategoryEditService } from 'src/app/services/channel-category-edit/channel-category-edit.service';
 
 @Component({
   selector: 'app-channel-list',
@@ -59,6 +65,7 @@ export class ChannelListComponent implements OnDestroy, OnInit {
   private channelService = inject(ChannelService);
   private channelEditService = inject(ChannelEditService);
   private categoryService = inject(ChannelCategoryService);
+  private categoryEditService = inject(ChannelCategoryEditService);
   private formBuilder = inject(FormBuilder);
 
   //Channel button context menu
@@ -103,6 +110,7 @@ export class ChannelListComponent implements OnDestroy, OnInit {
 
     effect(() => {
       if (!this.categoryEditOverlayVisible()) {
+        this.categoryEditService.closeEdit();
         this.contextMenuCategory = null;
       }
     });
@@ -148,9 +156,10 @@ export class ChannelListComponent implements OnDestroy, OnInit {
       {
         label: 'Edit Category',
         command: () => {
-          this.categoryService.editCategory(this.contextMenuCategory!.id, {
-            name: 'TESTING',
-          });
+          // this.categoryService.editCategory(this.contextMenuCategory!.id, {
+          //   name: 'TESTING',
+          // });
+          this.startCategoryEdit();
         },
       },
       {
@@ -221,7 +230,7 @@ export class ChannelListComponent implements OnDestroy, OnInit {
     this.channelContextMenu.hide();
   }
 
-  protected async saveChannelEdit() {
+  protected saveChannelEdit() {
     if (this.channelEditForm.invalid) return;
 
     try {
@@ -255,7 +264,38 @@ export class ChannelListComponent implements OnDestroy, OnInit {
     this.categoryContextMenu.show(event);
   }
 
-  protected startCategoryEdit(): void {}
+  protected startCategoryEdit(): void {
+    this.categoryEditOverlayVisible.set(true);
+    const category = this.categoryService.getCategoryById(
+      this.contextMenuCategory!.id
+    );
 
-  protected async saveCategoryEdit() {}
+    this.categoryEditForm.reset({
+      name: category!.name,
+    });
+
+    this.categoryEditForm.markAsPristine();
+    this.categoryEditService.startEdit(this.contextMenuCategory!.id);
+
+    this.categoryContextMenu.hide();
+  }
+
+  protected saveCategoryEdit() {
+    if (this.categoryEditForm.invalid) return;
+
+    try {
+      const updates: ChannelCategoryUpdate = {
+        name: this.categoryEditForm.value.name!,
+      };
+
+      this.categoryService.editCategory(
+        this.categoryEditService.currentlyEditedId()!,
+        updates
+      );
+
+      this.categoryEditForm.markAsPristine();
+    } catch (err) {
+      console.error('Failed to update category:', err);
+    }
+  }
 }
