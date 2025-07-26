@@ -25,12 +25,6 @@ export class MessageService {
         console.log('Loading message history');
         this.loadMessageHistory(currentChannel);
       }
-
-      // const authorIds = [
-      //   ...new Set(this.messageService.messages().map((m) => m.authorId)),
-      // ];
-
-      // this.userService.preloadUsers(authorIds);
     });
   }
 

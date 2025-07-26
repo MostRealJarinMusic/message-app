@@ -94,7 +94,6 @@ export class ChannelListComponent implements OnDestroy, OnInit {
 
   //Current values tracked
   protected categories = this.categoryService.channelCategories;
-  // protected channels = this.channelService.channels;
   protected groupedChannels = this.channelService.groupedChannels;
   protected currentChannel = this.channelService.currentChannel;
   protected contextMenuChannel: Channel | null = null;
@@ -156,9 +155,6 @@ export class ChannelListComponent implements OnDestroy, OnInit {
       {
         label: 'Edit Category',
         command: () => {
-          // this.categoryService.editCategory(this.contextMenuCategory!.id, {
-          //   name: 'TESTING',
-          // });
           this.startCategoryEdit();
         },
       },
