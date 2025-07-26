@@ -8,6 +8,8 @@ import { PrivateApiService } from '../api/private-api.service';
 })
 export class UserService {
   private apiService = inject(PrivateApiService);
+
+  private userCache = new Map<string, User>();
   readonly currentUser = signal<User | null>(null);
 
   fetchCurrentUser(): Observable<User | null> {
@@ -27,21 +29,21 @@ export class UserService {
     this.currentUser.set(null);
   }
 
-  // getUsername(userId: string): string {
-  //   if (this.userCache.has(userId)) return this.userCache.get(userId)!.username;
+  getUsername(userId: string): string {
+    if (this.userCache.has(userId)) return this.userCache.get(userId)!.username;
 
-  //   this.apiService.getUserById(userId).pipe(
-  //     tap((user) => {
-  //       this.userCache.set(userId, user);
-  //       return user.username;
-  //     }),
-  //     catchError((err) => {
-  //       return 'user-not-found';
-  //     })
-  //   );
+    this.apiService.getUserById(userId).subscribe({
+      next: (user) => {
+        this.userCache.set(userId, user);
+        return user.username;
+      },
+      error: (err) => {
+        console.error(`Error accessing user with ID: ${userId}`, err);
+      },
+    });
 
-  //   return 'user-not-found';
-  // }
+    return 'user-not-found';
+  }
 
   // getUsername(userId: string): Observable<string> {
   //   if (this.userCache.has(userId)) {

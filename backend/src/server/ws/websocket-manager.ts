@@ -69,7 +69,6 @@ export class WebSocketManager {
 
   private updatePresence(userId: string, status: string) {
     const previous = this.presenceStore.get(userId);
-
     if (previous === status) return;
 
     this.presenceStore.set(userId, status);

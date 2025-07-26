@@ -27,6 +27,7 @@ import { MessageEditService } from 'src/app/services/message-edit/message-edit.s
 })
 export class MessageComponent {
   private messageService = inject(MessageService);
+  protected userService = inject(UserService);
   private editService = inject(MessageEditService);
 
   @Input() message!: Message;
