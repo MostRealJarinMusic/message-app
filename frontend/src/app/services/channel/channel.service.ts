@@ -23,13 +23,13 @@ export class ChannelService {
   readonly channels = signal<Channel[]>([]);
   readonly currentChannelName = computed(
     () =>
-      this.channels().find((channel) => channel.id === this.currentChannel())
+      this.channels()!.find((channel) => channel.id === this.currentChannel())
         ?.name
   );
   readonly groupedChannels = computed(() => {
     const map = new Map<string | null, Channel[]>();
 
-    for (const channel of this.channels()) {
+    for (const channel of this.channels()!) {
       const key = channel.categoryId ?? null;
 
       if (!map.has(key)) {
@@ -50,6 +50,7 @@ export class ChannelService {
       const currentServer = this.serverService.currentServer();
       const currentCategories = this.categoryService.channelCategories();
       if (currentServer && currentCategories) {
+        console.log('Loading channels');
         this.loadChannels(currentServer);
       }
     });
@@ -66,15 +67,13 @@ export class ChannelService {
 
         if (
           (!this.currentChannel() ||
-            !this.channels()
+            !this.channels()!
               .map((channel) => channel.id)
               .includes(this.currentChannel()!)) &&
           channels.length > 0
         ) {
           this.selectChannel(channels[0].id);
         }
-
-        console.log(this.channels());
       },
       error: (err) => console.error('Failed to load channels', err),
     });
@@ -126,7 +125,7 @@ export class ChannelService {
       .on<Channel>(WSEventType.CHANNEL_CREATE)
       .subscribe((channel) => {
         if (channel.serverId === this.serverService.currentServer()) {
-          this.channels.update((current) => [...current, channel]);
+          this.channels.update((current) => [...current!, channel]);
         }
       });
 
@@ -136,14 +135,14 @@ export class ChannelService {
       .subscribe((channel) => {
         if (
           channel.id === this.currentChannel() &&
-          this.channels().length > 0
+          this.channels()!.length > 0
         ) {
-          this.selectChannel(this.channels()[0].id);
+          this.selectChannel(this.channels()![0].id);
         }
 
         if (channel.serverId === this.serverService.currentServer()) {
           this.channels.update((current) =>
-            current.filter((c) => c.id !== channel.id)
+            current!.filter((c) => c.id !== channel.id)
           );
         }
       });
@@ -154,7 +153,7 @@ export class ChannelService {
       .subscribe((channel) => {
         if (channel.serverId === this.serverService.currentServer()) {
           this.channels.update((currentChannels) =>
-            currentChannels.map((c) =>
+            currentChannels!.map((c) =>
               c.id === channel.id ? { ...c, ...channel } : c
             )
           );
@@ -163,6 +162,6 @@ export class ChannelService {
   }
 
   getChannelById(id: string): Channel | undefined {
-    return this.channels().find((channel) => channel.id === id);
+    return this.channels()!.find((channel) => channel.id === id);
   }
 }

@@ -17,7 +17,7 @@ export class ChannelCategoryService {
   private serverService = inject(ServerService);
   private wsService = inject(SocketService);
 
-  readonly channelCategories = signal<ChannelCategory[]>([]);
+  readonly channelCategories = signal<ChannelCategory[] | null>(null);
 
   constructor() {
     this.initWebSocket();
@@ -26,6 +26,8 @@ export class ChannelCategoryService {
     effect(() => {
       const currentServer = this.serverService.currentServer();
       if (currentServer) {
+        console.log('Loading channel categories');
+        this.channelCategories.set(null);
         this.loadCategories(currentServer);
       }
     });
@@ -35,20 +37,19 @@ export class ChannelCategoryService {
     this.apiService.getServerStructure(serverId).subscribe({
       next: (categories) => {
         this.channelCategories.set(categories);
-        console.log(categories);
       },
       error: (err) => console.error('Failed to load server structure', err),
     });
   }
 
   getCategoryName(categoryId: string) {
-    return this.channelCategories().find(
+    return this.channelCategories()!.find(
       (category) => category.id === categoryId
     )?.name;
   }
 
   getCategoryById(id: string): ChannelCategory | undefined {
-    return this.channelCategories().find((category) => category.id === id);
+    return this.channelCategories()!.find((category) => category.id === id);
   }
 
   private initWebSocket(): void {
@@ -57,7 +58,7 @@ export class ChannelCategoryService {
       .on<ChannelCategory>(WSEventType.CATEGORY_CREATE)
       .subscribe((category) => {
         if (category.serverId === this.serverService.currentServer()) {
-          this.channelCategories.update((current) => [...current, category]);
+          this.channelCategories.update((current) => [...current!, category]);
         }
       });
 
@@ -67,7 +68,7 @@ export class ChannelCategoryService {
       .subscribe((category) => {
         if (category.serverId === this.serverService.currentServer()) {
           this.channelCategories.update((current) =>
-            current.filter((c) => c.id !== category.id)
+            current!.filter((c) => c.id !== category.id)
           );
         }
       });
@@ -78,7 +79,7 @@ export class ChannelCategoryService {
       .subscribe((category) => {
         if (category.serverId === this.serverService.currentServer()) {
           this.channelCategories.update((currentCategories) =>
-            currentCategories.map((c) =>
+            currentCategories!.map((c) =>
               c.id === category.id ? { ...c, ...category } : c
             )
           );
