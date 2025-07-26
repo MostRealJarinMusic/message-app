@@ -1,7 +1,6 @@
 import { effect, inject, Injectable, signal } from '@angular/core';
 import { SocketService } from '../socket/socket.service';
-import { BehaviorSubject, combineLatest } from 'rxjs';
-import { Message, PresenceUpdate, WSEventType } from '@common/types';
+import { Message, WSEventType } from '@common/types';
 import { PrivateApiService } from '../api/private-api.service';
 import { ChannelService } from '../channel/channel.service';
 

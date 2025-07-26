@@ -65,13 +65,21 @@ export class PrivateApiService extends BaseApiService {
   //#endregion
 
   //Users CRUD
+  //#region
   getCurrentUser(): Observable<User> {
     return this.authorisedFetch<User>((_) => this.get<User>('users/me'));
   }
 
-  // getUserById(userId: string): Observable<User> {
-  //   return this.authorisedFetch<User>((_) => this.get<User>(`users/${userId}`));
-  // }
+  getUserById(userId: string): Observable<User> {
+    return this.authorisedFetch<User>((_) => this.get<User>(`users/${userId}`));
+  }
+
+  getServerUsers(serverId: string) {
+    return this.authorisedFetch<User[]>((_) =>
+      this.get<User[]>(`servers/${serverId}/users`)
+    );
+  }
+  //#endregion
 
   //Channel CRUD
   //#region
