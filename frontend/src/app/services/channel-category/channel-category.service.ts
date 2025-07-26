@@ -4,6 +4,7 @@ import { ServerService } from '../server/server.service';
 import {
   ChannelCategory,
   ChannelCategoryCreate,
+  ChannelCategoryUpdate,
   WSEventType,
 } from '@common/types';
 import { SocketService } from '../socket/socket.service';
@@ -66,6 +67,19 @@ export class ChannelCategoryService {
           );
         }
       });
+
+    //Edits
+    this.wsService
+      .on<ChannelCategory>(WSEventType.CATEGORY_UPDATE)
+      .subscribe((category) => {
+        if (category.serverId === this.serverService.currentServer()) {
+          this.channelCategories.update((currentCategories) =>
+            currentCategories.map((c) =>
+              c.id === category.id ? { ...c, ...category } : c
+            )
+          );
+        }
+      });
   }
 
   public createCategory(serverId: string, categoryName: string) {
@@ -90,6 +104,20 @@ export class ChannelCategoryService {
       },
       error: (err) => {
         console.error('Unsuccessful edit', err);
+      },
+    });
+  }
+
+  public editCategory(
+    categoryId: string,
+    categoryUpdate: ChannelCategoryUpdate
+  ) {
+    this.apiService.editCategory(categoryId, categoryUpdate).subscribe({
+      next: () => {
+        console.log('Successful category edit');
+      },
+      error: (err) => {
+        console.error('Unsuccesful category edit', err);
       },
     });
   }

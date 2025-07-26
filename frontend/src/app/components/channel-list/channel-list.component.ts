@@ -65,18 +65,24 @@ export class ChannelListComponent implements OnDestroy, OnInit {
   @ViewChild('channelContextMenu') channelContextMenu!: ContextMenu;
   protected channelContextMenuItems: MenuItem[] = [];
 
-  //Category button context menu
-  @ViewChild('categoryContextMenu') categoryContextMenu!: ContextMenu;
-  protected categoryContextMenuItems: MenuItem[] = [];
-
   //Creating channels
   private createChannelDialogRef!: DynamicDialogRef;
 
   //Editing channels - keeping track of overlay, and editing form
-  protected editOverlayVisible = signal(false);
+  protected channelEditOverlayVisible = signal(false);
   protected channelEditForm = this.formBuilder.group({
     name: new FormControl<string>(''),
     topic: new FormControl<string | null | undefined>(null),
+  });
+
+  //Category button context menu
+  @ViewChild('categoryContextMenu') categoryContextMenu!: ContextMenu;
+  protected categoryContextMenuItems: MenuItem[] = [];
+
+  //Edit categories
+  protected categoryEditOverlayVisible = signal(false);
+  protected categoryEditForm = this.formBuilder.group({
+    name: new FormControl<string>(''),
   });
 
   //Current values tracked
@@ -89,9 +95,15 @@ export class ChannelListComponent implements OnDestroy, OnInit {
 
   constructor() {
     effect(() => {
-      if (!this.editOverlayVisible()) {
+      if (!this.channelEditOverlayVisible()) {
         this.channelEditService.closeEdit();
         this.contextMenuChannel = null;
+      }
+    });
+
+    effect(() => {
+      if (!this.categoryEditOverlayVisible()) {
+        this.contextMenuCategory = null;
       }
     });
   }
@@ -113,15 +125,20 @@ export class ChannelListComponent implements OnDestroy, OnInit {
           this.startChannelEdit();
         },
       },
-      {
-        separator: true,
-      },
+
       {
         label: 'Delete Channel',
         command: () => {
           this.channelService.deleteChannel(this.contextMenuChannel!.id);
           this.contextMenuChannel = null;
         },
+      },
+      {
+        separator: true,
+      },
+      {
+        label: 'Copy Channel ID',
+        command: () => {},
       },
     ];
   }
@@ -130,7 +147,11 @@ export class ChannelListComponent implements OnDestroy, OnInit {
     this.categoryContextMenuItems = [
       {
         label: 'Edit Category',
-        command: () => {},
+        command: () => {
+          this.categoryService.editCategory(this.contextMenuCategory!.id, {
+            name: 'TESTING',
+          });
+        },
       },
       {
         label: 'Delete Category',
@@ -184,7 +205,7 @@ export class ChannelListComponent implements OnDestroy, OnInit {
 
   private startChannelEdit(): void {
     //Open the channel editor overlay
-    this.editOverlayVisible.set(true);
+    this.channelEditOverlayVisible.set(true);
     const channel = this.channelService.getChannelById(
       this.contextMenuChannel!.id
     );
@@ -214,7 +235,7 @@ export class ChannelListComponent implements OnDestroy, OnInit {
         updates
       );
 
-      //this.editOverlayVisible.set(false);
+      //this.channelEditOverlayVisible.set(false);
       this.channelEditForm.markAsPristine();
     } catch (err) {
       console.error('Failed to update channel:', err);
@@ -233,4 +254,8 @@ export class ChannelListComponent implements OnDestroy, OnInit {
     this.contextMenuCategory = category;
     this.categoryContextMenu.show(event);
   }
+
+  protected startCategoryEdit(): void {}
+
+  protected async saveCategoryEdit() {}
 }

@@ -73,6 +73,10 @@ export interface ChannelCategoryCreate {
   name: string;
 }
 
+export interface ChannelCategoryUpdate {
+  name: string;
+}
+
 export interface Server {
   id: string;
   name: string;
@@ -112,6 +116,7 @@ export enum WSEventType {
   CHANNEL_DELETE = "channel:delete",
 
   CATEGORY_CREATE = "category:create",
+  CATEGORY_UPDATE = "category:update",
   CATEGORY_DELETE = "category:delete",
 
   SERVER_CREATE = "server:create",

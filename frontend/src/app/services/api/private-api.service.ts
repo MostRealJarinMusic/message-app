@@ -5,6 +5,7 @@ import { filter, Observable, switchMap, take } from 'rxjs';
 import {
   ChannelCategory,
   ChannelCategoryCreate,
+  ChannelCategoryUpdate,
   ChannelCreate,
   ChannelUpdate,
   Message,
@@ -114,6 +115,15 @@ export class PrivateApiService extends BaseApiService {
   deleteCategory(categoryId: string) {
     return this.authorisedFetch<void>((_) =>
       this.delete<void>(`categories/${categoryId}`)
+    );
+  }
+
+  editCategory(
+    categoryId: string,
+    categoryUpdate: ChannelCategoryUpdate
+  ): Observable<void> {
+    return this.authorisedFetch<void>((_) =>
+      this.patch<void>(`categories/${categoryId}`, { categoryUpdate })
     );
   }
 

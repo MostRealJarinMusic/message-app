@@ -154,8 +154,8 @@ export class ChannelService {
       .subscribe((channel) => {
         if (channel.serverId === this.serverService.currentServer()) {
           this.channels.update((currentChannels) =>
-            currentChannels.map((m) =>
-              m.id === channel.id ? { ...m, ...channel } : m
+            currentChannels.map((c) =>
+              c.id === channel.id ? { ...c, ...channel } : c
             )
           );
         }

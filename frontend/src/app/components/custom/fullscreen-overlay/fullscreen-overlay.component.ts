@@ -17,10 +17,8 @@ import { ButtonModule } from 'primeng/button';
   styleUrl: './fullscreen-overlay.component.scss',
 })
 export class FullscreenOverlayComponent {
-  //visible = signal(false);
   @Input() visible = false;
   @Output() visibleChange = new EventEmitter<boolean>();
-  //visibleChange = output<boolean>();
 
   close() {
     this.visible = false;
