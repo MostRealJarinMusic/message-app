@@ -106,9 +106,9 @@ export class PrivateApiService extends BaseApiService {
     );
   }
 
-  createCategory(serverId: string, newCategoryData: ChannelCategoryCreate) {
-    return this.authorisedFetch<Channel>((_) =>
-      this.post<Channel>(`servers/${serverId}/categories`, newCategoryData)
+  createCategory(serverId: string, newCategoryData: ChannelCategoryCreate): Observable<ChannelCategory> {
+    return this.authorisedFetch<ChannelCategory>((_) =>
+      this.post<ChannelCategory>(`servers/${serverId}/categories`, newCategoryData)
     );
   }
 
