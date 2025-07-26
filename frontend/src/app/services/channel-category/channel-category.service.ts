@@ -94,7 +94,7 @@ export class ChannelCategoryService {
 
     this.apiService.createCategory(serverId, newCategoryData).subscribe({
       next: (category) => {
-        console.log('Successfuly category creation');
+        console.log('Successfully category creation');
       },
       error: (err) => {
         console.error('Failed to create categpry:', err);
