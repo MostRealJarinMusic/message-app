@@ -97,7 +97,7 @@ export class ChannelCategoryService {
         console.log('Successfully category creation');
       },
       error: (err) => {
-        console.error('Failed to create categpry:', err);
+        console.error('Failed to create category:', err);
       },
     });
   }
