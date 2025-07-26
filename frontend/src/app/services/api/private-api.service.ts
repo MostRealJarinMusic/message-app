@@ -9,6 +9,7 @@ import {
   ChannelCreate,
   ChannelUpdate,
   Message,
+  PresenceUpdate,
   Server,
   ServerCreate,
   User,
@@ -37,6 +38,7 @@ export class PrivateApiService extends BaseApiService {
   }
 
   //Message CRUD
+  //#region
   sendMessage(channelId: string, content: string): Observable<Message> {
     return this.authorisedFetch<Message>((_) =>
       this.post<Message>(`channels/${channelId}/messages`, { content })
@@ -60,6 +62,7 @@ export class PrivateApiService extends BaseApiService {
       this.delete<void>(`messages/${messageId}`)
     );
   }
+  //#endregion
 
   //Users CRUD
   getCurrentUser(): Observable<User> {
@@ -71,6 +74,7 @@ export class PrivateApiService extends BaseApiService {
   // }
 
   //Channel CRUD
+  //#region
   getChannels(serverId: string): Observable<Channel[]> {
     return this.authorisedFetch<Channel[]>((_) =>
       this.get<Channel[]>(`servers/${serverId}/channels`)
@@ -98,17 +102,25 @@ export class PrivateApiService extends BaseApiService {
       this.delete<void>(`channels/${channelId}`)
     );
   }
+  //#endregion
 
   //Channel Category CRUD
+  //#region
   getServerStructure(serverId: string): Observable<ChannelCategory[]> {
     return this.authorisedFetch<ChannelCategory[]>((_) =>
       this.get<ChannelCategory[]>(`servers/${serverId}/structure`)
     );
   }
 
-  createCategory(serverId: string, newCategoryData: ChannelCategoryCreate): Observable<ChannelCategory> {
+  createCategory(
+    serverId: string,
+    newCategoryData: ChannelCategoryCreate
+  ): Observable<ChannelCategory> {
     return this.authorisedFetch<ChannelCategory>((_) =>
-      this.post<ChannelCategory>(`servers/${serverId}/categories`, newCategoryData)
+      this.post<ChannelCategory>(
+        `servers/${serverId}/categories`,
+        newCategoryData
+      )
     );
   }
 
@@ -126,8 +138,10 @@ export class PrivateApiService extends BaseApiService {
       this.patch<void>(`categories/${categoryId}`, { categoryUpdate })
     );
   }
+  //#endregion
 
   //Server CRUD
+  //#region
   getServers(): Observable<Server[]> {
     return this.authorisedFetch<Server[]>((_) => this.get<Server[]>('servers'));
   }
@@ -143,4 +157,15 @@ export class PrivateApiService extends BaseApiService {
       this.delete<void>(`servers/${serverId}`)
     );
   }
+  //#endregion
+
+  //Presence
+  //#region
+  getServerUserPresences(serverId: string): Observable<PresenceUpdate[]> {
+    return this.authorisedFetch<PresenceUpdate[]>((_) =>
+      this.get<PresenceUpdate[]>(`servers/${serverId}/presences`)
+    );
+  }
+
+  //#endregion
 }

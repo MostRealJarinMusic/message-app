@@ -12,6 +12,7 @@ import {
 import { ulid } from "ulid";
 import { WebSocketManager } from "../ws/websocket-manager";
 import { ChannelCategoryRepo } from "../../db/repos/category.repo";
+import { UserRepo } from "../../db/repos/user.repo";
 
 export default function serverRoutes(wsManager: WebSocketManager): Router {
   const serverRoutes = Router();
@@ -27,6 +28,22 @@ export default function serverRoutes(wsManager: WebSocketManager): Router {
     } catch (err) {
       console.error("Error getting servers", err);
       res.status(500).json({ error: "Failed to fetch servers" });
+    }
+  });
+
+  //Accessing server user presence
+  serverRoutes.get("/:serverId/presences", authMiddleware, async (req, res) => {
+    try {
+      const serverId = req.params.serverId;
+
+      //Here, you would get the user IDs for a server
+      const userIds = (await UserRepo.getAllUsers()).map((u) => u.id);
+
+      const presences = wsManager.getPresenceSnapshot(userIds);
+
+      res.json(presences);
+    } catch (err) {
+      res.status(500).json({ error: "Failed to load presence" });
     }
   });
 

@@ -124,7 +124,7 @@ export enum WSEventType {
   SERVER_DELETE = "server:delete",
 
   PRESENCE = "presence:update",
-  PRESENCE_BULK = "presence:bulk",
+  PRESENCE_BATCH = "presence:batch",
 
   PING = "ping",
   PONG = "pong",
