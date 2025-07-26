@@ -65,7 +65,7 @@ export default function categoryRoutes(wsManager: WebSocketManager): Router {
     }
   });
 
-  //Reordering categoriess
+  //Reordering categories
 
   //Get single category
 
