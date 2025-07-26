@@ -31,6 +31,7 @@ export default function serverRoutes(wsManager: WebSocketManager): Router {
     }
   });
 
+  //Accessing server users
   serverRoutes.get("/:serverId/users", authMiddleware, async (req, res) => {
     try {
       const serverId = req.params.serverId;
