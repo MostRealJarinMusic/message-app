@@ -1,4 +1,4 @@
-import { Component, inject, Input, signal } from '@angular/core';
+import { Component, computed, inject, Input, signal } from '@angular/core';
 import { Message } from '@common/types';
 import { AvatarModule } from 'primeng/avatar';
 import { AvatarGroupModule } from 'primeng/avatargroup';
@@ -34,6 +34,9 @@ export class MessageComponent {
   @Input() isMine!: boolean;
 
   protected editContent = this.editService.getContent();
+  readonly username = computed(() => {
+    return this.userService.getUsername(this.message.authorId)();
+  });
 
   protected formatTime(timestamp: string): string {
     const dateTime = new Date(timestamp);
