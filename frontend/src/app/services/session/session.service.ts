@@ -1,8 +1,9 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { User } from '@common/types';
 import { AuthTokenService } from '../authtoken/auth-token.service';
 import { UserService } from '../user/user.service';
-import { BehaviorSubject, firstValueFrom } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
+import { SocketManagerService } from '../socket-manager/socket-manager.service';
 
 @Injectable({
   providedIn: 'root',
@@ -10,6 +11,7 @@ import { BehaviorSubject, firstValueFrom } from 'rxjs';
 export class SessionService {
   private tokenService = inject(AuthTokenService);
   private userService = inject(UserService);
+  private socketManagerService = inject(SocketManagerService);
 
   readonly currentUser = this.userService.currentUser;
 
@@ -20,6 +22,7 @@ export class SessionService {
 
   async startSession(token: string): Promise<void> {
     this.tokenService.setToken(token);
+    this.socketManagerService.initialiseSocket(token);
     try {
       await firstValueFrom(this.userService.fetchCurrentUser());
     } catch (err) {
@@ -30,11 +33,13 @@ export class SessionService {
 
   endSession(): void {
     this.tokenService.clearToken();
+    this.socketManagerService.terminateSocket();
     this.currentUser.set(null);
   }
 
   private async resumeSession(token: string): Promise<void> {
     this.tokenService.setToken(token);
+    this.socketManagerService.initialiseSocket(token);
     try {
       await firstValueFrom(this.userService.fetchCurrentUser());
     } catch {

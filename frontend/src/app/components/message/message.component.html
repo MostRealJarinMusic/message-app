@@ -38,7 +38,7 @@
     <div class="flex-1 min-w-0">
       <div class="space-y-1">
         <div class="text-xs font-bold">
-          {{ username() }}
+          {{ userService.getUsername(message.authorId) }}
           <span class="text-xs ml-2 font-light text-muted-color">{{
             formatTime(message.createdAt)
           }}</span>

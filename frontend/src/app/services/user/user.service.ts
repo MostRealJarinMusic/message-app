@@ -1,17 +1,28 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { effect, inject, Injectable, signal } from '@angular/core';
 import { User } from '@common/types';
 import { catchError, firstValueFrom, Observable, of, tap } from 'rxjs';
 import { PrivateApiService } from '../api/private-api.service';
+import { ServerService } from '../server/server.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UserService {
   private apiService = inject(PrivateApiService);
+  private serverService = inject(ServerService);
 
   readonly currentUser = signal<User | null>(null);
   private userCache = new Map<string, User>();
-  readonly usernameMap = signal<Map<string, string>>(new Map());
+  readonly usernameMap = new Map<string, string>();
+
+  constructor() {
+    effect(() => {
+      const currentServer = this.serverService.currentServer();
+      if (currentServer) {
+        this.loadServerUsers(currentServer);
+      }
+    });
+  }
 
   fetchCurrentUser(): Observable<User | null> {
     return this.apiService.getCurrentUser().pipe(
@@ -31,21 +42,17 @@ export class UserService {
   }
 
   getUsername(userId: string) {
-    if (this.usernameMap().has(userId))
-      return signal(this.usernameMap().get(userId)!);
+    return this.userCache.get(userId)!.username || 'Unknown User';
+  }
 
-    this.apiService.getUserById(userId).subscribe({
-      next: (user) => {
-        this.userCache.set(userId, user);
-        const updated = new Map(this.usernameMap());
-        updated.set(userId, user.username);
-        this.usernameMap.set(updated);
+  public loadServerUsers(serverId: string): void {
+    this.apiService.getServerUsers(serverId).subscribe({
+      next: (users) => {
+        users.forEach((user) => this.userCache.set(user.id, user));
       },
       error: (err) => {
-        console.error(`Error accessing user with ID: ${userId}`, err);
+        console.error('Error loading server users', err);
       },
     });
-
-    return signal('Loading');
   }
 }

@@ -34,9 +34,6 @@ export class MessageComponent {
   @Input() isMine!: boolean;
 
   protected editContent = this.editService.getContent();
-  readonly username = computed(() => {
-    return this.userService.getUsername(this.message.authorId)();
-  });
 
   protected formatTime(timestamp: string): string {
     const dateTime = new Date(timestamp);

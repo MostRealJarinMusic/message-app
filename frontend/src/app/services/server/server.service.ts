@@ -1,6 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { Server, ServerCreate, WSEventType } from '@common/types';
-import { BehaviorSubject } from 'rxjs';
 import { PrivateApiService } from '../api/private-api.service';
 import { SocketService } from '../socket/socket.service';
 
