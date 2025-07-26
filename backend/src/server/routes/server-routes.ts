@@ -86,12 +86,35 @@ export default function serverRoutes(wsManager: WebSocketManager): Router {
   });
 
   //Creating categories
+  serverRoutes.post(
+    "/:serverId/categories",
+    authMiddleware,
+    async (req, res) => {
+      try {
+        const serverId = req.params.serverId;
+        const newCategoryData = req.body;
 
-  //Deleting categories
+        if (!newCategoryData) {
+          res.status(400).json({ error: "Category data required" });
+          return;
+        }
 
-  //Editing categories
+        const newCategory: ChannelCategory = {
+          id: ulid(),
+          serverId: serverId,
+          name: newCategoryData.name,
+        };
 
-  //Reordering categories
+        await ChannelCategoryRepo.createCategory(newCategory);
+
+        wsManager.broadcastToAll(WSEventType.CATEGORY_CREATE, newCategory);
+
+        res.status(201).json(newCategory);
+      } catch (err) {
+        res.status(500).json({ error: "Failed to create category" });
+      }
+    }
+  );
 
   //Creating a server
   serverRoutes.post("/", authMiddleware, async (req, res) => {

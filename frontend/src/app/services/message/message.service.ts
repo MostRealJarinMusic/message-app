@@ -21,13 +21,10 @@ export class MessageService {
     //Load message history
     effect(() => {
       const currentChannel = this.channelService.currentChannel();
-      if (currentChannel) this.loadMessageHistory(currentChannel);
-
-      // const authorIds = [
-      //   ...new Set(this.messageService.messages().map((m) => m.authorId)),
-      // ];
-
-      // this.userService.preloadUsers(authorIds);
+      if (currentChannel) {
+        console.log('Loading message history');
+        this.loadMessageHistory(currentChannel);
+      }
     });
   }
 
@@ -39,10 +36,7 @@ export class MessageService {
     this.apiService
       .sendMessage(this.channelService.currentChannel()!, content)
       .subscribe({
-        next: (message) => {
-          //console.log(message);
-          //Response to a successfully sent message
-        },
+        next: (message) => {},
         error: (err) => {
           //Response to any errors - optimistic UI
         },

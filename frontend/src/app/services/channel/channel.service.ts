@@ -8,6 +8,7 @@ import {
 import { PrivateApiService } from '../api/private-api.service';
 import { ServerService } from '../server/server.service';
 import { SocketService } from '../socket/socket.service';
+import { ChannelCategoryService } from '../channel-category/channel-category.service';
 
 @Injectable({
   providedIn: 'root',
@@ -16,14 +17,30 @@ export class ChannelService {
   private apiService = inject(PrivateApiService);
   private serverService = inject(ServerService);
   private wsService = inject(SocketService);
+  private categoryService = inject(ChannelCategoryService);
 
   readonly currentChannel = signal<string | null>(null);
   readonly channels = signal<Channel[]>([]);
   readonly currentChannelName = computed(
     () =>
-      this.channels().find((channel) => channel.id === this.currentChannel())
+      this.channels()!.find((channel) => channel.id === this.currentChannel())
         ?.name
   );
+  readonly groupedChannels = computed(() => {
+    const map = new Map<string | null, Channel[]>();
+
+    for (const channel of this.channels()!) {
+      const key = channel.categoryId ?? null;
+
+      if (!map.has(key)) {
+        map.set(key, []);
+      }
+
+      map.get(key)!.push(channel);
+    }
+
+    return map;
+  });
 
   constructor() {
     this.initWebSocket();
@@ -31,7 +48,9 @@ export class ChannelService {
     //Load channels
     effect(() => {
       const currentServer = this.serverService.currentServer();
-      if (currentServer) {
+      const currentCategories = this.categoryService.channelCategories();
+      if (currentServer && currentCategories) {
+        console.log('Loading channels');
         this.loadChannels(currentServer);
       }
     });
@@ -48,7 +67,7 @@ export class ChannelService {
 
         if (
           (!this.currentChannel() ||
-            !this.channels()
+            !this.channels()!
               .map((channel) => channel.id)
               .includes(this.currentChannel()!)) &&
           channels.length > 0
@@ -60,7 +79,7 @@ export class ChannelService {
     });
   }
 
-  public createChannel(channelName: string, categoryId: string) {
+  public createChannel(channelName: string, categoryId: string | null) {
     const newChannelData: ChannelCreate = {
       name: channelName,
       categoryId: categoryId,
@@ -106,7 +125,7 @@ export class ChannelService {
       .on<Channel>(WSEventType.CHANNEL_CREATE)
       .subscribe((channel) => {
         if (channel.serverId === this.serverService.currentServer()) {
-          this.channels.update((current) => [...current, channel]);
+          this.channels.update((current) => [...current!, channel]);
         }
       });
 
@@ -116,14 +135,14 @@ export class ChannelService {
       .subscribe((channel) => {
         if (
           channel.id === this.currentChannel() &&
-          this.channels().length > 0
+          this.channels()!.length > 0
         ) {
-          this.selectChannel(this.channels()[0].id);
+          this.selectChannel(this.channels()![0].id);
         }
 
         if (channel.serverId === this.serverService.currentServer()) {
           this.channels.update((current) =>
-            current.filter((c) => c.id !== channel.id)
+            current!.filter((c) => c.id !== channel.id)
           );
         }
       });
@@ -134,8 +153,8 @@ export class ChannelService {
       .subscribe((channel) => {
         if (channel.serverId === this.serverService.currentServer()) {
           this.channels.update((currentChannels) =>
-            currentChannels.map((m) =>
-              m.id === channel.id ? { ...m, ...channel } : m
+            currentChannels!.map((c) =>
+              c.id === channel.id ? { ...c, ...channel } : c
             )
           );
         }
@@ -143,6 +162,6 @@ export class ChannelService {
   }
 
   getChannelById(id: string): Channel | undefined {
-    return this.channels().find((channel) => channel.id === id);
+    return this.channels()!.find((channel) => channel.id === id);
   }
 }

@@ -6,7 +6,7 @@
       [channel]="channel"
       [isSelected]="channel.id === currentChannel()"
       (select)="selectChannel($event)"
-      (openContextMenu)="showContextMenu($event, channel)"
+      (openContextMenu)="showChannelContextMenu($event, channel)"
     />
     }
   </div>
@@ -14,6 +14,7 @@
   <app-accordion-panel
     [header]="category.name"
     (add)="startChannelCreate(category.id)"
+    (contextmenu)="showCategoryContextMenu($event, category)"
   >
     @for (channel of groupedChannels().get(category.id) ?? []; track
     channel.id){
@@ -21,20 +22,20 @@
       [channel]="channel"
       [isSelected]="channel.id === currentChannel()"
       (select)="selectChannel($event)"
-      (openContextMenu)="showContextMenu($event, channel)"
+      (openContextMenu)="showChannelContextMenu($event, channel)"
     />
     }
   </app-accordion-panel>
   }
 
-  <p-contextmenu
-    #cm
-    [model]="contextMenuItems"
-    (onHide)="contextMenuChannel = null"
-  />
+  <p-contextmenu #channelContextMenu [model]="channelContextMenuItems" />
+
+  <p-contextmenu #categoryContextMenu [model]="categoryContextMenuItems" />
+  <!-- 
+      (onHide)="contextMenuChannel = null" -->
 </div>
 
-<app-fullscreen-overlay [(visible)]="editOverlayVisible">
+<app-fullscreen-overlay [(visible)]="channelEditOverlayVisible">
   <div class="space-y-5 w-full mx-auto">
     <h1 class="text-lg font-medium text-color-emphasis">Overview</h1>
 
@@ -76,6 +77,37 @@
         label="Save Changes"
         (click)="saveChannelEdit()"
         [disabled]="!channelEditForm.dirty || channelEditForm.invalid"
+      ></button>
+    </div>
+  </div>
+</app-fullscreen-overlay>
+
+<app-fullscreen-overlay [(visible)]="categoryEditOverlayVisible">
+  <div class="space-y-5 w-full mx-auto">
+    <h1 class="text-lg font-medium text-color-emphasis">Overview</h1>
+
+    <form [formGroup]="categoryEditForm" class="space-y-5">
+      <div class="w-full flex flex-col gap-2">
+        <label for="name">Category Name</label>
+        <input
+          id="name"
+          type="text"
+          class="!w-full !p-4 !text-sm !bg-surface-700 rounded-lg border !border-surface-600 focus:outline-none focus:ring-2 focus:ring-primary"
+          pInputText
+          formControlName="name"
+        />
+      </div>
+    </form>
+
+    <div
+      class="flex justify-between items-center pt-4 border-t border-surface-600"
+    >
+      <button pButton label="Cancel" class="p-button-text"></button>
+      <button
+        pButton
+        label="Save Changes"
+        (click)="saveCategoryEdit()"
+        [disabled]="!categoryEditForm.dirty || categoryEditForm.invalid"
       ></button>
     </div>
   </div>

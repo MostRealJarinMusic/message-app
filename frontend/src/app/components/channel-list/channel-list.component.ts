@@ -14,7 +14,12 @@ import {
   FormsModule,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { Channel, ChannelUpdate } from '@common/types';
+import {
+  Channel,
+  ChannelCategory,
+  ChannelCategoryUpdate,
+  ChannelUpdate,
+} from '@common/types';
 import { ButtonModule } from 'primeng/button';
 import { ChannelService } from 'src/app/services/channel/channel.service';
 import { ListboxModule } from 'primeng/listbox';
@@ -31,6 +36,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ChannelEditService } from 'src/app/services/channel-edit/channel-edit.service';
 import { TextareaModule } from 'primeng/textarea';
 import { DividerModule } from 'primeng/divider';
+import { CommonModule, NgClass } from '@angular/common';
+import { ChannelCategoryEditService } from 'src/app/services/channel-category-edit/channel-category-edit.service';
 
 @Component({
   selector: 'app-channel-list',
@@ -47,6 +54,7 @@ import { DividerModule } from 'primeng/divider';
     InputTextModule,
     TextareaModule,
     DividerModule,
+    CommonModule,
   ],
   providers: [DialogService],
   templateUrl: './channel-list.component.html',
@@ -57,70 +65,74 @@ export class ChannelListComponent implements OnDestroy, OnInit {
   private channelService = inject(ChannelService);
   private channelEditService = inject(ChannelEditService);
   private categoryService = inject(ChannelCategoryService);
+  private categoryEditService = inject(ChannelCategoryEditService);
   private formBuilder = inject(FormBuilder);
 
-  //Context menu
-  @ViewChild('cm') private cm!: ContextMenu;
-  protected contextMenuItems: MenuItem[] = [];
+  //Channel button context menu
+  @ViewChild('channelContextMenu') channelContextMenu!: ContextMenu;
+  protected channelContextMenuItems: MenuItem[] = [];
 
-  //Creating
-  private createDialogRef!: DynamicDialogRef;
+  //Creating channels
+  private createChannelDialogRef!: DynamicDialogRef;
 
-  //Editing - keeping track of overlay, and editing form
-  protected editOverlayVisible = signal(false);
+  //Editing channels - keeping track of overlay, and editing form
+  protected channelEditOverlayVisible = signal(false);
   protected channelEditForm = this.formBuilder.group({
     name: new FormControl<string>(''),
     topic: new FormControl<string | null | undefined>(null),
   });
 
+  //Category button context menu
+  @ViewChild('categoryContextMenu') categoryContextMenu!: ContextMenu;
+  protected categoryContextMenuItems: MenuItem[] = [];
+
+  //Edit categories
+  protected categoryEditOverlayVisible = signal(false);
+  protected categoryEditForm = this.formBuilder.group({
+    name: new FormControl<string>(''),
+  });
+
   //Current values tracked
   protected categories = this.categoryService.channelCategories;
-  protected channels = this.channelService.channels;
-  protected groupedChannels = computed(() => {
-    const map = new Map<string | null, Channel[]>();
-
-    for (const channel of this.channels()) {
-      const key = channel.categoryId ?? null;
-
-      if (!map.has(key)) {
-        map.set(key, []);
-      }
-
-      map.get(key)!.push(channel);
-    }
-
-    return map;
-  });
+  protected groupedChannels = this.channelService.groupedChannels;
   protected currentChannel = this.channelService.currentChannel;
   protected contextMenuChannel: Channel | null = null;
+  protected contextMenuCategory: ChannelCategory | null = null;
 
   constructor() {
     effect(() => {
-      if (!this.editOverlayVisible()) {
+      if (!this.channelEditOverlayVisible()) {
         this.channelEditService.closeEdit();
+        this.contextMenuChannel = null;
+      }
+    });
+
+    effect(() => {
+      if (!this.categoryEditOverlayVisible()) {
+        this.categoryEditService.closeEdit();
+        this.contextMenuCategory = null;
       }
     });
   }
 
   ngOnInit(): void {
-    this.initContextMenu();
+    this.initChannelContextMenu();
+    this.initCategoryContextMenu();
   }
 
   ngOnDestroy(): void {
-    if (this.createDialogRef) this.createDialogRef.close();
+    if (this.createChannelDialogRef) this.createChannelDialogRef.close();
   }
 
-  private initContextMenu(): void {
-    this.contextMenuItems = [
+  private initChannelContextMenu(): void {
+    this.channelContextMenuItems = [
       {
         label: 'Edit Channel',
         command: () => {
           this.startChannelEdit();
         },
       },
-      {
-        separator: true,
-      },
+
       {
         label: 'Delete Channel',
         command: () => {
@@ -128,16 +140,48 @@ export class ChannelListComponent implements OnDestroy, OnInit {
           this.contextMenuChannel = null;
         },
       },
+      {
+        separator: true,
+      },
+      {
+        label: 'Copy Channel ID',
+        command: () => {},
+      },
     ];
   }
 
-  protected showContextMenu(event: MouseEvent, channel: Channel) {
+  private initCategoryContextMenu(): void {
+    this.categoryContextMenuItems = [
+      {
+        label: 'Edit Category',
+        command: () => {
+          this.startCategoryEdit();
+        },
+      },
+      {
+        label: 'Delete Category',
+        command: () => {
+          this.categoryService.deleteCategory(this.contextMenuCategory!.id);
+          this.contextMenuCategory = null;
+        },
+      },
+      {
+        separator: true,
+      },
+      {
+        label: 'Copy Category ID',
+        command: () => {},
+      },
+    ];
+  }
+
+  protected showChannelContextMenu(event: MouseEvent, channel: Channel) {
     this.contextMenuChannel = channel;
-    this.cm.show(event);
+    this.channelContextMenu.show(event);
   }
 
   protected startChannelCreate(categoryId: string) {
-    this.createDialogRef = this.dialogService.open(
+    this.createChannelDialogRef = this.dialogService.open(
       ChannelCreateDialogComponent,
       {
         header: 'Create Channel',
@@ -154,7 +198,7 @@ export class ChannelListComponent implements OnDestroy, OnInit {
       }
     );
 
-    this.createDialogRef.onClose.subscribe((newChannelName) => {
+    this.createChannelDialogRef.onClose.subscribe((newChannelName) => {
       if (newChannelName) {
         console.log('Dialog closed with:', newChannelName);
         this.channelService.createChannel(newChannelName, categoryId);
@@ -166,7 +210,7 @@ export class ChannelListComponent implements OnDestroy, OnInit {
 
   private startChannelEdit(): void {
     //Open the channel editor overlay
-    this.editOverlayVisible.set(true);
+    this.channelEditOverlayVisible.set(true);
     const channel = this.channelService.getChannelById(
       this.contextMenuChannel!.id
     );
@@ -179,10 +223,10 @@ export class ChannelListComponent implements OnDestroy, OnInit {
     this.channelEditForm.markAsPristine();
     this.channelEditService.startEdit(this.contextMenuChannel!.id);
 
-    this.cm.hide();
+    this.channelContextMenu.hide();
   }
 
-  protected async saveChannelEdit() {
+  protected saveChannelEdit() {
     if (this.channelEditForm.invalid) return;
 
     try {
@@ -196,7 +240,7 @@ export class ChannelListComponent implements OnDestroy, OnInit {
         updates
       );
 
-      //this.editOverlayVisible.set(false);
+      //this.channelEditOverlayVisible.set(false);
       this.channelEditForm.markAsPristine();
     } catch (err) {
       console.error('Failed to update channel:', err);
@@ -205,5 +249,49 @@ export class ChannelListComponent implements OnDestroy, OnInit {
 
   protected selectChannel(id: string) {
     this.channelService.selectChannel(id);
+  }
+
+  protected showCategoryContextMenu(
+    event: MouseEvent,
+    category: ChannelCategory
+  ) {
+    event.preventDefault();
+    this.contextMenuCategory = category;
+    this.categoryContextMenu.show(event);
+  }
+
+  protected startCategoryEdit(): void {
+    this.categoryEditOverlayVisible.set(true);
+    const category = this.categoryService.getCategoryById(
+      this.contextMenuCategory!.id
+    );
+
+    this.categoryEditForm.reset({
+      name: category!.name,
+    });
+
+    this.categoryEditForm.markAsPristine();
+    this.categoryEditService.startEdit(this.contextMenuCategory!.id);
+
+    this.categoryContextMenu.hide();
+  }
+
+  protected saveCategoryEdit() {
+    if (this.categoryEditForm.invalid) return;
+
+    try {
+      const updates: ChannelCategoryUpdate = {
+        name: this.categoryEditForm.value.name!,
+      };
+
+      this.categoryService.editCategory(
+        this.categoryEditService.currentlyEditedId()!,
+        updates
+      );
+
+      this.categoryEditForm.markAsPristine();
+    } catch (err) {
+      console.error('Failed to update category:', err);
+    }
   }
 }

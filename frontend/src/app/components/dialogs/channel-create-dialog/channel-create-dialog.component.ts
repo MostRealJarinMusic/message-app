@@ -16,7 +16,7 @@ export class ChannelCreateDialogComponent {
   protected config = inject(DynamicDialogConfig);
 
   visible = input(false);
-  categoryName: string;
+  categoryName: string | null;
   channelName = '';
 
   constructor() {

@@ -96,5 +96,18 @@ export class ChannelCategoryRepo {
     });
   }
 
-  static async editCategory(newCategory: ChannelCategory) {}
+  static async editCategory(newCategory: ChannelCategory) {
+    const db = await getDB();
+
+    return new Promise<void>((resolve, reject) => {
+      db.run(
+        `UPDATE channel_categories SET name = ? WHERE id = ?`,
+        [newCategory.name, newCategory.id],
+        function (err) {
+          if (err) return reject(err);
+          resolve();
+        }
+      );
+    });
+  }
 }

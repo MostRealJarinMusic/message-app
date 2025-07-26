@@ -20,9 +20,6 @@
     severity="secondary"
   />
 
-  <p-contextmenu
-    #serverContextMenu
-    [model]="contextMenuItems"
-    (onHide)="contextMenuServer.set(null)"
-  />
+  <p-contextmenu #serverContextMenu [model]="contextMenuItems" />
+  <!-- (onHide)="contextMenuServer = null" -->
 </div>
