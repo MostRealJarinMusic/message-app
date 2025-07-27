@@ -45,6 +45,7 @@ export class PresenceService {
   }
 
   private loadServerUserPresences(serverId: string) {
+    console.log('Attempting to load server presences');
     this.apiService.getServerUserPresences(serverId).subscribe({
       next: (presences) => {
         console.log(presences);
@@ -55,8 +56,4 @@ export class PresenceService {
       },
     });
   }
-
-  // public getPresenceMap(): ReadonlyMap<string, PresenceStatus> {
-  //   return this.presenceMap();
-  // }
 }

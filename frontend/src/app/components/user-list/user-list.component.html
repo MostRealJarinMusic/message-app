@@ -1,5 +1,7 @@
 <div>
-  @for (entry of presenceEntries; track $index) {
-  <p class="text-xs mb-1">{{ entry[0] }} - {{ entry[1] }}</p>
+  @for (entry of presenceEntries(); track $index) {
+  <p class="text-xs mb-1">
+    {{ userService.getUsername(entry.id) }} - {{ entry.status }}
+  </p>
   }
 </div>

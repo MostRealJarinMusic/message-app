@@ -1,6 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { PresenceStatus } from '@common/types';
 import { PresenceService } from 'src/app/services/presence/presence.service';
+import { UserService } from 'src/app/services/user/user.service';
 
 @Component({
   selector: 'app-user-list',
@@ -10,10 +11,21 @@ import { PresenceService } from 'src/app/services/presence/presence.service';
 })
 export class UserListComponent {
   private presenceService = inject(PresenceService);
-  protected presenceMap = this.presenceService.presenceMap;
-  //protected users = this.presenceMap().keys();
+  protected userService = inject(UserService);
 
-  get presenceEntries(): [string, PresenceStatus][] {
-    return [...this.presenceMap().entries()];
-  }
+  // protected presenceMap = this.presenceService.presenceMap;
+  // protected presenceEntries = computed(() => {
+  //   return [...this.presenceMap().entries()];
+  // });
+  protected serverUsers = this.userService.serverUsers;
+  protected presenceEntries = computed(() => {
+    const users = this.serverUsers();
+
+    if (!users) {
+      return [];
+    }
+    return users.map((user) => {
+      return { id: user.id, status: this.presenceService.getStatus(user.id) };
+    });
+  });
 }
