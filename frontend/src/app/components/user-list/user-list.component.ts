@@ -13,10 +13,6 @@ export class UserListComponent {
   private presenceService = inject(PresenceService);
   protected userService = inject(UserService);
 
-  // protected presenceMap = this.presenceService.presenceMap;
-  // protected presenceEntries = computed(() => {
-  //   return [...this.presenceMap().entries()];
-  // });
   protected serverUsers = this.userService.serverUsers;
   protected presenceEntries = computed(() => {
     const users = this.serverUsers();
