@@ -31,6 +31,7 @@ export default function serverRoutes(wsManager: WebSocketManager): Router {
     }
   });
 
+  //Accessing server users
   serverRoutes.get("/:serverId/users", authMiddleware, async (req, res) => {
     try {
       const serverId = req.params.serverId;
@@ -41,6 +42,22 @@ export default function serverRoutes(wsManager: WebSocketManager): Router {
       res.json(users);
     } catch (err) {
       res.status(500).json({ error: "Failed to load users" });
+    }
+  });
+
+  //Accessing server user presence
+  serverRoutes.get("/:serverId/presences", authMiddleware, async (req, res) => {
+    try {
+      const serverId = req.params.serverId;
+
+      //Here, you would get the user IDs for a server
+      const userIds = (await UserRepo.getAllUsers()).map((u) => u.id);
+
+      const presences = wsManager.getPresenceSnapshot(userIds);
+
+      res.json(presences);
+    } catch (err) {
+      res.status(500).json({ error: "Failed to load presence" });
     }
   });
 

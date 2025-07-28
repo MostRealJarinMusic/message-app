@@ -2,7 +2,7 @@ import http from "http";
 import jwt from "jsonwebtoken";
 import WebSocket from "ws";
 import { config } from "../../config";
-import { UserSignature, WSEvent } from "@common/types";
+import { PresenceUpdate, UserSignature, WSEvent } from "@common/types";
 
 const HEARTBEAT_INTERVAL = 60000;
 const TIMEOUT_LIMIT = 120000;
@@ -19,7 +19,7 @@ export class WebSocketManager {
 
     this.wss = new WebSocket.Server({ server });
     this.wss.on("connection", this.handleConnection.bind(this));
-    setInterval(this.heartbeat.bind(this), HEARTBEAT_INTERVAL);
+    setInterval(this.pingClients.bind(this), HEARTBEAT_INTERVAL);
   }
 
   private handleConnection(ws: WebSocket, req: http.IncomingMessage) {
@@ -46,6 +46,7 @@ export class WebSocketManager {
       }
 
       ws.on("message", async (message) => await this.routeMessage(ws, message));
+
       ws.on("close", () => {
         const id = ((ws as any).signature as UserSignature).id;
 
@@ -67,13 +68,24 @@ export class WebSocketManager {
     }
   }
 
+  //Presence
   private updatePresence(userId: string, status: string) {
     const previous = this.presenceStore.get(userId);
     if (previous === status) return;
 
     this.presenceStore.set(userId, status);
 
-    this.broadcastToAll("presence:update", { userId: userId, status: status });
+    this.broadcastToAll("presence:update", {
+      userId: userId,
+      status: status,
+    } as PresenceUpdate);
+  }
+
+  public getPresenceSnapshot(userIds: string[]) {
+    return userIds.map((id) => ({
+      userId: id,
+      status: this.presenceStore.get(id) || "offline",
+    }));
   }
 
   private async routeMessage(ws: WebSocket, message: WebSocket.RawData) {
@@ -122,10 +134,10 @@ export class WebSocketManager {
 
   public broadcastToFriends(event: string, payload: any, userId: string) {}
 
-  private heartbeat() {
+  private pingClients() {
     const now = Date.now();
     console.log("WS: Ping");
-    console.log(this.wss.clients.size);
+    //console.log(this.wss.clients.size);
 
     this.wss.clients.forEach((ws) => {
       const lastPong = this.clientLastPong.get(ws) || 0;

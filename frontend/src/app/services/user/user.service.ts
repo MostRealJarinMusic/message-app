@@ -13,6 +13,7 @@ export class UserService {
 
   readonly currentUser = signal<User | null>(null);
   private userCache = new Map<string, User>();
+  readonly serverUsers = signal<User[] | null>(null);
   readonly usernameMap = new Map<string, string>();
 
   constructor() {
@@ -49,6 +50,7 @@ export class UserService {
     this.apiService.getServerUsers(serverId).subscribe({
       next: (users) => {
         users.forEach((user) => this.userCache.set(user.id, user));
+        this.serverUsers.set(users);
       },
       error: (err) => {
         console.error('Error loading server users', err);
