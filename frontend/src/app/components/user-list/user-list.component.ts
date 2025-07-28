@@ -1,11 +1,14 @@
+import { CommonModule } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
 import { PresenceStatus } from '@common/types';
+import { AvatarModule } from 'primeng/avatar';
+import { AvatarGroupModule } from 'primeng/avatargroup';
 import { PresenceService } from 'src/app/services/presence/presence.service';
 import { UserService } from 'src/app/services/user/user.service';
 
 @Component({
   selector: 'app-user-list',
-  imports: [],
+  imports: [CommonModule, AvatarModule],
   templateUrl: './user-list.component.html',
   styleUrl: './user-list.component.scss',
 })
@@ -21,7 +24,15 @@ export class UserListComponent {
       return [];
     }
     return users.map((user) => {
-      return { id: user.id, status: this.presenceService.getStatus(user.id) };
+      return { id: user.id, status: this.presenceService.getStatus(user.id)! };
     });
   });
+
+  protected getAvatarStyle(status: PresenceStatus) {
+    return {
+      'background-color':
+        status === PresenceStatus.ONLINE ? '#10B981' : '#6B7280',
+      color: '#ffffff',
+    };
+  }
 }

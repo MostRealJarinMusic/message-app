@@ -1,7 +1,20 @@
 <div>
   @for (entry of presenceEntries(); track $index) {
-  <p class="text-xs mb-1">
+  <!-- <p class="text-xs mb-1">
     {{ userService.getUsername(entry.id) }} - {{ entry.status }}
-  </p>
+  </p> -->
+  <li
+    [ngClass]="{
+      'pl-3 py-2 mb-1 list-none rounded-border cursor-pointer transition-colors duration-200 hover:bg-surface-700 flex items-center gap-x-3 ': true,
+    }"
+  >
+    <p-avatar
+      icon="pi pi-user"
+      [style]="getAvatarStyle(entry.status)"
+      shape="circle"
+    />
+
+    <p class="">{{ userService.getUsername(entry.id) }}</p>
+  </li>
   }
 </div>
