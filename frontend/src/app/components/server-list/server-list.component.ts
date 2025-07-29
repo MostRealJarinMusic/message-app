@@ -17,6 +17,7 @@ import { ServerService } from 'src/app/services/server/server.service';
 import { ChannelCreateDialogComponent } from '../dialogs/channel-create-dialog/channel-create-dialog.component';
 import { ChannelService } from 'src/app/services/channel/channel.service';
 import { CategoryCreateDialogComponent } from '../dialogs/category-create-dialog/category-create-dialog.component';
+import { ServerCreateDialogComponent } from '../dialogs/server-create-dialog/server-create-dialog.component';
 
 @Component({
   selector: 'app-server-list',
@@ -41,6 +42,9 @@ export class ServerListComponent implements OnInit, OnDestroy {
   //Category creation
   private createCategoryDialogRef!: DynamicDialogRef;
 
+  //Server creation
+  private createServerDialogRef!: DynamicDialogRef;
+
   protected servers = this.serverService.servers;
   protected currentServer = this.serverService.currentServer;
   protected contextMenuServer: Server | null = null;
@@ -49,10 +53,10 @@ export class ServerListComponent implements OnInit, OnDestroy {
     this.serverService.selectServer(id);
   }
 
-  createServer() {
-    //Temporary
-    this.serverService.createServer('TEST SERVER');
-  }
+  // createServer() {
+  //   //Temporary
+  //   this.serverService.createServer('TEST SERVER');
+  // }
 
   ngOnInit(): void {
     this.initContextMenu();
@@ -61,6 +65,7 @@ export class ServerListComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.createChannelDialogRef) this.createChannelDialogRef.close();
     if (this.createCategoryDialogRef) this.createCategoryDialogRef.close();
+    if (this.createServerDialogRef) this.createServerDialogRef.close();
   }
 
   private initContextMenu() {
@@ -72,6 +77,7 @@ export class ServerListComponent implements OnInit, OnDestroy {
       {
         label: 'Delete Server',
         command: () => {
+          this.serverContextMenu.hide();
           this.serverService.deleteServer(this.contextMenuServer!.id);
           this.contextMenuServer = null;
         },
@@ -147,6 +153,28 @@ export class ServerListComponent implements OnInit, OnDestroy {
           newCategoryName
         );
         this.contextMenuServer = null;
+      }
+    });
+  }
+
+  protected startServerCreate() {
+    this.createServerDialogRef = this.dialogService.open(
+      ServerCreateDialogComponent,
+      {
+        header: 'Create Server',
+        width: '30%',
+        baseZIndex: 10000,
+        modal: true,
+        dismissableMask: true,
+        closeOnEscape: true,
+        closable: true,
+        styleClass: '!bg-surface-700 !pt-0',
+      }
+    );
+
+    this.createServerDialogRef.onClose.subscribe((newServerName) => {
+      if (newServerName) {
+        this.serverService.createServer(newServerName);
       }
     });
   }
