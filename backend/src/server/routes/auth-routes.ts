@@ -1,14 +1,14 @@
-import { Router, Request, Response } from "express";
+import { Request, Response } from "express-serve-static-core";
 import { AuthHandler } from "../../handlers/auth-handler";
+import { Router } from "express";
 
 const authRoutes = Router();
-const authService = new AuthHandler();
 
 authRoutes.post("/login", (req: Request, res: Response) =>
-  authService.login(req, res)
+  AuthHandler.login(req, res)
 );
 authRoutes.post("/register", (req: Request, res: Response) =>
-  authService.register(req, res)
+  AuthHandler.register(req, res)
 );
 
 export default authRoutes;
