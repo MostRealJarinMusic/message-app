@@ -18,10 +18,17 @@ import { ChannelCreateDialogComponent } from '../dialogs/channel-create-dialog/c
 import { ChannelService } from 'src/app/services/channel/channel.service';
 import { CategoryCreateDialogComponent } from '../dialogs/category-create-dialog/category-create-dialog.component';
 import { ServerCreateDialogComponent } from '../dialogs/server-create-dialog/server-create-dialog.component';
+import { FullscreenOverlayComponent } from '../custom/fullscreen-overlay/fullscreen-overlay.component';
 
 @Component({
   selector: 'app-server-list',
-  imports: [NgClass, ButtonModule, CommonModule, ContextMenu],
+  imports: [
+    NgClass,
+    ButtonModule,
+    CommonModule,
+    ContextMenu,
+    FullscreenOverlayComponent,
+  ],
   providers: [DialogService],
   templateUrl: './server-list.component.html',
   styleUrl: './server-list.component.scss',
