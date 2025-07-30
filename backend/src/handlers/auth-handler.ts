@@ -1,12 +1,17 @@
-import { Request, Response } from "express-serve-static-core";
+//import { Request, Response } from "express-serve-static-core";
 import { UserRepo } from "../db/repos/user.repo";
 import jwt from "jsonwebtoken";
 import { config } from "../config";
+import { Request, Response } from "express";
 
-export class AuthService {
-  async login(req: any, res: any) {
+export class AuthHandler {
+  async login(req: Request, res: Response) {
     const user = await UserRepo.loginUser(req.body);
-    if (!user) return res.status(401).json({ error: "Invalid credentials" });
+    if (!user) {
+      res.status(401).json({ error: "Invalid credentials" });
+      return;
+    }
+
     const token = jwt.sign(
       { id: user.id, username: user.username },
       config.jwtSecret
@@ -14,9 +19,13 @@ export class AuthService {
     res.json({ token, user });
   }
 
-  async register(req: any, res: any) {
+  async register(req: Request, res: Response) {
     const user = await UserRepo.registerUser(req.body);
-    if (!user) return res.status(400).json({ error: "Registration failed" });
+    if (!user) {
+      res.status(400).json({ error: "Registration failed" });
+      return;
+    }
+
     const token = jwt.sign(
       { id: user.id, username: user.username },
       config.jwtSecret
