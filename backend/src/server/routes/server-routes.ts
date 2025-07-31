@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Request, Response, Router } from "express";
 import { authMiddleware } from "../../middleware/auth-middleware";
 import { ChannelRepo } from "../../db/repos/channel.repo";
 import { ServerRepo } from "../../db/repos/server.repo";
@@ -12,209 +12,82 @@ import {
 import { ulid } from "ulid";
 import { WebSocketManager } from "../ws/websocket-manager";
 import { ChannelCategoryRepo } from "../../db/repos/category.repo";
-import { UserRepo } from "../../db/repos/user.repo";
+import { ServerHandler } from "../../handlers/server-handler";
 
 export default function serverRoutes(wsManager: WebSocketManager): Router {
   const serverRoutes = Router();
 
   //Temporarily fetches all servers
-  serverRoutes.get("/", authMiddleware, async (req, res) => {
-    try {
-      //const userId = (req as any).signature.id;
-      //For now, we will assume that all users have access to all servers from login
-
-      const servers = await ServerRepo.getServers();
-      res.json(servers);
-    } catch (err) {
-      console.error("Error getting servers", err);
-      res.status(500).json({ error: "Failed to fetch servers" });
-    }
+  serverRoutes.get("/", authMiddleware, async (req: Request, res: Response) => {
+    ServerHandler.getAllServers(req, res);
   });
 
   //Accessing server users
-  serverRoutes.get("/:serverId/users", authMiddleware, async (req, res) => {
-    try {
-      const serverId = req.params.serverId;
-
-      //Here, you get the users for a server
-      const users = await UserRepo.getAllUsers();
-
-      res.json(users);
-    } catch (err) {
-      res.status(500).json({ error: "Failed to load users" });
+  serverRoutes.get(
+    "/:serverId/users",
+    authMiddleware,
+    async (req: Request, res: Response) => {
+      ServerHandler.getServerUsers(req, res);
     }
-  });
+  );
 
   //Accessing server user presence
-  serverRoutes.get("/:serverId/presences", authMiddleware, async (req, res) => {
-    try {
-      const serverId = req.params.serverId;
-
-      //Here, you would get the user IDs for a server
-      const userIds = (await UserRepo.getAllUsers()).map((u) => u.id);
-
-      const presences = wsManager.getPresenceSnapshot(userIds);
-
-      res.json(presences);
-    } catch (err) {
-      res.status(500).json({ error: "Failed to load presence" });
+  serverRoutes.get(
+    "/:serverId/presences",
+    authMiddleware,
+    async (req: Request, res: Response) => {
+      ServerHandler.getServerUserPresences(req, res, wsManager);
     }
-  });
+  );
 
   //Accessing server channels
-  serverRoutes.get("/:serverId/channels", authMiddleware, async (req, res) => {
-    try {
-      //console.log("HTTP: Attempt to get channels");
-      const serverId = req.params.serverId;
-      const channels = await ChannelRepo.getChannels(serverId);
-
-      res.json(channels);
-    } catch (err) {
-      console.error("Error getting channels", err);
-      res.status(500).json({ error: "Failed to fetch channels" });
+  serverRoutes.get(
+    "/:serverId/channels",
+    authMiddleware,
+    async (req: Request, res: Response) => {
+      ServerHandler.getChannels(req, res);
     }
-  });
+  );
 
   //Creating channel in server
-  serverRoutes.post("/:serverId/channels", authMiddleware, async (req, res) => {
-    try {
-      const serverId = req.params.serverId;
-      const newChannelData = req.body;
-
-      if (!newChannelData) {
-        res.status(400).json({ error: "Channel data required" });
-        return;
-      }
-
-      const newChannel: Channel = {
-        name: newChannelData.name,
-        categoryId: newChannelData.categoryId,
-        serverId: serverId,
-        id: ulid(),
-      };
-
-      await ChannelRepo.createChannel(newChannel);
-
-      //Notify all users of a channel creation
-      wsManager.broadcastToAll(WSEventType.CHANNEL_CREATE, newChannel);
-
-      res.status(201).json(newChannel);
-    } catch (err) {
-      res.status(500).json({ error: "Failed to create channel" });
+  serverRoutes.post(
+    "/:serverId/channels",
+    authMiddleware,
+    async (req: Request, res: Response) => {
+      ServerHandler.createChannel(req, res, wsManager);
     }
-  });
+  );
 
   //Accessing server categories
-  serverRoutes.get("/:serverId/structure", authMiddleware, async (req, res) => {
-    try {
-      const serverId = req.params.serverId;
-      const categories = await ChannelCategoryRepo.getCategories(serverId);
-
-      res.json(categories);
-    } catch (err) {
-      res.status(500).json({ error: "Failed to fetch structure" });
+  serverRoutes.get(
+    "/:serverId/structure",
+    authMiddleware,
+    async (req: Request, res: Response) => {
+      ServerHandler.getCategories(req, res);
     }
-  });
+  );
 
   //Creating categories
   serverRoutes.post(
     "/:serverId/categories",
     authMiddleware,
-    async (req, res) => {
-      try {
-        const serverId = req.params.serverId;
-        const newCategoryData = req.body;
-
-        if (!newCategoryData) {
-          res.status(400).json({ error: "Category data required" });
-          return;
-        }
-
-        const newCategory: ChannelCategory = {
-          id: ulid(),
-          serverId: serverId,
-          name: newCategoryData.name,
-        };
-
-        await ChannelCategoryRepo.createCategory(newCategory);
-
-        wsManager.broadcastToAll(WSEventType.CATEGORY_CREATE, newCategory);
-
-        res.status(201).json(newCategory);
-      } catch (err) {
-        res.status(500).json({ error: "Failed to create category" });
-      }
+    async (req: Request, res: Response) => {
+      ServerHandler.createCategory(req, res, wsManager);
     }
   );
 
   //Creating a server
-  serverRoutes.post("/", authMiddleware, async (req, res) => {
-    try {
-      const newServerData = req.body as ServerCreate;
-
-      if (!newServerData) {
-        res.status(400).json({ error: "Server data required" });
-        return;
-      }
-
-      const newServer: Server = {
-        id: ulid(),
-        name: newServerData.name,
-        description: newServerData.description,
-      };
-
-      await ServerRepo.createServer(newServer);
-      //Create category
-      // - Text channel
-      const newCategory: ChannelCategory = {
-        id: ulid(),
-        serverId: newServer.id,
-        name: "Text Channels",
-      };
-      await ChannelCategoryRepo.createCategory(newCategory);
-
-      // - Create general
-      const newChannel: Channel = {
-        id: ulid(),
-        serverId: newServer.id,
-        name: "General",
-        categoryId: newCategory.id,
-      };
-      await ChannelRepo.createChannel(newChannel);
-
-      //Notify all users of server creation - temporarily
-      //In reality - only notify the person who created the server
-      // With public servers, we may have to notify people
-
-      //For now notify everyone
-
-      wsManager.broadcastToAll(WSEventType.SERVER_CREATE, newServer);
-
-      res.status(201).json(newServer);
-    } catch (err) {
-      res.status(500).json({ error: "Failed to create server" });
+  serverRoutes.post(
+    "/",
+    authMiddleware,
+    async (req: Request, res: Response) => {
+      ServerHandler.createServer(req, res, wsManager);
     }
-  });
+  );
 
   //Deleting a server
   serverRoutes.delete("/:serverId", authMiddleware, async (req, res) => {
-    try {
-      const serverId = req.params.serverId;
-      const server = await ServerRepo.getServer(serverId);
-
-      if (server) {
-        await ServerRepo.deleteServer(serverId);
-      } else {
-        res.status(404).json({ error: "Server doesn't exist" });
-        return;
-      }
-
-      wsManager.broadcastToAll(WSEventType.SERVER_DELETE, server);
-
-      res.status(204).send();
-    } catch (err) {
-      res.status(500).json({ error: "Failed to delete server" });
-    }
+    ServerHandler.deleteServer(req, res, wsManager);
   });
 
   //Editing a server
