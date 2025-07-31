@@ -1,0 +1,108 @@
+import { Request, Response, Router } from "express";
+import { MessageRepo } from "../db/repos/message.repo";
+import {
+  Channel,
+  ChannelUpdate,
+  Message,
+  WSEventType,
+} from "../../../common/types";
+import { ulid } from "ulid";
+import { WebSocketManager } from "../server/ws/websocket-manager";
+import { ChannelRepo } from "../db/repos/channel.repo";
+
+export class ChannelHandler {
+  static async deleteChannel(
+    req: Request,
+    res: Response,
+    wsManager: WebSocketManager
+  ) {
+    try {
+      const channelId = req.params.channelId;
+      const channel = await ChannelRepo.getChannel(channelId);
+
+      if (channel) {
+        await ChannelRepo.deleteChannel(channelId);
+      } else {
+        res.status(404).json({ error: "Channel doesn't exist" });
+        return;
+      }
+
+      wsManager.broadcastToAll(WSEventType.CHANNEL_DELETE, channel);
+
+      res.status(204).send();
+    } catch (err) {
+      res.status(500).json({ error: "Failed to delete channel" });
+    }
+  }
+
+  static async sendMessage(
+    req: Request,
+    res: Response,
+    wsManager: WebSocketManager
+  ) {
+    try {
+      const channelId = req.params.channelId;
+      const authorId = (req as any).signature.id;
+      const content = req.body.content;
+
+      if (!content) {
+        res.status(400).json({ error: "Message content required" });
+        return;
+      }
+
+      const message: Message = {
+        id: ulid(),
+        channelId,
+        authorId,
+        content,
+        createdAt: new Date().toISOString(),
+      };
+
+      await MessageRepo.createMessage(message);
+
+      //Broadcast to users
+      wsManager.broadcastToAll(WSEventType.RECEIVE, message);
+
+      res.status(201).json(message);
+    } catch (err) {
+      res.status(500).json({ error: "Failed to send message" });
+    }
+  }
+
+  static async getMessages(
+    req: Request,
+    res: Response,
+    wsManager: WebSocketManager
+  ) {
+    const messages = await MessageRepo.getAllChannelMessages(
+      req.params.channelId
+    );
+    res.json(messages);
+  }
+
+  static async editChannel(
+    req: Request,
+    res: Response,
+    wsManager: WebSocketManager
+  ) {
+    try {
+      const channelId = req.params.channelId;
+      const channelUpdate = req.body.channelUpdate as ChannelUpdate;
+      const channel = await ChannelRepo.getChannel(channelId);
+
+      if (channel) {
+        const proposedChannel = { ...channel, ...channelUpdate } as Channel;
+        await ChannelRepo.editChannel(proposedChannel);
+        const updatedChannel = await ChannelRepo.getChannel(channelId);
+
+        //Broadcast to users
+        wsManager.broadcastToAll(WSEventType.CHANNEL_UPDATE, updatedChannel);
+        res.status(204).send();
+      } else {
+        res.status(404).json({ error: "Channel doesn't exist" });
+      }
+    } catch (err) {
+      res.status(500).json({ error: "Failed to edit channel" });
+    }
+  }
+}
