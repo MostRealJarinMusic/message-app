@@ -86,11 +86,22 @@ export default function serverRoutes(wsManager: WebSocketManager): Router {
   );
 
   //Deleting a server
-  serverRoutes.delete("/:serverId", authMiddleware, async (req, res) => {
-    ServerHandler.deleteServer(req, res, wsManager);
-  });
+  serverRoutes.delete(
+    "/:serverId",
+    authMiddleware,
+    async (req: Request, res: Response) => {
+      ServerHandler.deleteServer(req, res, wsManager);
+    }
+  );
 
   //Editing a server
+  serverRoutes.patch(
+    "/:serverId",
+    authMiddleware,
+    async (req: Request, res: Response) => {
+      ServerHandler.editServer(req, res, wsManager);
+    }
+  );
 
   //Reordering servers
 

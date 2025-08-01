@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { Server, ServerCreate, WSEventType } from '@common/types';
+import { Server, ServerCreate, ServerUpdate, WSEventType } from '@common/types';
 import { PrivateApiService } from '../api/private-api.service';
 import { SocketService } from '../socket/socket.service';
 
@@ -58,6 +58,14 @@ export class ServerService {
         current.filter((s) => s.id !== server.id)
       );
     });
+
+    this.wsService.on<Server>(WSEventType.SERVER_UPDATE).subscribe((server) => {
+      this.servers.update((currentServers) =>
+        currentServers!.map((s) =>
+          s.id === server.id ? { ...s, ...server } : s
+        )
+      );
+    });
   }
 
   public createServer(serverName: string) {
@@ -82,6 +90,17 @@ export class ServerService {
       },
       error: (err) => {
         console.error('Unsuccessful server deletion', err);
+      },
+    });
+  }
+
+  public editServer(serverId: string, serverUpdate: ServerUpdate) {
+    this.apiService.editServer(serverId, serverUpdate).subscribe({
+      next: () => {
+        console.log('Successful edit');
+      },
+      error: (err) => {
+        console.error('Unsuccesful edit', err);
       },
     });
   }

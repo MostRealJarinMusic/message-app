@@ -90,6 +90,7 @@ export interface ServerCreate {
 
 export interface ServerUpdate {
   name: string;
+  description?: string;
 }
 
 // export enum ServerAccess {
