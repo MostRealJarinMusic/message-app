@@ -1,4 +1,4 @@
-import { UserSignature } from "../common/types";
+import { UserSignature } from "../../common/types";
 import * as express from "express-serve-static-core";
 
 declare global {

@@ -9,6 +9,7 @@ import {
 import { ulid } from "ulid";
 import { WebSocketManager } from "../../ws/websocket-manager";
 import { ChannelRepo } from "../../../db/repos/channel.repo";
+import { SignedRequest } from "types/types";
 
 export class ChannelHandler {
   static async deleteChannel(
@@ -36,13 +37,13 @@ export class ChannelHandler {
   }
 
   static async sendMessage(
-    req: Request,
+    req: SignedRequest,
     res: Response,
     wsManager: WebSocketManager
   ) {
     try {
       const channelId = req.params.channelId;
-      const authorId = (req as any).signature.id;
+      const authorId = req.signature!.id;
       const content = req.body.content;
 
       if (!content) {

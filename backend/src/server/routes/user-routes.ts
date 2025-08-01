@@ -2,11 +2,12 @@ import { Router } from "express";
 import { Request, Response } from "express-serve-static-core";
 import { authMiddleware } from "../../middleware/auth-middleware";
 import { UserHandler } from "./handlers/user-handler";
+import { SignedRequest } from "types/types";
 
 const userRoutes = Router();
 
 userRoutes.get("/me", authMiddleware, (req: Request, res: Response) =>
-  UserHandler.getMe(req, res)
+  UserHandler.getMe(req as SignedRequest, res)
 );
 
 //Temporary

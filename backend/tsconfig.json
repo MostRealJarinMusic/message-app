@@ -3,7 +3,7 @@
     "target": "es2016",
     "module": "commonjs",
     "outDir": "dist",
-    "baseUrl": ".", // already set
+    "baseUrl": "./src", // already set
     "rootDir": "./src",
 
     "esModuleInterop": true,
@@ -12,15 +12,14 @@
 
     "skipLibCheck": true,
     "paths": {
-      "@common/*": ["../common/*"]
-    },
-    "typeRoots": ["./node_modules/@types", "**.d.ts", "../common/*"]
+      "@common/*": ["../../common/*"]
+    }
   },
   "include": [
     "src/**/*",
     "src/types/**/*",
     "../common/*",
     "src/**/*.d.ts",
-    "index.d.ts"
+    "src/global.d.ts"
   ]
 }
