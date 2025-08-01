@@ -1,6 +1,10 @@
-import { MessageRepo } from "../db/repos/message.repo";
-import { WebSocketManager } from "../server/ws/websocket-manager";
-import { Message, UserSignature, WSEventType } from "../../../common/types";
+import { MessageRepo } from "../../../db/repos/message.repo";
+import { WebSocketManager } from "../../ws/websocket-manager";
+import {
+  Message,
+  UserSignature,
+  WSEventType,
+} from "../../../../../common/types";
 import { Request, Response } from "express";
 
 export class MessageHandler {

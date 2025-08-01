@@ -1,17 +1,17 @@
 import { Request, Response } from "express";
-import { ServerRepo } from "../db/repos/server.repo";
-import { UserRepo } from "../db/repos/user.repo";
-import { WebSocketManager } from "../server/ws/websocket-manager";
-import { ChannelRepo } from "../db/repos/channel.repo";
+import { ServerRepo } from "../../../db/repos/server.repo";
+import { UserRepo } from "../../../db/repos/user.repo";
+import { WebSocketManager } from "../../ws/websocket-manager";
+import { ChannelRepo } from "../../../db/repos/channel.repo";
 import {
   Channel,
   ChannelCategory,
   Server,
   ServerCreate,
   WSEventType,
-} from "../../../common/types";
+} from "../../../../../common/types";
 import { ulid } from "ulid";
-import { ChannelCategoryRepo } from "../db/repos/category.repo";
+import { ChannelCategoryRepo } from "../../../db/repos/category.repo";
 
 export class ServerHandler {
   //Temporarily fetches all servers

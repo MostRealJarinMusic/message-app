@@ -1,5 +1,5 @@
 import { Request, Response } from "express-serve-static-core";
-import { UserRepo } from "../db/repos/user.repo";
+import { UserRepo } from "../../../db/repos/user.repo";
 
 export class UserHandler {
   static async getMe(req: Request, res: Response) {

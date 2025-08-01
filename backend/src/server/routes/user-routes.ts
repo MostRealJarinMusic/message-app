@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { Request, Response } from "express-serve-static-core";
 import { authMiddleware } from "../../middleware/auth-middleware";
-import { UserHandler } from "../../handlers/user-handler";
+import { UserHandler } from "./handlers/user-handler";
 
 const userRoutes = Router();
 

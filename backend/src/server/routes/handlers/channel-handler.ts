@@ -1,14 +1,14 @@
 import { Request, Response, Router } from "express";
-import { MessageRepo } from "../db/repos/message.repo";
+import { MessageRepo } from "../../../db/repos/message.repo";
 import {
   Channel,
   ChannelUpdate,
   Message,
   WSEventType,
-} from "../../../common/types";
+} from "../../../../../common/types";
 import { ulid } from "ulid";
-import { WebSocketManager } from "../server/ws/websocket-manager";
-import { ChannelRepo } from "../db/repos/channel.repo";
+import { WebSocketManager } from "../../ws/websocket-manager";
+import { ChannelRepo } from "../../../db/repos/channel.repo";
 
 export class ChannelHandler {
   static async deleteChannel(
