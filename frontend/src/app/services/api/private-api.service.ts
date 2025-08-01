@@ -12,6 +12,7 @@ import {
   PresenceUpdate,
   Server,
   ServerCreate,
+  ServerUpdate,
   User,
 } from '@common/types';
 import { AuthTokenService } from '../authtoken/auth-token.service';
@@ -163,6 +164,12 @@ export class PrivateApiService extends BaseApiService {
   deleteServer(serverId: string) {
     return this.authorisedFetch<void>((_) =>
       this.delete<void>(`servers/${serverId}`)
+    );
+  }
+
+  editServer(serverId: string, serverUpdate: ServerUpdate): Observable<void> {
+    return this.authorisedFetch<void>((_) =>
+      this.patch<void>(`servers/${serverId}`, { serverUpdate })
     );
   }
   //#endregion

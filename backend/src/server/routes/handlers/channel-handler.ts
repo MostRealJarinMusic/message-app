@@ -1,14 +1,15 @@
 import { Request, Response, Router } from "express";
-import { MessageRepo } from "../db/repos/message.repo";
+import { MessageRepo } from "../../../db/repos/message.repo";
 import {
   Channel,
   ChannelUpdate,
   Message,
   WSEventType,
-} from "../../../common/types";
+} from "../../../../../common/types";
 import { ulid } from "ulid";
-import { WebSocketManager } from "../server/ws/websocket-manager";
-import { ChannelRepo } from "../db/repos/channel.repo";
+import { WebSocketManager } from "../../ws/websocket-manager";
+import { ChannelRepo } from "../../../db/repos/channel.repo";
+import { SignedRequest } from "types/types";
 
 export class ChannelHandler {
   static async deleteChannel(
@@ -36,13 +37,13 @@ export class ChannelHandler {
   }
 
   static async sendMessage(
-    req: Request,
+    req: SignedRequest,
     res: Response,
     wsManager: WebSocketManager
   ) {
     try {
       const channelId = req.params.channelId;
-      const authorId = (req as any).signature.id;
+      const authorId = req.signature!.id;
       const content = req.body.content;
 
       if (!content) {

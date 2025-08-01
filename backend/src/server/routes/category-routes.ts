@@ -8,7 +8,7 @@ import {
   WSEventType,
 } from "../../../../common/types";
 import { ChannelRepo } from "../../db/repos/channel.repo";
-import { CategoryHandler } from "../../handlers/category-handler";
+import { CategoryHandler } from "./handlers/category-handler";
 
 export default function categoryRoutes(wsManager: WebSocketManager): Router {
   const categoryRoutes = Router();

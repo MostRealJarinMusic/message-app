@@ -1,7 +1,7 @@
 //import { Request, Response } from "express-serve-static-core";
-import { UserRepo } from "../db/repos/user.repo";
+import { UserRepo } from "../../../db/repos/user.repo";
 import jwt from "jsonwebtoken";
-import { config } from "../config";
+import { config } from "../../../config";
 import { Request, Response } from "express-serve-static-core";
 
 export class AuthHandler {

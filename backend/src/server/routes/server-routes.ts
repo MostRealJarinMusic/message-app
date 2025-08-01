@@ -12,7 +12,7 @@ import {
 import { ulid } from "ulid";
 import { WebSocketManager } from "../ws/websocket-manager";
 import { ChannelCategoryRepo } from "../../db/repos/category.repo";
-import { ServerHandler } from "../../handlers/server-handler";
+import { ServerHandler } from "./handlers/server-handler";
 
 export default function serverRoutes(wsManager: WebSocketManager): Router {
   const serverRoutes = Router();
@@ -86,11 +86,22 @@ export default function serverRoutes(wsManager: WebSocketManager): Router {
   );
 
   //Deleting a server
-  serverRoutes.delete("/:serverId", authMiddleware, async (req, res) => {
-    ServerHandler.deleteServer(req, res, wsManager);
-  });
+  serverRoutes.delete(
+    "/:serverId",
+    authMiddleware,
+    async (req: Request, res: Response) => {
+      ServerHandler.deleteServer(req, res, wsManager);
+    }
+  );
 
   //Editing a server
+  serverRoutes.patch(
+    "/:serverId",
+    authMiddleware,
+    async (req: Request, res: Response) => {
+      ServerHandler.editServer(req, res, wsManager);
+    }
+  );
 
   //Reordering servers
 

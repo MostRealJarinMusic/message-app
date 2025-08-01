@@ -1,10 +1,11 @@
 import { Request, Response } from "express-serve-static-core";
-import { UserRepo } from "../db/repos/user.repo";
+import { UserRepo } from "../../../db/repos/user.repo";
+import { SignedRequest } from "types/types";
 
 export class UserHandler {
-  static async getMe(req: Request, res: Response) {
+  static async getMe(req: SignedRequest, res: Response) {
     try {
-      const userId = (req as any).signature.id;
+      const userId = req.signature!.id;
       const user = await UserRepo.getUserById(userId);
 
       if (!user) {

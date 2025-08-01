@@ -88,6 +88,11 @@ export interface ServerCreate {
   description?: string;
 }
 
+export interface ServerUpdate {
+  name: string;
+  description?: string;
+}
+
 // export enum ServerAccess {
 //   INVITE_ONLY = "inviteonly",
 //   APPLICATION = "application",

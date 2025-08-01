@@ -1,17 +1,18 @@
 import { Request, Response } from "express";
-import { ServerRepo } from "../db/repos/server.repo";
-import { UserRepo } from "../db/repos/user.repo";
-import { WebSocketManager } from "../server/ws/websocket-manager";
-import { ChannelRepo } from "../db/repos/channel.repo";
+import { ServerRepo } from "../../../db/repos/server.repo";
+import { UserRepo } from "../../../db/repos/user.repo";
+import { WebSocketManager } from "../../ws/websocket-manager";
+import { ChannelRepo } from "../../../db/repos/channel.repo";
 import {
   Channel,
   ChannelCategory,
   Server,
   ServerCreate,
+  ServerUpdate,
   WSEventType,
-} from "../../../common/types";
+} from "../../../../../common/types";
 import { ulid } from "ulid";
-import { ChannelCategoryRepo } from "../db/repos/category.repo";
+import { ChannelCategoryRepo } from "../../../db/repos/category.repo";
 
 export class ServerHandler {
   //Temporarily fetches all servers
@@ -227,6 +228,37 @@ export class ServerHandler {
       res.status(204).send();
     } catch (err) {
       res.status(500).json({ error: "Failed to delete server" });
+    }
+  }
+
+  //Editing a server
+  static async editServer(
+    req: Request,
+    res: Response,
+    wsManager: WebSocketManager
+  ) {
+    try {
+      const serverId = req.params.serverId;
+      const serverUpdate = req.body.serverUpdate as ServerUpdate;
+      const server = await ServerRepo.getServer(serverId);
+
+      if (server) {
+        const proposedServer = {
+          ...server,
+          ...serverUpdate,
+        } as Server;
+
+        await ServerRepo.editServer(proposedServer);
+
+        const updatedServer = await ServerRepo.getServer(serverId);
+
+        wsManager.broadcastToAll(WSEventType.SERVER_UPDATE, updatedServer);
+        res.status(204).send();
+      } else {
+        res.status(404).json({ error: "Server doesn't exist" });
+      }
+    } catch (err) {
+      res.status(500).json({ error: "Failed to edit server" });
     }
   }
 }

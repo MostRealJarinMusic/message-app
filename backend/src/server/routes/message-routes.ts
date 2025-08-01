@@ -1,7 +1,7 @@
 import { Request, Response, Router } from "express";
 import { authMiddleware } from "../../middleware/auth-middleware";
 import { WebSocketManager } from "../ws/websocket-manager";
-import { MessageHandler } from "../../handlers/message-handler";
+import { MessageHandler } from "./handlers/message-handler";
 
 export default function messageRoutes(wsManager: WebSocketManager): Router {
   const messageRoutes = Router();

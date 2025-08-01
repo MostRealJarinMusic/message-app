@@ -1,5 +1,5 @@
 {
-  "name": "backend",
+  "name": "messaging-app-backend",
   "version": "1.0.0",
   "description": "",
   "main": "src/main.ts",
@@ -11,7 +11,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
     "bcrypt": "^6.0.0",
     "body-parser": "^2.2.0",

@@ -48,7 +48,6 @@ export class PresenceService {
     console.log('Attempting to load server presences');
     this.apiService.getServerUserPresences(serverId).subscribe({
       next: (presences) => {
-        console.log(presences);
         presences.forEach((update) => this.handlePresenceUpdate(update));
       },
       error: (err) => {
