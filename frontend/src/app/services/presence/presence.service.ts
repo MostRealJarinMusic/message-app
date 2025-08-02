@@ -27,7 +27,9 @@ export class PresenceService {
 
   private initWebSocket() {
     this.socketService.on<PresenceUpdate>(WSEventType.PRESENCE).subscribe({
-      next: (update) => this.handlePresenceUpdate(update),
+      next: (update) => {
+        this.handlePresenceUpdate(update);
+      },
       error: (err) => {
         console.error('Error with presence update', err);
       },

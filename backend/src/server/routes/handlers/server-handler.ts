@@ -53,7 +53,8 @@ export class ServerHandler {
       const serverId = req.params.serverId;
 
       //Here, you would get the user IDs for a server
-      const userIds = (await UserRepo.getAllUsers()).map((u) => u.id);
+      const users = await UserRepo.getAllUsers();
+      const userIds = users.map((u) => u.id);
 
       const presences = wsManager.getPresenceSnapshot(userIds);
 

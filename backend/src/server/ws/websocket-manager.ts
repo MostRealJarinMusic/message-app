@@ -2,7 +2,13 @@ import http from "http";
 import jwt from "jsonwebtoken";
 import WebSocket from "ws";
 import { config } from "../../config";
-import { PresenceUpdate, UserSignature, WSEvent } from "@common/types";
+import {
+  PresenceStatus,
+  PresenceUpdate,
+  UserSignature,
+  WSEvent,
+  WSEventType,
+} from "@common/types";
 
 const HEARTBEAT_INTERVAL = 60000;
 const TIMEOUT_LIMIT = 120000;
@@ -41,9 +47,9 @@ export class WebSocketManager {
       }
       this.userSockets.get(userId)?.add(ws);
 
-      if (this.userSockets.get(userId)?.size === 1) {
-        this.updatePresence(userId, "online");
-      }
+      //if (this.userSockets.get(userId)?.size === 1) {
+      this.updatePresence(userId, "online");
+      //}
 
       ws.on("message", async (message) => await this.routeMessage(ws, message));
 
@@ -81,10 +87,10 @@ export class WebSocketManager {
     } as PresenceUpdate);
   }
 
-  public getPresenceSnapshot(userIds: string[]) {
+  public getPresenceSnapshot(userIds: string[]): PresenceUpdate[] {
     return userIds.map((id) => ({
       userId: id,
-      status: this.presenceStore.get(id) || "offline",
+      status: (this.presenceStore.get(id) || "offline") as PresenceStatus,
     }));
   }
 
