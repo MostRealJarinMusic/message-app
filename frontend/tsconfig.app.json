@@ -4,18 +4,12 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./out-tsc/app",
-    "types": []
+    "types": [],
+    "paths": {
+      "@common/*": ["../common/*"]
+    }
   },
-  "files": [
-    "src/main.ts",
-    "src/main.server.ts",
-    "src/server.ts"
-  ],
-  "include": [
-    "src/**/*.d.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "src/main.ts"
-  ]
+  "files": ["src/main.ts", "src/main.server.ts", "src/server.ts"],
+  "include": ["src/**/*.d.ts"],
+  "exclude": ["node_modules", "src/main.ts"]
 }

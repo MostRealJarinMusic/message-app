@@ -15,19 +15,19 @@ Intended as a side project / exercise in learning the following technologies:
 
 ## Tech Stack Structure
 
-### Frontend:
+### Frontend
 
 - Angular
 - Electron
 - PrimeNG - component library
 
-### Backend:
+### Backend
 
 - Express
 - Websocket
 - JWT
 
-### Database:
+### Database
 
 - SQLite3 (server-side)
 - PouchDB (client-side)
