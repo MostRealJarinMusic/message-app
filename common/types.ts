@@ -39,6 +39,12 @@ export interface MessageUpdate {
   content: string;
 }
 
+export enum ServerType {
+  SERVER = "channel:server",
+  DM = "channel:dm",
+  GROUP_DM = "channel:group",
+}
+
 export interface Channel {
   id: string;
   serverId: string;
@@ -97,7 +103,15 @@ export interface ServerCreate {
 export interface ServerMember {
   userId: string;
   serverId: string;
-  roles?: string[];
+}
+
+export interface ServerInvite {
+  id: string;
+  serverId: string;
+  link: string;
+  createdAt: string;
+  expiresOn: string;
+  valid: boolean;
 }
 
 //WebSocket types
@@ -148,4 +162,17 @@ export interface User {
   username: string;
   email: string;
   status?: PresenceStatus;
+}
+
+export interface Friendship {
+  userId1: string;
+  userId2: string;
+  createdAt?: string;
+}
+
+export interface FriendRequest {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  createdAt: string;
 }
