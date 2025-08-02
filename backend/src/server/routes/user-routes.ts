@@ -1,46 +1,23 @@
 import { Router } from "express";
+import { Request, Response } from "express-serve-static-core";
 import { authMiddleware } from "../../middleware/auth-middleware";
-import { UserRepo } from "../../db/repos/user.repo";
+import { UserHandler } from "./handlers/user-handler";
+import { SignedRequest } from "types/types";
 
 const userRoutes = Router();
 
-userRoutes.get("/me", authMiddleware, async (req, res) => {
-  try {
-    const userId = (req as any).signature.id;
-    const user = await UserRepo.getUserById(userId);
-
-    if (!user) {
-      res.status(404).json({ error: "User not found" });
-      return;
-    }
-    res.json(user);
-  } catch (err) {
-    res.status(500).json({ error: "Database error" });
-  }
-});
+userRoutes.get("/me", authMiddleware, (req: Request, res: Response) =>
+  UserHandler.getMe(req as SignedRequest, res)
+);
 
 //Temporary
-userRoutes.get("/", authMiddleware, async (req, res) => {
-  try {
-    const users = await UserRepo.getAllUsers();
-    res.json(users);
-  } catch (err) {
-    res.status(500).json({ error: "Database error" });
-  }
-});
+userRoutes.get("/", authMiddleware, (req: Request, res: Response) =>
+  UserHandler.getAllUsers(req, res)
+);
 
-userRoutes.get("/:id", authMiddleware, async (req, res) => {
-  try {
-    const user = await UserRepo.getUserById(req.params.id);
-    if (!user) {
-      res.status(404).json({ error: "User not found" });
-      return;
-    }
-
-    res.json(user);
-  } catch (err) {
-    res.status(500).json({ error: "Database error" });
-  }
-});
+//Currently this route isn't used - temporarily disabled as a reminder for testing code
+// userRoutes.get("/:id", authMiddleware, (req, res) =>
+//   UserHandler.getUserById(req, res)
+// );
 
 export default userRoutes;

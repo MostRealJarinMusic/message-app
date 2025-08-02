@@ -87,5 +87,18 @@ export class ServerRepo {
     });
   }
 
-  static async editServer(serverId: string) {}
+  static async editServer(newServer: Server) {
+    const db = await getDB();
+
+    return new Promise<void>((resolve, reject) => {
+      db.run(
+        `UPDATE servers SET name = ?, description = ? WHERE id = ?`,
+        [newServer.name, newServer.description, newServer.id],
+        function (err) {
+          if (err) return reject(err);
+          resolve();
+        }
+      );
+    });
+  }
 }

@@ -1,18 +1,11 @@
 <div class="card flex flex-col gap-4">
-  <!-- <span class="p-text-secondary block mb-8">Update your information.</span> -->
-  @if (categoryName) {
-  <div>
-    <small>in {{ categoryName }}</small>
-  </div>
-  }
-
   <div class="w-full flex flex-col gap-2">
-    <label for="name">Channel Name</label>
+    <label for="name">Server Name</label>
     <input
       type="text"
       class="!w-full !py-4 !pl-4 !text-sm !bg-surface-800 rounded-lg border !border-surface-600 focus:outline-none focus:ring-2 focus:ring-primary"
       pInputText
-      [(ngModel)]="channelName"
+      [(ngModel)]="serverName"
     />
   </div>
 
@@ -24,9 +17,9 @@
       (onClick)="close()"
     />
     <p-button
-      label="Create Channel"
-      [disabled]="!channelName"
-      (onClick)="createChannel()"
+      label="Create Server"
+      [disabled]="!serverName"
+      (onClick)="createServer()"
     />
   </div>
 </div>

@@ -20,7 +20,7 @@ export interface UserSignature {
 
 export type Timestamp = number;
 
-//Message, Channel, Server types
+//Message, Channel, Category, Server types
 export interface Message {
   id: string;
   authorId: string;
@@ -90,6 +90,11 @@ export interface Server {
 }
 
 export interface ServerCreate {
+  name: string;
+  description?: string;
+}
+
+export interface ServerUpdate {
   name: string;
   description?: string;
 }

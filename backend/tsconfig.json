@@ -1,14 +1,25 @@
 {
   "compilerOptions": {
-    "target": "ES6",
+    "target": "es2016",
     "module": "commonjs",
-    "strict": true,
-    "esModuleInterop": true,
     "outDir": "dist",
-    "baseUrl": ".", // already set
+    "baseUrl": "./src", // already set
+    "rootDir": "./src",
+
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+
+    "skipLibCheck": true,
     "paths": {
-      "@common/*": ["../common/*"]
+      "@common/*": ["../../common/*"]
     }
   },
-  "include": ["src"]
+  "include": [
+    "src/**/*",
+    "src/types/**/*",
+    "../common/*",
+    "src/**/*.d.ts",
+    "src/global.d.ts"
+  ]
 }

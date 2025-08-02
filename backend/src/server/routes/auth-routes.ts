@@ -1,10 +1,14 @@
+import { Request, Response } from "express";
+import { AuthHandler } from "./handlers/auth-handler";
 import { Router } from "express";
-import { AuthService } from "../../services/auth-service";
 
 const authRoutes = Router();
-const authService = new AuthService();
 
-authRoutes.post("/login", (req, res) => authService.login(req, res));
-authRoutes.post("/register", (req, res) => authService.register(req, res));
+authRoutes.post("/login", (req: Request, res: Response) =>
+  AuthHandler.login(req, res)
+);
+authRoutes.post("/register", (req: Request, res: Response) =>
+  AuthHandler.register(req, res)
+);
 
 export default authRoutes;

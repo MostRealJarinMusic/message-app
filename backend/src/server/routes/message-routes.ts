@@ -1,53 +1,26 @@
-import { Router } from "express";
+import { Request, Response, Router } from "express";
 import { authMiddleware } from "../../middleware/auth-middleware";
-import { MessageRepo } from "../../db/repos/message.repo";
 import { WebSocketManager } from "../ws/websocket-manager";
-import { Message, UserSignature, WSEventType } from "../../../../common/types";
+import { MessageHandler } from "./handlers/message-handler";
 
 export default function messageRoutes(wsManager: WebSocketManager): Router {
   const messageRoutes = Router();
 
-  messageRoutes.delete("/:messageId", authMiddleware, async (req, res) => {
-    try {
-      const messageId = req.params.messageId;
-      const message = await MessageRepo.getMessage(messageId);
-
-      if (message) {
-        await MessageRepo.deleteMessage(messageId);
-      } else {
-        res.status(404).json({ error: "Message doesn't exist" });
-        return;
-      }
-
-      //Broadcast to users
-      wsManager.broadcastToAll(WSEventType.DELETED, message);
-
-      res.status(204).send();
-    } catch (err) {
-      res.status(500).json({ error: "Failed to delete message" });
+  messageRoutes.delete(
+    "/:messageId",
+    authMiddleware,
+    async (req: Request, res: Response) => {
+      MessageHandler.deleteMessage(req, res, wsManager);
     }
-  });
+  );
 
-  messageRoutes.patch("/:messageId", authMiddleware, async (req, res) => {
-    try {
-      const messageId = req.params.messageId;
-      const newContent = req.body.content as string;
-      const messageExists = await MessageRepo.messageExists(messageId);
-
-      if (messageExists) {
-        await MessageRepo.editMessage(messageId, newContent);
-        const newMessage = await MessageRepo.getMessage(messageId);
-
-        //Broadcast to users
-        wsManager.broadcastToAll(WSEventType.EDITED, newMessage);
-        res.status(204).send();
-      } else {
-        res.status(404).json({ error: "Message doesn't exist" });
-      }
-    } catch (err) {
-      res.status(500).json({ error: "Failed to edit message" });
+  messageRoutes.patch(
+    "/:messageId",
+    authMiddleware,
+    async (req: Request, res: Response) => {
+      MessageHandler.editMessage(req, res, wsManager);
     }
-  });
+  );
 
   return messageRoutes;
 }
