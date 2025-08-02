@@ -23,6 +23,8 @@ import { FullscreenOverlayComponent } from '../custom/fullscreen-overlay/fullscr
 import { FormBuilder, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ServerEditService } from 'src/app/services/server-edit/server-edit.service';
 import { DividerModule } from 'primeng/divider';
+import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
 
 @Component({
   selector: 'app-server-list',
@@ -34,6 +36,8 @@ import { DividerModule } from 'primeng/divider';
     FullscreenOverlayComponent,
     DividerModule,
     ReactiveFormsModule,
+    InputTextModule,
+    TextareaModule,
   ],
   providers: [DialogService],
   templateUrl: './server-list.component.html',
