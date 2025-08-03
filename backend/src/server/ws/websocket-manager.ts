@@ -32,7 +32,7 @@ export class WebSocketManager {
     const token = new URLSearchParams(req.url?.split("?")[1] || "").get(
       "token"
     );
-    if (!token) return ws.close();
+    if (!token) return ws.close(); //Invalid token
 
     try {
       const signature = jwt.verify(token, config.jwtSecret) as UserSignature;
@@ -47,9 +47,9 @@ export class WebSocketManager {
       }
       this.userSockets.get(userId)?.add(ws);
 
-      //if (this.userSockets.get(userId)?.size === 1) {
-      this.updatePresence(userId, "online");
-      //}
+      if (this.userSockets.get(userId)?.size === 1) {
+        this.updatePresence(userId, "online");
+      }
 
       ws.on("message", async (message) => await this.routeMessage(ws, message));
 
@@ -74,7 +74,7 @@ export class WebSocketManager {
     }
   }
 
-  //Presence
+  //#region Presence
   private updatePresence(userId: string, status: string) {
     const previous = this.presenceStore.get(userId);
     if (previous === status) return;
@@ -93,18 +93,15 @@ export class WebSocketManager {
       status: (this.presenceStore.get(id) || "offline") as PresenceStatus,
     }));
   }
+  //#endregion
 
+  //#region WS event handling
   private async routeMessage(ws: WebSocket, message: WebSocket.RawData) {
     try {
       const { event, payload }: WSEvent<any> = JSON.parse(message.toString());
       const signature: UserSignature = (ws as any).signature;
 
       switch (event) {
-        case "presence:update":
-          // const presenceUpdate: PresenceUpdate = { ...payload };
-
-          // broadcastToAll("presence:update", { ...presenceUpdate });
-          break;
         case "pong":
           this.clientLastPong.set(ws, Date.now());
           console.log(`WS: Pong from ${signature.username}`);
@@ -120,26 +117,60 @@ export class WebSocketManager {
   private packageMessage(event: string, payload: any) {
     return JSON.stringify({ event, payload });
   }
+  //#endregion
+
+  //#region Broadcasting and single DMs
+  public broadcastToOne(event: string, payload: any, targetId: string) {
+    const sockets = this.userSockets.get(targetId);
+    if (sockets) this.broadcastToGroup(event, payload, Array.from(sockets));
+  }
 
   public broadcastToAll(event: string, payload: any) {
+    this.broadcastToGroup(event, payload, Array.from(this.wss.clients));
+  }
+
+  public broadcastToGroup(
+    event: string,
+    payload: any,
+    targetGroup: WebSocket[]
+  ) {
     const message = this.packageMessage(event, payload);
-    this.wss.clients.forEach((client) => {
+    targetGroup.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
         client.send(message);
       }
     });
   }
 
-  public broadcastToRelated(
+  public broadcastToServer(
     event: string,
     payload: any,
-    related: WebSocket[]
-  ) {}
+    serverUserIds: string[]
+  ) {
+    this.broadcastToGroup(
+      event,
+      payload,
+      this.getSocketsFromIds(serverUserIds)
+    );
+  }
 
-  public broadcastToServer(event: string, payload: any, serverId: string) {}
+  public broadcastToFriends(event: string, payload: any, friendIds: string[]) {
+    this.broadcastToGroup(event, payload, this.getSocketsFromIds(friendIds));
+  }
 
-  public broadcastToFriends(event: string, payload: any, userId: string) {}
+  private getSocketsFromIds(ids: string[]) {
+    const result: WebSocket[] = [];
+    for (const id of ids) {
+      const sockets = this.userSockets.get(id);
+      if (sockets) {
+        result.push(...sockets);
+      }
+    }
+    return result;
+  }
+  //#endregion
 
+  //#region Connection checking
   private pingClients() {
     const now = Date.now();
     console.log("WS: Ping");
@@ -160,4 +191,5 @@ export class WebSocketManager {
       ws.send(JSON.stringify({ event: "ping", payload: { timestamp: now } }));
     });
   }
+  //#endregion
 }
