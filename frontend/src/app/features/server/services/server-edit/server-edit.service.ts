@@ -27,10 +27,12 @@ export class ServerEditService {
     return this.editedServerId() !== null;
   });
 
-  startEdit(id: string, data: Server) {
-    this.editedServerId.set(id);
-    this.editedServer.set(data);
-    this.initialServer.set(data);
+  startEdit(serverId: string) {
+    const server = this.serverService.getServerById(serverId)!;
+
+    this.editedServerId.set(serverId);
+    this.editedServer.set(server);
+    this.initialServer.set(server);
   }
 
   closeEdit() {

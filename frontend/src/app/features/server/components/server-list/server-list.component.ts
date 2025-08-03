@@ -66,42 +66,10 @@ export class ServerListComponent implements OnInit, OnDestroy {
   //Server creation
   private createServerDialogRef!: DynamicDialogRef;
 
-  //Editing servers
-  //protected serverEditOverlayVisible = signal(false);
-  // protected serverEditForm = this.formBuilder.group({
-  //   name: new FormControl<string>(''),
-  //   description: new FormControl<string | null | undefined>(null),
-  // });
-
   //Current values tracked
   protected servers = this.serverService.servers;
   protected currentServer = this.serverService.currentServer;
   protected contextMenuServer: Server | null = null;
-
-  constructor() {
-    // effect(() => {
-    //   if (!this.serverEditOverlayVisible()) {
-    //     console.log('Closing server edit');
-    //     this.serverEditService.closeEdit();
-    //     this.contextMenuServer = null;
-    //   } else {
-    //     const server = this.serverService.getServerById(
-    //       this.contextMenuServer!.id
-    //     );
-    //     this.serverEditService.startEdit(this.contextMenuServer!.id, server!);
-    //     //console.log(this.serverEditService.currentlyEditedId());
-    //   }
-    // });
-  }
-
-  // get overlayVisible() {
-  //   return this.serverEditOverlayVisible();
-  // }
-
-  // set overlayVisible(val: boolean) {
-  //   this.serverEditOverlayVisible.set(val);
-  //   console.log('Changing overlay visibility');
-  // }
 
   selectServer(id: string) {
     this.serverService.selectServer(id);
@@ -122,13 +90,9 @@ export class ServerListComponent implements OnInit, OnDestroy {
       {
         label: 'Server Settings',
         command: () => {
-          //this.startServerEdit();
           this.serverContextMenu.hide();
-          //this.serverEditOverlayVisible.set(true);
-          const server = this.serverService.getServerById(
-            this.contextMenuServer!.id
-          );
-          this.serverEditService.startEdit(this.contextMenuServer!.id, server!);
+          this.serverEditService.startEdit(this.contextMenuServer!.id);
+          this.contextMenuServer = null;
         },
       },
       {
@@ -235,45 +199,4 @@ export class ServerListComponent implements OnInit, OnDestroy {
       }
     });
   }
-
-  // private startServerEdit(): void {
-  //   console.log(this.contextMenuServer!);
-
-  //   this.serverEditOverlayVisible.set(true);
-  //   const server = this.serverService.getServerById(this.contextMenuServer!.id);
-  //   this.serverEditService.startEdit(this.contextMenuServer!.id, server!);
-  //   //console.log(this.serverEditService.currentlyEditedId());
-
-  //   this.serverContextMenu.hide();
-  //   //this.contextMenuServer = null;
-  // }
-
-  // protected saveServerEdit() {
-  //   if (this.serverEditForm.invalid) return;
-
-  //   try {
-  //     const updates: ServerUpdate = {
-  //       name: this.serverEditForm.value.name!,
-  //       description: this.serverEditForm.value.description!,
-  //     };
-
-  //     this.serverService.editServer(
-  //       this.serverEditService.currentlyEditedId()!,
-  //       updates
-  //     );
-
-  //     this.serverEditForm.markAsPristine();
-  //   } catch (err) {
-  //     console.error('Failed to update server:', err);
-  //   }
-  // }
-
-  // protected onServerSaveEdit(update: ServerUpdate) {
-  //   this.serverService.editServer(
-  //     this.serverEditService.currentlyEditedId()!,
-  //     update
-  //   );
-
-  //   this.serverEditForm.markAsPristine();
-  // }
 }
