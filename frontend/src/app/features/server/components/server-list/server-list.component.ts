@@ -8,20 +8,19 @@ import {
   signal,
   ViewChild,
 } from '@angular/core';
-import { Server, ServerUpdate } from '@common/types';
+import { Server } from '@common/types';
 import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ContextMenu } from 'primeng/contextmenu';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ServerService } from 'src/app/features/server/services/server/server.service';
-import { FormBuilder, FormControl, ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { ServerEditService } from 'src/app/features/server/services/server-edit/server-edit.service';
 import { DividerModule } from 'primeng/divider';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { ChannelService } from 'src/app/features/channel/services/channel/channel.service';
 import { ChannelCategoryService } from 'src/app/features/category/services/channel-category/channel-category.service';
-import { FullscreenOverlayComponent } from 'src/app/shared/components/custom/fullscreen-overlay/fullscreen-overlay.component';
 import { CategoryCreateDialogComponent } from 'src/app/components/dialogs/category-create-dialog/category-create-dialog.component';
 import { ChannelCreateDialogComponent } from 'src/app/components/dialogs/channel-create-dialog/channel-create-dialog.component';
 import { ServerCreateDialogComponent } from 'src/app/components/dialogs/server-create-dialog/server-create-dialog.component';
@@ -34,7 +33,6 @@ import { ServerEditOverlayComponent } from '../server-edit-overlay/server-edit-o
     ButtonModule,
     CommonModule,
     ContextMenu,
-    FullscreenOverlayComponent,
     ServerEditOverlayComponent,
     DividerModule,
     ReactiveFormsModule,
@@ -51,7 +49,6 @@ export class ServerListComponent implements OnInit, OnDestroy {
   private channelService = inject(ChannelService);
   private categoryService = inject(ChannelCategoryService);
   private dialogService = inject(DialogService);
-  private formBuilder = inject(FormBuilder);
 
   //Context menu
   @ViewChild('serverContextMenu') serverContextMenu!: ContextMenu;
