@@ -8,6 +8,9 @@ export class MessageEditService {
   private editContent = signal<string>('');
 
   readonly currentlyEditedId = this.editedMessageId.asReadonly();
+  readonly isDirty = computed(() => {
+    return this.editedMessageId() !== null && this.editContent().trim() !== '';
+  });
 
   isEditing(id: string): boolean {
     return this.currentlyEditedId() === id;
@@ -36,8 +39,4 @@ export class MessageEditService {
   getContent(): WritableSignal<string> {
     return this.editContent;
   }
-
-  readonly isDirty = computed(() => {
-    return this.editedMessageId() !== null && this.editContent().trim() !== '';
-  });
 }

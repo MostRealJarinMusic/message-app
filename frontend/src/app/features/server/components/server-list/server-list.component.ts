@@ -25,6 +25,7 @@ import { FullscreenOverlayComponent } from 'src/app/shared/components/custom/ful
 import { CategoryCreateDialogComponent } from 'src/app/components/dialogs/category-create-dialog/category-create-dialog.component';
 import { ChannelCreateDialogComponent } from 'src/app/components/dialogs/channel-create-dialog/channel-create-dialog.component';
 import { ServerCreateDialogComponent } from 'src/app/components/dialogs/server-create-dialog/server-create-dialog.component';
+import { ServerEditOverlayComponent } from '../server-edit-overlay/server-edit-overlay.component';
 
 @Component({
   selector: 'app-server-list',
@@ -34,6 +35,7 @@ import { ServerCreateDialogComponent } from 'src/app/components/dialogs/server-c
     CommonModule,
     ContextMenu,
     FullscreenOverlayComponent,
+    ServerEditOverlayComponent,
     DividerModule,
     ReactiveFormsModule,
     InputTextModule,
@@ -44,8 +46,8 @@ import { ServerCreateDialogComponent } from 'src/app/components/dialogs/server-c
   styleUrl: './server-list.component.scss',
 })
 export class ServerListComponent implements OnInit, OnDestroy {
-  private serverService = inject(ServerService);
-  private serverEditService = inject(ServerEditService);
+  protected serverService = inject(ServerService);
+  protected serverEditService = inject(ServerEditService);
   private channelService = inject(ChannelService);
   private categoryService = inject(ChannelCategoryService);
   private dialogService = inject(DialogService);
@@ -65,11 +67,11 @@ export class ServerListComponent implements OnInit, OnDestroy {
   private createServerDialogRef!: DynamicDialogRef;
 
   //Editing servers
-  protected serverEditOverlayVisible = signal(false);
-  protected serverEditForm = this.formBuilder.group({
-    name: new FormControl<string>(''),
-    description: new FormControl<string | null | undefined>(null),
-  });
+  //protected serverEditOverlayVisible = signal(false);
+  // protected serverEditForm = this.formBuilder.group({
+  //   name: new FormControl<string>(''),
+  //   description: new FormControl<string | null | undefined>(null),
+  // });
 
   //Current values tracked
   protected servers = this.serverService.servers;
@@ -77,13 +79,29 @@ export class ServerListComponent implements OnInit, OnDestroy {
   protected contextMenuServer: Server | null = null;
 
   constructor() {
-    effect(() => {
-      if (!this.serverEditOverlayVisible()) {
-        this.serverEditService.closeEdit();
-        this.contextMenuServer = null;
-      }
-    });
+    // effect(() => {
+    //   if (!this.serverEditOverlayVisible()) {
+    //     console.log('Closing server edit');
+    //     this.serverEditService.closeEdit();
+    //     this.contextMenuServer = null;
+    //   } else {
+    //     const server = this.serverService.getServerById(
+    //       this.contextMenuServer!.id
+    //     );
+    //     this.serverEditService.startEdit(this.contextMenuServer!.id, server!);
+    //     //console.log(this.serverEditService.currentlyEditedId());
+    //   }
+    // });
   }
+
+  // get overlayVisible() {
+  //   return this.serverEditOverlayVisible();
+  // }
+
+  // set overlayVisible(val: boolean) {
+  //   this.serverEditOverlayVisible.set(val);
+  //   console.log('Changing overlay visibility');
+  // }
 
   selectServer(id: string) {
     this.serverService.selectServer(id);
@@ -104,7 +122,13 @@ export class ServerListComponent implements OnInit, OnDestroy {
       {
         label: 'Server Settings',
         command: () => {
-          this.startServerEdit();
+          //this.startServerEdit();
+          this.serverContextMenu.hide();
+          //this.serverEditOverlayVisible.set(true);
+          const server = this.serverService.getServerById(
+            this.contextMenuServer!.id
+          );
+          this.serverEditService.startEdit(this.contextMenuServer!.id, server!);
         },
       },
       {
@@ -133,7 +157,7 @@ export class ServerListComponent implements OnInit, OnDestroy {
     ];
   }
 
-  showContextMenu(event: MouseEvent, server: Server) {
+  protected showContextMenu(event: MouseEvent, server: Server) {
     this.contextMenuServer = server;
     this.serverContextMenu.show(event);
   }
@@ -212,38 +236,44 @@ export class ServerListComponent implements OnInit, OnDestroy {
     });
   }
 
-  private startServerEdit(): void {
-    this.serverEditOverlayVisible.set(true);
-    const server = this.serverService.getServerById(this.contextMenuServer!.id);
+  // private startServerEdit(): void {
+  //   console.log(this.contextMenuServer!);
 
-    this.serverEditForm.reset({
-      name: server!.name,
-      description: server!.description,
-    });
+  //   this.serverEditOverlayVisible.set(true);
+  //   const server = this.serverService.getServerById(this.contextMenuServer!.id);
+  //   this.serverEditService.startEdit(this.contextMenuServer!.id, server!);
+  //   //console.log(this.serverEditService.currentlyEditedId());
 
-    this.serverEditForm.markAsPristine();
-    this.serverEditService.startEdit(this.contextMenuServer!.id);
+  //   this.serverContextMenu.hide();
+  //   //this.contextMenuServer = null;
+  // }
 
-    this.serverContextMenu.hide();
-  }
+  // protected saveServerEdit() {
+  //   if (this.serverEditForm.invalid) return;
 
-  protected saveServerEdit() {
-    if (this.serverEditForm.invalid) return;
+  //   try {
+  //     const updates: ServerUpdate = {
+  //       name: this.serverEditForm.value.name!,
+  //       description: this.serverEditForm.value.description!,
+  //     };
 
-    try {
-      const updates: ServerUpdate = {
-        name: this.serverEditForm.value.name!,
-        description: this.serverEditForm.value.description!,
-      };
+  //     this.serverService.editServer(
+  //       this.serverEditService.currentlyEditedId()!,
+  //       updates
+  //     );
 
-      this.serverService.editServer(
-        this.serverEditService.currentlyEditedId()!,
-        updates
-      );
+  //     this.serverEditForm.markAsPristine();
+  //   } catch (err) {
+  //     console.error('Failed to update server:', err);
+  //   }
+  // }
 
-      this.serverEditForm.markAsPristine();
-    } catch (err) {
-      console.error('Failed to update server:', err);
-    }
-  }
+  // protected onServerSaveEdit(update: ServerUpdate) {
+  //   this.serverService.editServer(
+  //     this.serverEditService.currentlyEditedId()!,
+  //     update
+  //   );
+
+  //   this.serverEditForm.markAsPristine();
+  // }
 }
