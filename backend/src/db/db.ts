@@ -49,10 +49,10 @@ export const getDB = async () => {
 
   dbInstance.exec(`
     CREATE TABLE IF NOT EXISTS friend_requests (
-      id              TEXT PRIMARY KEY,
       senderId        TEXT NOT NULL,
       receiverId      TEXT NOT NULL,
       createdAt       TEXT NOT NULL,
+      PRIMARY KEY (senderId, receiverId),
       FOREIGN KEY (senderId) REFERENCES users(id) ON DELETE CASCADE,
       FOREIGN KEY (receiverId) REFERENCES users(id) ON DELETE CASCADE
     );

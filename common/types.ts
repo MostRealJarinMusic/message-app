@@ -178,7 +178,6 @@ export interface Friendship {
 }
 
 export interface FriendRequest {
-  id: string;
   senderId: string;
   receiverId: string;
   createdAt: string;
