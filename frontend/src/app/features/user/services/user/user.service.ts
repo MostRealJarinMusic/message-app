@@ -21,6 +21,8 @@ export class UserService {
       const currentServer = this.serverService.currentServer();
       if (currentServer) {
         this.loadServerUsers(currentServer);
+      } else {
+        this.serverUsers.set(null);
       }
     });
   }

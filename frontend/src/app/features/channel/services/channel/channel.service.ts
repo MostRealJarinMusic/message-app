@@ -52,6 +52,9 @@ export class ChannelService {
       if (currentServer && currentCategories) {
         console.log('Loading channels');
         this.loadChannels(currentServer);
+      } else {
+        this.currentChannel.set(null);
+        this.channels.set([]);
       }
     });
   }

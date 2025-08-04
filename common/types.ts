@@ -39,16 +39,18 @@ export interface MessageUpdate {
   content: string;
 }
 
-export enum ServerType {
-  SERVER = "channel:server",
-  DM = "channel:dm",
-  GROUP_DM = "channel:group",
+export enum ChannelType {
+  TEXT = "text",
+  VOICE = "voice",
+  DM = "dm",
+  GROUP_DM = "group_dm",
 }
 
 export interface Channel {
   id: string;
   serverId: string;
   name: string;
+  type: ChannelType;
   topic?: string;
   createdAt?: string;
   createdBy?: string;

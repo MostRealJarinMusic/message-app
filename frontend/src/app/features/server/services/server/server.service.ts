@@ -17,7 +17,7 @@ export class ServerService {
     this.initWebSocket();
   }
 
-  selectServer(id: string) {
+  selectServer(id: string | null) {
     this.currentServer.set(id);
   }
 
@@ -46,17 +46,23 @@ export class ServerService {
     //Currently for all servers -
     this.wsService.on<Server>(WSEventType.SERVER_CREATE).subscribe((server) => {
       this.servers.update((current) => [...current, server]);
+
+      this.selectServer(server.id);
     });
 
     //Deletes
     this.wsService.on<Server>(WSEventType.SERVER_DELETE).subscribe((server) => {
-      if (server.id === this.currentServer() && this.servers().length > 0) {
-        this.selectServer(this.servers()[0].id);
-      }
-
       this.servers.update((current) =>
         current.filter((s) => s.id !== server.id)
       );
+
+      if (server.id === this.currentServer()) {
+        if (this.servers().length > 0) {
+          this.selectServer(this.servers()[0].id);
+        } else {
+          this.selectServer(null);
+        }
+      }
     });
 
     this.wsService.on<Server>(WSEventType.SERVER_UPDATE).subscribe((server) => {

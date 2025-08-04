@@ -18,6 +18,14 @@ export class UserHandler {
     }
   }
 
+  static async getDMChannels(req: SignedRequest, res: Response) {
+    try {
+      const userId = req.signature!.id;
+    } catch (err) {
+      res.status(500).json({ error: "Database error" });
+    }
+  }
+
   static async getAllUsers(req: Request, res: Response) {
     try {
       const users = await UserRepo.getAllUsers();

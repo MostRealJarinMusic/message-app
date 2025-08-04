@@ -29,6 +29,8 @@ export class ChannelCategoryService {
         console.log('Loading channel categories');
         this.channelCategories.set(null);
         this.loadCategories(currentServer);
+      } else {
+        this.channelCategories.set(null);
       }
     });
   }

@@ -6,6 +6,7 @@ import { ChannelRepo } from "../../../db/repos/channel.repo";
 import {
   Channel,
   ChannelCategory,
+  ChannelType,
   Server,
   ServerCreate,
   ServerUpdate,
@@ -67,7 +68,6 @@ export class ServerHandler {
   //Accessing server channels
   static async getChannels(req: Request, res: Response) {
     try {
-      //console.log("HTTP: Attempt to get channels");
       const serverId = req.params.serverId;
       const channels = await ChannelRepo.getChannels(serverId);
 
@@ -95,6 +95,7 @@ export class ServerHandler {
 
       const newChannel: Channel = {
         name: newChannelData.name,
+        type: ChannelType.TEXT,
         categoryId: newChannelData.categoryId,
         serverId: serverId,
         id: ulid(),
@@ -103,7 +104,14 @@ export class ServerHandler {
       await ChannelRepo.createChannel(newChannel);
 
       //Notify all users of a channel creation
-      wsManager.broadcastToAll(WSEventType.CHANNEL_CREATE, newChannel);
+      //wsManager.broadcastToAll(WSEventType.CHANNEL_CREATE, newChannel);
+      //Eventually, move to only server users
+      const serverUserIds = (await UserRepo.getAllUsers()).map((u) => u.id);
+      wsManager.broadcastToServer(
+        WSEventType.CHANNEL_CREATE,
+        newChannel,
+        serverUserIds
+      );
 
       res.status(201).json(newChannel);
     } catch (err) {
@@ -187,6 +195,7 @@ export class ServerHandler {
       // - Create general
       const newChannel: Channel = {
         id: ulid(),
+        type: ChannelType.TEXT,
         serverId: newServer.id,
         name: "General",
         categoryId: newCategory.id,

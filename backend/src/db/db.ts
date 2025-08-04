@@ -61,8 +61,9 @@ export const getDB = async () => {
   dbInstance.exec(`
     CREATE TABLE IF NOT EXISTS channels (
       id          TEXT PRIMARY KEY,
-      serverId    TEXT NOT NULL,
+      serverId    TEXT,
       name        TEXT NOT NULL,
+      type        TEXT NOT NULL,
       categoryId  TEXT,
       topic       TEXT,
       FOREIGN KEY (serverId) REFERENCES servers(id) ON DELETE CASCADE,

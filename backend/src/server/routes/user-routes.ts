@@ -6,6 +6,10 @@ import { SignedRequest } from "types/types";
 
 const userRoutes = Router();
 
+userRoutes.get("/me/dms", authMiddleware, (req: Request, res: Response) => {
+  UserHandler.getDMChannels(req as SignedRequest, res);
+});
+
 userRoutes.get("/me", authMiddleware, (req: Request, res: Response) =>
   UserHandler.getMe(req as SignedRequest, res)
 );
