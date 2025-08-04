@@ -81,6 +81,30 @@ export const getDB = async () => {
   `);
 
   dbInstance.exec(`
+    CREATE TABLE IF NOT EXISTS channel_participants (
+      channelId       TEXT NOT NULL,
+      userId          TEXT NOT NULL,
+      PRIMARY KEY (channelId, userId),
+      FOREIGN KEY (channelId) REFERENCES channels(id) ON DELETE CASCADE,
+      FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
+    );  
+  `);
+
+  dbInstance.exec(`
+    CREATE TABLE IF NOT EXISTS direct_messages (
+      channelId       TEXT PRIMARY KEY,
+      userId1         TEXT NOT NULL,
+      userId2         TEXT NOT NULL,
+      CHECK (userId1 < userId2),
+      UNIQUE (userId1, userId2),
+      FOREIGN KEY (channelId) REFERENCES channels(id) ON DELETE CASCADE,
+      FOREIGN KEY (userId1) REFERENCES users(id) ON DELETE CASCADE,
+      FOREIGN KEY (userId2) REFERENCES users(id) ON DELETE CASCADE
+    );
+    
+  `);
+
+  dbInstance.exec(`
     CREATE TABLE IF NOT EXISTS servers (
       id            TEXT PRIMARY KEY,
       name          TEXT NOT NULL,
