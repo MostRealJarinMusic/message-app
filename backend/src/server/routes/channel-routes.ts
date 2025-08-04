@@ -27,7 +27,7 @@ export default function channelRoutes(wsManager: WebSocketManager): Router {
     "/:channelId/messages",
     authMiddleware,
     async (req: Request, res: Response) => {
-      ChannelHandler.getMessages(req, res, wsManager);
+      ChannelHandler.getMessages(req, res);
     }
   );
 

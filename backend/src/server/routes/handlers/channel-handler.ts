@@ -70,15 +70,15 @@ export class ChannelHandler {
     }
   }
 
-  static async getMessages(
-    req: Request,
-    res: Response,
-    wsManager: WebSocketManager
-  ) {
-    const messages = await MessageRepo.getAllChannelMessages(
-      req.params.channelId
-    );
-    res.json(messages);
+  static async getMessages(req: Request, res: Response) {
+    try {
+      const messages = await MessageRepo.getAllChannelMessages(
+        req.params.channelId
+      );
+      res.json(messages);
+    } catch (err) {
+      res.status(500).json({ error: "Failed to fetch channel messages" });
+    }
   }
 
   static async editChannel(

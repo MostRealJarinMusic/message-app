@@ -146,6 +146,11 @@ export enum WSEventType {
 
   PRESENCE = "presence:update",
 
+  FRIEND_REQUEST = "friend:request",
+  FRIEND_ACCEPT = "friend:accept",
+  FRIEND_CANCEL = "friend:cancel",
+  FRIEND_REJECT = "friend:reject",
+
   PING = "ping",
   PONG = "pong",
 }
