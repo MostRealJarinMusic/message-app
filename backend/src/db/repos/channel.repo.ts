@@ -18,6 +18,7 @@ export class ChannelRepo {
           const allChannels: Channel[] = rows.map((row: any) => ({
             id: row.id,
             serverId: row.serverId,
+            type: row.type,
             name: row.name,
             categoryId: row.categoryId,
             topic: row.topic,
@@ -49,13 +50,14 @@ export class ChannelRepo {
 
     return new Promise((resolve, reject) => {
       db.run(
-        `INSERT INTO channels (id, serverId, name, categoryId, topic) VALUES (?, ?, ?, ?, ?)`,
+        `INSERT INTO channels (id, serverId, name, categoryId, topic, type) VALUES (?, ?, ?, ?, ?, ?)`,
         [
           channel.id,
           channel.serverId,
           channel.name,
           channel.categoryId,
           channel.topic,
+          channel.type,
         ],
         function (err) {
           if (err) return reject(err);
@@ -91,6 +93,7 @@ export class ChannelRepo {
           const channel: Channel = {
             id: row.id,
             serverId: row.serverId,
+            type: row.type,
             name: row.name,
             categoryId: row.categoryId,
             topic: row.topic,

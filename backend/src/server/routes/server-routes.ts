@@ -40,6 +40,7 @@ export default function serverRoutes(wsManager: WebSocketManager): Router {
     }
   );
 
+  //#region Channel CRUD
   //Accessing server channels
   serverRoutes.get(
     "/:serverId/channels",
@@ -57,7 +58,9 @@ export default function serverRoutes(wsManager: WebSocketManager): Router {
       ServerHandler.createChannel(req, res, wsManager);
     }
   );
+  //#endregion
 
+  //#region Categories CRUD
   //Accessing server categories
   serverRoutes.get(
     "/:serverId/structure",
@@ -75,7 +78,9 @@ export default function serverRoutes(wsManager: WebSocketManager): Router {
       ServerHandler.createCategory(req, res, wsManager);
     }
   );
+  //#endregion
 
+  //#region Server CRUD
   //Creating a server
   serverRoutes.post(
     "/",
@@ -104,6 +109,6 @@ export default function serverRoutes(wsManager: WebSocketManager): Router {
   );
 
   //Reordering servers
-
+  //#endregion
   return serverRoutes;
 }

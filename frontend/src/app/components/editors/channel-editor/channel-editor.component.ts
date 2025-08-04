@@ -4,7 +4,7 @@ import { FormsModule, NgModel } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { ChannelService } from 'src/app/services/channel/channel.service';
+import { ChannelService } from 'src/app/features/channel/services/channel/channel.service';
 
 @Component({
   selector: 'app-channel-editor',
