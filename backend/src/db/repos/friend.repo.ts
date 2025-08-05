@@ -1,4 +1,4 @@
-import { getDB } from "db/db";
+import { getDB } from "../db";
 
 export class FriendRepo {
   static async getFriends(id: string): Promise<string[]> {

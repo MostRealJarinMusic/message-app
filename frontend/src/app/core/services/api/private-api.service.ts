@@ -157,7 +157,7 @@ export class PrivateApiService extends BaseApiService {
 
   createServer(newServerData: ServerCreate) {
     return this.authorisedFetch<Server>((_) =>
-      this.post<Server>(`servers/`, newServerData)
+      this.post<Server>(`servers`, newServerData)
     );
   }
 

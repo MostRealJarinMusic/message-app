@@ -1,5 +1,5 @@
 import { FriendRequest } from "@common/types";
-import { getDB } from "db/db";
+import { getDB } from "../db";
 
 export class FriendRequestRepo {
   static async createRequest(friendRequest: FriendRequest): Promise<void> {
