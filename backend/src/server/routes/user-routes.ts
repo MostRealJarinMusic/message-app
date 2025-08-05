@@ -2,7 +2,7 @@ import { Router } from "express";
 import { Request, Response } from "express-serve-static-core";
 import { authMiddleware } from "../../middleware/auth-middleware";
 import { UserHandler } from "./handlers/user-handler";
-import { SignedRequest } from "types/types";
+import { SignedRequest } from "../../types/types";
 
 const userRoutes = Router();
 

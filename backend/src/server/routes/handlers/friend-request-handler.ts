@@ -4,7 +4,7 @@ import { FriendRepo } from "../../../db/repos/friend.repo";
 import { UserRepo } from "../../../db/repos/user.repo";
 import { Request, Response } from "express";
 import { WebSocketManager } from "../../ws/websocket-manager";
-import { SignedRequest } from "types/types";
+import { SignedRequest } from "../../../types/types";
 
 export class FriendRequestHandler {
   static async sendFriendRequest(

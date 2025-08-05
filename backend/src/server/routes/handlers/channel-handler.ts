@@ -9,7 +9,7 @@ import {
 import { ulid } from "ulid";
 import { WebSocketManager } from "../../ws/websocket-manager";
 import { ChannelRepo } from "../../../db/repos/channel.repo";
-import { SignedRequest } from "types/types";
+import { SignedRequest } from "../../../types/types";
 
 export class ChannelHandler {
   static async deleteChannel(

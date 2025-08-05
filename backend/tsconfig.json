@@ -3,7 +3,7 @@
     "target": "es2016",
     "module": "commonjs",
     "outDir": "dist",
-    "baseUrl": "./src", // already set
+    "baseUrl": ".", // already set
 
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -11,7 +11,7 @@
 
     "skipLibCheck": true,
     "paths": {
-      "@common/*": ["../../common/*"]
+      "@common/*": ["../common/*"]
     }
   },
   "include": [

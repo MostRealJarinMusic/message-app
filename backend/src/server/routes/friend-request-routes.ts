@@ -2,7 +2,7 @@ import { Request, Response, Router } from "express";
 import { authMiddleware } from "../../middleware/auth-middleware";
 import { WebSocketManager } from "../ws/websocket-manager";
 import { FriendRequestHandler } from "./handlers/friend-request-handler";
-import { SignedRequest } from "types/types";
+import { SignedRequest } from "../../types/types";
 
 export default function friendRequestRoutes(
   wsManager: WebSocketManager

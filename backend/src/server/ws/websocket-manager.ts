@@ -8,7 +8,7 @@ import {
   UserSignature,
   WSEvent,
   WSEventType,
-} from "@common/types";
+} from "../../../../common/types";
 
 const HEARTBEAT_INTERVAL = 60000;
 const TIMEOUT_LIMIT = 120000;
