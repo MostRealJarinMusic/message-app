@@ -61,7 +61,7 @@ export class ChannelHandler {
 
       await MessageRepo.createMessage(message);
 
-      //Broadcast to users
+      //Broadcast to all users for now - only broadcast to server members, DM members, group members
       wsManager.broadcastToAll(WSEventType.RECEIVE, message);
 
       res.status(201).json(message);

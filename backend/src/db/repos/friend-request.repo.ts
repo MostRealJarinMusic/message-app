@@ -46,15 +46,65 @@ export class FriendRequestRepo {
     });
   }
 
+  static async getFriendRequest(
+    senderId: string,
+    receiverId: string
+  ): Promise<FriendRequest> {
+    const db = await getDB();
+
+    return new Promise((resolve, reject) => {
+      db.get(
+        `SELECT * FROM friend_requests WHERE senderId = ? AND receiverId = ?`,
+        [senderId, receiverId],
+        (err, row: any) => {
+          if (err) return reject(err);
+          if (!row)
+            return reject(
+              new Error(
+                `Friend request with senderId ${senderId} and receiverId ${receiverId} not found`
+              )
+            );
+
+          const friendRequest: FriendRequest = {
+            senderId: row.senderId,
+            receiverId: row.receiverId,
+            createdAt: row.createdAt,
+          };
+
+          resolve(friendRequest);
+        }
+      );
+    });
+  }
+
+  static async requestExists(
+    senderId: string,
+    receiverId: string
+  ): Promise<boolean> {
+    const db = await getDB();
+
+    return new Promise((resolve, reject) => {
+      db.get(
+        `SELECT 1 FROM friend_requests WHERE senderId = ? AND receiverId = ? LIMIT 1`,
+        [senderId, receiverId],
+        (err, row) => {
+          if (err) return reject(err);
+          resolve(!!row);
+        }
+      );
+    });
+  }
+
   static async deleteFriendRequest(
-    friendRequest: FriendRequest
+    senderId: string,
+    receiverId: string
   ): Promise<void> {
     const db = await getDB();
 
     return new Promise<void>((resolve, reject) => {
       db.run(
         `DELETE FROM friend_requests WHERE senderId = ? AND receiverId = ?`,
-        [friendRequest.senderId, friendRequest.receiverId],
+        [senderId, receiverId],
         function (err) {
           if (err) return reject(err);
           resolve();

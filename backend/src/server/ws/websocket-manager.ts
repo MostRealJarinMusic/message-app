@@ -120,7 +120,7 @@ export class WebSocketManager {
   //#endregion
 
   //#region Broadcasting and single DMs
-  public broadcastToOne(event: string, payload: any, targetId: string) {
+  public broadcastToUser(event: string, payload: any, targetId: string) {
     const sockets = this.userSockets.get(targetId);
     if (sockets) this.broadcastToGroup(event, payload, Array.from(sockets));
   }
