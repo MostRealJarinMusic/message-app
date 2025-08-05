@@ -148,11 +148,13 @@ export enum WSEventType {
 
   FRIEND_REQUEST_SENT = "friend:request:sent",
   FRIEND_REQUEST_ACCEPTED = "friend:request:accepted", //Request accepted by receiver
+  FRIEND_REQUEST_CANCELLED = "friend:request:cancelled", //Request cancelled by sender
   FRIEND_REQUEST_REJECTED = "friend:request:rejected", //Request rejected by receiver
 
   FRIEND_REQUEST_RECEIVE = "friend:request:receive", //Request sent to receiver by sender
   FRIEND_REQUEST_ACCEPT = "friend:request:accept",
   FRIEND_REQUEST_CANCEL = "friend:request:cancel", //Request sent to receiver by sender
+  FRIEND_REQUEST_REJECT = "friend:request:reject",
 
   FRIEND_ADD = "friend:add",
   FRIEND_BLOCK = "friend:block",
