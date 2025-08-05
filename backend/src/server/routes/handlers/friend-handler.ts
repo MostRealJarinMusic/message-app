@@ -1,6 +1,6 @@
-import { FriendRepo } from "db/repos/friend.repo";
+import { FriendRepo } from "../../../db/repos/friend.repo";
 import { Response } from "express";
-import { SignedRequest } from "types/types";
+import { SignedRequest } from "../../../types/types";
 
 export class FriendHandler {
   static async getFriends(req: SignedRequest, res: Response) {

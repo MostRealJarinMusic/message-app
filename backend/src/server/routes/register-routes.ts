@@ -7,6 +7,7 @@ import { WebSocketManager } from "../ws/websocket-manager";
 import messageRoutes from "./message-routes";
 import categoryRoutes from "./category-routes";
 import friendRequestRoutes from "./friend-request-routes";
+import friendRoutes from "./friend-routes";
 
 export function registerRoutes(app: Application, wsManager: WebSocketManager) {
   app.use("/api/public/auth", authRoutes);
@@ -16,6 +17,7 @@ export function registerRoutes(app: Application, wsManager: WebSocketManager) {
   app.use("/api/private/users", userRoutes);
   app.use("/api/private/messages", messageRoutes(wsManager));
   app.use("/api/private/friend-requests", friendRequestRoutes(wsManager));
+  app.use("/api/private/friends", friendRoutes(wsManager));
 
   //Fallback - unsupported routes
   // app.use("*", (_, res) => {
