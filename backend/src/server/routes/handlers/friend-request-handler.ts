@@ -7,8 +7,7 @@ import {
 } from "../../../../../common/types";
 import { FriendRequestRepo } from "../../../db/repos/friend-request.repo";
 import { FriendRepo } from "../../../db/repos/friend.repo";
-import { UserRepo } from "../../../db/repos/user.repo";
-import { Request, Response } from "express";
+import { Response } from "express";
 import { WebSocketManager } from "../../ws/websocket-manager";
 import { SignedRequest } from "../../../types/types";
 import { ulid } from "ulid";
@@ -168,6 +167,44 @@ export class FriendRequestHandler {
       res.status(204).send();
     } catch (err) {
       res.status(500).json({ error: "Failed to update friend request" });
+    }
+  }
+
+  static async deleteFriendRequest(
+    req: SignedRequest,
+    res: Response,
+    wsManager: WebSocketManager
+  ) {
+    try {
+      const userId = req.signature.id;
+      const requestId = req.params.requestId;
+      const friendRequest = await FriendRequestRepo.getFriendRequestById(
+        requestId
+      );
+
+      if (!friendRequest) {
+        res.status(404).json({ error: "Request doesn't exist" });
+        return;
+      }
+
+      if (friendRequest.senderId !== userId) {
+        res
+          .status(400)
+          .json({ error: "Incorrect permissions to delete friend request" });
+        return;
+      }
+
+      await FriendRequestRepo.deleteFriendRequest(requestId);
+
+      wsManager.broadcastToGroup(
+        WSEventType.FRIEND_REQUEST_DELETE,
+        friendRequest,
+        [friendRequest.senderId, friendRequest.receiverId]
+      );
+
+      res.status(204).send();
+    } catch (err) {
+      res.status(500).json({ error: "Failed to delete friend request" });
     }
   }
 

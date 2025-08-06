@@ -215,5 +215,11 @@ export class PrivateApiService extends BaseApiService {
     );
   }
 
+  cancelFriendRequest(requestId: string): Observable<void> {
+    return this.authorisedFetch<void>((_) =>
+      this.delete<void>(`friend-requests/${requestId}`)
+    );
+  }
+
   //#endregion
 }
