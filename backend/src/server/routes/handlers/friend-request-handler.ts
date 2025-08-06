@@ -1,10 +1,17 @@
-import { FriendRequest, WSEventType } from "../../../../../common/types";
+import {
+  FriendRequest,
+  FriendRequestCreate,
+  FriendRequestStatus,
+  FriendRequestUpdate,
+  WSEventType,
+} from "../../../../../common/types";
 import { FriendRequestRepo } from "../../../db/repos/friend-request.repo";
 import { FriendRepo } from "../../../db/repos/friend.repo";
 import { UserRepo } from "../../../db/repos/user.repo";
 import { Request, Response } from "express";
 import { WebSocketManager } from "../../ws/websocket-manager";
 import { SignedRequest } from "../../../types/types";
+import { ulid } from "ulid";
 
 export class FriendRequestHandler {
   static async sendFriendRequest(
@@ -14,13 +21,21 @@ export class FriendRequestHandler {
   ) {
     try {
       const userId = req.signature.id;
-      const friendRequest = req.body as FriendRequest;
+      const newRequestData = req.body as FriendRequestCreate;
 
       //Check if both users exist???
-      if (!friendRequest || friendRequest.senderId !== userId) {
+      if (!newRequestData || newRequestData.targetId !== userId) {
         res.status(400).json({ error: "Friend request data required" });
         return;
       }
+
+      const friendRequest: FriendRequest = {
+        id: ulid(),
+        senderId: userId,
+        receiverId: newRequestData.targetId,
+        status: FriendRequestStatus.PENDING,
+        createdAt: new Date().toISOString(),
+      };
 
       await FriendRequestRepo.createRequest(friendRequest);
 
@@ -44,11 +59,13 @@ export class FriendRequestHandler {
     }
   }
 
-  static async getIncomingRequests(req: SignedRequest, res: Response) {
+  static async getIncomingFriendRequests(req: SignedRequest, res: Response) {
     try {
       const userId = req.signature.id;
 
-      const allRequests = await FriendRequestRepo.getFriendRequests(userId);
+      const allRequests = await FriendRequestRepo.getFriendRequestsForUser(
+        userId
+      );
       const incomingRequests = allRequests.filter(
         (i) => i.receiverId === userId
       );
@@ -61,11 +78,13 @@ export class FriendRequestHandler {
     }
   }
 
-  static async getOutgoingRequests(req: SignedRequest, res: Response) {
+  static async getOutgoingFriendRequests(req: SignedRequest, res: Response) {
     try {
       const userId = req.signature.id;
 
-      const allRequests = await FriendRequestRepo.getFriendRequests(userId);
+      const allRequests = await FriendRequestRepo.getFriendRequestsForUser(
+        userId
+      );
       const outgoingRequests = allRequests.filter((o) => o.senderId === userId);
 
       res.json(outgoingRequests);
@@ -76,6 +95,83 @@ export class FriendRequestHandler {
     }
   }
 
+  static async updateFriendRequest(
+    req: SignedRequest,
+    res: Response,
+    wsManager: WebSocketManager
+  ) {
+    //Accepting or rejecting friend requests
+    try {
+      const receiverId = req.signature.id;
+      const requestId = req.params.requestId;
+      const friendRequestUpdate = req.body as FriendRequestUpdate;
+
+      if (requestId !== friendRequestUpdate.id) {
+        res.status(400).json({ error: "Request IDs do not match update" });
+        return;
+      }
+
+      const friendRequest = await FriendRequestRepo.getFriendRequestById(
+        requestId
+      );
+      const senderId = friendRequest.senderId;
+
+      if (!friendRequest) {
+        res.status(400).json({ error: "Friend request doesn't exist" });
+        return;
+      }
+
+      if (senderId === receiverId) {
+        res.status(400).json({ error: "Cannot friend yourself" });
+        return;
+      }
+
+      //Mark friend request with action
+      await FriendRequestRepo.updateFriendRequestStatus(friendRequestUpdate);
+      const updatedFriendRequest = await FriendRequestRepo.getFriendRequestById(
+        requestId
+      );
+
+      //Sender and receiver notification that request is updated - frontend will deal with UI update
+      wsManager.broadcastToGroup(
+        WSEventType.FRIEND_REQUEST_UPDATE,
+        friendRequest,
+        [senderId, receiverId]
+      );
+
+      switch (updatedFriendRequest.status) {
+        case FriendRequestStatus.ACCEPTED:
+          //Add friend
+          await FriendRepo.addFriend(senderId, receiverId);
+
+          //Sender notification for new friend
+          wsManager.broadcastToUser(
+            WSEventType.FRIEND_ADD,
+            { id: receiverId },
+            senderId
+          );
+
+          //Receiver notification for new friend
+          wsManager.broadcastToUser(
+            WSEventType.FRIEND_ADD,
+            { id: senderId },
+            receiverId
+          );
+          break;
+        case FriendRequestStatus.REJECTED:
+          //Update sent - just break here
+          break;
+        default:
+          break;
+      }
+
+      res.status(204).send();
+    } catch (err) {
+      res.status(500).json({ error: "Failed to update friend request" });
+    }
+  }
+
+  /*
   static async acceptRequest(
     req: SignedRequest,
     res: Response,
@@ -260,4 +356,5 @@ export class FriendRequestHandler {
       res.status(500).json({ error: "Failed to cancel friend request" });
     }
   }
+    */
 }

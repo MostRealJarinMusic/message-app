@@ -122,20 +122,16 @@ export class WebSocketManager {
   //#region Broadcasting and single DMs
   public broadcastToUser(event: string, payload: any, targetId: string) {
     const sockets = this.userSockets.get(targetId);
-    if (sockets) this.broadcastToGroup(event, payload, Array.from(sockets));
+    if (sockets) this.broadcast(event, payload, Array.from(sockets));
   }
 
   public broadcastToAll(event: string, payload: any) {
-    this.broadcastToGroup(event, payload, Array.from(this.wss.clients));
+    this.broadcast(event, payload, Array.from(this.wss.clients));
   }
 
-  public broadcastToGroup(
-    event: string,
-    payload: any,
-    targetGroup: WebSocket[]
-  ) {
+  private broadcast(event: string, payload: any, targets: WebSocket[]) {
     const message = this.packageMessage(event, payload);
-    targetGroup.forEach((client) => {
+    targets.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
         client.send(message);
       }
@@ -147,15 +143,15 @@ export class WebSocketManager {
     payload: any,
     serverUserIds: string[]
   ) {
-    this.broadcastToGroup(
-      event,
-      payload,
-      this.getSocketsFromIds(serverUserIds)
-    );
+    this.broadcast(event, payload, this.getSocketsFromIds(serverUserIds));
   }
 
-  public broadcastToFriends(event: string, payload: any, friendIds: string[]) {
-    this.broadcastToGroup(event, payload, this.getSocketsFromIds(friendIds));
+  // public broadcastToFriends(event: string, payload: any, friendIds: string[]) {
+  //   this.broadcast(event, payload, this.getSocketsFromIds(friendIds));
+  // }
+
+  public broadcastToGroup(event: string, payload: any, ids: string[]) {
+    this.broadcast(event, payload, this.getSocketsFromIds(ids));
   }
 
   private getSocketsFromIds(ids: string[]) {

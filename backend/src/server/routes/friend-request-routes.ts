@@ -25,7 +25,7 @@ export default function friendRequestRoutes(
     "/incoming",
     authMiddleware,
     async (req: Request, res: Response) => {
-      FriendRequestHandler.getIncomingRequests(req as SignedRequest, res);
+      FriendRequestHandler.getIncomingFriendRequests(req as SignedRequest, res);
     }
   );
 
@@ -33,33 +33,29 @@ export default function friendRequestRoutes(
     "/outgoing",
     authMiddleware,
     async (req: Request, res: Response) => {
-      FriendRequestHandler.getOutgoingRequests(req as SignedRequest, res);
+      FriendRequestHandler.getOutgoingFriendRequests(req as SignedRequest, res);
     }
   );
 
-  friendRequestRoutes.post(
-    "/:senderId/accept",
+  friendRequestRoutes.patch(
+    "/:requestId",
     authMiddleware,
     async (req: Request, res: Response) => {
-      FriendRequestHandler.acceptRequest(req as SignedRequest, res, wsManager);
+      FriendRequestHandler.updateFriendRequest(
+        req as SignedRequest,
+        res,
+        wsManager
+      );
     }
   );
 
-  friendRequestRoutes.post(
-    "/:senderId/reject",
-    authMiddleware,
-    async (req: Request, res: Response) => {
-      FriendRequestHandler.rejectRequest(req as SignedRequest, res, wsManager);
-    }
-  );
-
-  friendRequestRoutes.post(
-    "/:receiverId/cancel",
-    authMiddleware,
-    async (req: Request, res: Response) => {
-      FriendRequestHandler.cancelRequest(req as SignedRequest, res, wsManager);
-    }
-  );
+  // friendRequestRoutes.post(
+  //   "/:receiverId/cancel",
+  //   authMiddleware,
+  //   async (req: Request, res: Response) => {
+  //     FriendRequestHandler.cancelRequest(req as SignedRequest, res, wsManager);
+  //   }
+  // );
 
   return friendRequestRoutes;
 }

@@ -8,6 +8,8 @@ import {
   ChannelCategoryUpdate,
   ChannelCreate,
   ChannelUpdate,
+  FriendRequest,
+  FriendRequestUpdate,
   Message,
   PresenceUpdate,
   Server,
@@ -179,6 +181,37 @@ export class PrivateApiService extends BaseApiService {
   getServerUserPresences(serverId: string): Observable<PresenceUpdate[]> {
     return this.authorisedFetch<PresenceUpdate[]>((_) =>
       this.get<PresenceUpdate[]>(`servers/${serverId}/presences`)
+    );
+  }
+
+  //#endregion
+
+  //Friend Requests
+  //#region
+  sendFriendRequest(friendRequest: FriendRequest): Observable<FriendRequest> {
+    return this.authorisedFetch<FriendRequest>((_) =>
+      this.post<FriendRequest>(`friend-requests`, friendRequest)
+    );
+  }
+
+  getIncomingFriendRequests(): Observable<FriendRequest[]> {
+    return this.authorisedFetch<FriendRequest[]>((_) =>
+      this.get<FriendRequest[]>(`friend-requests/incoming`)
+    );
+  }
+
+  getOutgoingFriendRequests(): Observable<FriendRequest[]> {
+    return this.authorisedFetch<FriendRequest[]>((_) =>
+      this.get<FriendRequest[]>(`friend-requests/outgoing`)
+    );
+  }
+
+  updateFriendRequest(
+    requestId: string,
+    requestUpdate: FriendRequestUpdate
+  ): Observable<void> {
+    return this.authorisedFetch<void>((_) =>
+      this.patch<void>(`friend-requests/${requestId}`, requestUpdate)
     );
   }
 
