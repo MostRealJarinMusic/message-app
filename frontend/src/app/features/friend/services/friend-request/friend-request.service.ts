@@ -1,5 +1,11 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { FriendRequest, FriendRequestStatus, WSEventType } from '@common/types';
+import {
+  FriendRequest,
+  FriendRequestCreate,
+  FriendRequestStatus,
+  FriendRequestUpdate,
+  WSEventType,
+} from '@common/types';
 import { PrivateApiService } from 'src/app/core/services/api/private-api.service';
 import { SocketService } from 'src/app/core/services/socket/socket.service';
 import { UserService } from 'src/app/features/user/services/user/user.service';
@@ -100,5 +106,52 @@ export class FriendRequestService {
     this.wsService
       .on(WSEventType.FRIEND_REQUEST_DELETE)
       .subscribe(removeRequest);
+  }
+
+  public sendFriendRequest(targetId: string) {
+    const newFriendRequest: FriendRequestCreate = {
+      targetId,
+    };
+
+    this.apiService.sendFriendRequest(newFriendRequest).subscribe({
+      next: () => {
+        console.log('Succcessful friend request creation');
+      },
+      error: (err) => {
+        console.log('Unsuccessful friend request creation', err);
+      },
+    });
+  }
+
+  public updateFriendRequest(
+    requestId: string,
+    newStatus: FriendRequestStatus
+  ) {
+    const friendRequestUpdate: FriendRequestUpdate = {
+      id: requestId,
+      status: newStatus,
+    };
+
+    this.apiService
+      .updateFriendRequest(requestId, friendRequestUpdate)
+      .subscribe({
+        next: () => {
+          console.log('Succcessful friend request update');
+        },
+        error: (err) => {
+          console.log('Unsuccessful friend request update', err);
+        },
+      });
+  }
+
+  public cancelFriendRequest(requestId: string) {
+    this.apiService.cancelFriendRequest(requestId).subscribe({
+      next: () => {
+        console.log('Successful friend request deleton');
+      },
+      error: (err) => {
+        console.log('Unsuccessful friend request deletion', err);
+      },
+    });
   }
 }

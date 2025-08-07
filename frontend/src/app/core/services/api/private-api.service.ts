@@ -9,6 +9,7 @@ import {
   ChannelCreate,
   ChannelUpdate,
   FriendRequest,
+  FriendRequestCreate,
   FriendRequestUpdate,
   Message,
   PresenceUpdate,
@@ -188,9 +189,11 @@ export class PrivateApiService extends BaseApiService {
 
   //Friend Requests
   //#region
-  sendFriendRequest(friendRequest: FriendRequest): Observable<FriendRequest> {
+  sendFriendRequest(
+    newFriendRequest: FriendRequestCreate
+  ): Observable<FriendRequest> {
     return this.authorisedFetch<FriendRequest>((_) =>
-      this.post<FriendRequest>(`friend-requests`, friendRequest)
+      this.post<FriendRequest>(`friend-requests`, newFriendRequest)
     );
   }
 
