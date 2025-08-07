@@ -41,8 +41,7 @@ export class PrivateApiService extends BaseApiService {
     );
   }
 
-  //Message CRUD
-  //#region
+  //#region Message CRUD
   sendMessage(channelId: string, content: string): Observable<Message> {
     return this.authorisedFetch<Message>((_) =>
       this.post<Message>(`channels/${channelId}/messages`, { content })
@@ -68,8 +67,7 @@ export class PrivateApiService extends BaseApiService {
   }
   //#endregion
 
-  //Users CRUD
-  //#region
+  //#region Users CRUD
   getCurrentUser(): Observable<User> {
     return this.authorisedFetch<User>((_) => this.get<User>('users/me'));
   }
@@ -85,8 +83,7 @@ export class PrivateApiService extends BaseApiService {
   }
   //#endregion
 
-  //Channel CRUD
-  //#region
+  //#region Channel CRUD
   getChannels(serverId: string): Observable<Channel[]> {
     return this.authorisedFetch<Channel[]>((_) =>
       this.get<Channel[]>(`servers/${serverId}/channels`)
@@ -116,8 +113,7 @@ export class PrivateApiService extends BaseApiService {
   }
   //#endregion
 
-  //Channel Category CRUD
-  //#region
+  //#region Channel Category CRUD
   getServerStructure(serverId: string): Observable<ChannelCategory[]> {
     return this.authorisedFetch<ChannelCategory[]>((_) =>
       this.get<ChannelCategory[]>(`servers/${serverId}/structure`)
@@ -152,8 +148,7 @@ export class PrivateApiService extends BaseApiService {
   }
   //#endregion
 
-  //Server CRUD
-  //#region
+  //#region Server CRUD
   getServers(): Observable<Server[]> {
     return this.authorisedFetch<Server[]>((_) => this.get<Server[]>('servers'));
   }
@@ -177,8 +172,7 @@ export class PrivateApiService extends BaseApiService {
   }
   //#endregion
 
-  //Presence
-  //#region
+  //#region Presence
   getServerUserPresences(serverId: string): Observable<PresenceUpdate[]> {
     return this.authorisedFetch<PresenceUpdate[]>((_) =>
       this.get<PresenceUpdate[]>(`servers/${serverId}/presences`)
@@ -187,8 +181,7 @@ export class PrivateApiService extends BaseApiService {
 
   //#endregion
 
-  //Friend Requests
-  //#region
+  //#region Friend Requests
   sendFriendRequest(
     newFriendRequest: FriendRequestCreate
   ): Observable<FriendRequest> {
@@ -222,6 +215,12 @@ export class PrivateApiService extends BaseApiService {
     return this.authorisedFetch<void>((_) =>
       this.delete<void>(`friend-requests/${requestId}`)
     );
+  }
+  //#endregion
+
+  //#region Friends
+  getFriends(): Observable<string[]> {
+    return this.authorisedFetch<string[]>((_) => this.get<string[]>(`friends`));
   }
 
   //#endregion

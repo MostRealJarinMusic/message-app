@@ -9,6 +9,7 @@ import { ServerTitleBarComponent } from '../../features/server/components/server
 import { DynamicDialogModule } from 'primeng/dynamicdialog';
 import { ServerListComponent } from 'src/app/features/server/components/server-list/server-list.component';
 import { UserListComponent } from 'src/app/features/user/components/user-list/user-list.component';
+import { FriendService } from 'src/app/features/friend/services/friend/friend.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -28,9 +29,13 @@ import { UserListComponent } from 'src/app/features/user/components/user-list/us
 })
 export class DashboardComponent {
   private serverService = inject(ServerService);
+  private friendService = inject(FriendService);
 
   constructor() {
-    //Load the server
+    //Load servers
     this.serverService.loadServers();
+
+    //Load friends
+    this.friendService.loadFriends();
   }
 }
