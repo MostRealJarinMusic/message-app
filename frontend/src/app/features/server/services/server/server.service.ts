@@ -44,14 +44,14 @@ export class ServerService {
     //Listeners for server creation, edits and deletes
 
     //Currently for all servers -
-    this.wsService.on<Server>(WSEventType.SERVER_CREATE).subscribe((server) => {
+    this.wsService.on(WSEventType.SERVER_CREATE).subscribe((server) => {
       this.servers.update((current) => [...current, server]);
 
       this.selectServer(server.id);
     });
 
     //Deletes
-    this.wsService.on<Server>(WSEventType.SERVER_DELETE).subscribe((server) => {
+    this.wsService.on(WSEventType.SERVER_DELETE).subscribe((server) => {
       this.servers.update((current) =>
         current.filter((s) => s.id !== server.id)
       );
@@ -65,7 +65,7 @@ export class ServerService {
       }
     });
 
-    this.wsService.on<Server>(WSEventType.SERVER_UPDATE).subscribe((server) => {
+    this.wsService.on(WSEventType.SERVER_UPDATE).subscribe((server) => {
       this.servers.update((currentServers) =>
         currentServers!.map((s) =>
           s.id === server.id ? { ...s, ...server } : s

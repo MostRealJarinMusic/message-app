@@ -124,44 +124,35 @@ export class ChannelService {
 
   private initWebSocket(): void {
     //Listeners for channel creation, edits and deletes
-    this.wsService
-      .on<Channel>(WSEventType.CHANNEL_CREATE)
-      .subscribe((channel) => {
-        if (channel.serverId === this.serverService.currentServer()) {
-          this.channels.update((current) => [...current!, channel]);
-        }
-      });
+    this.wsService.on(WSEventType.CHANNEL_CREATE).subscribe((channel) => {
+      if (channel.serverId === this.serverService.currentServer()) {
+        this.channels.update((current) => [...current!, channel]);
+      }
+    });
 
     //Deletes
-    this.wsService
-      .on<Channel>(WSEventType.CHANNEL_DELETE)
-      .subscribe((channel) => {
-        if (
-          channel.id === this.currentChannel() &&
-          this.channels()!.length > 0
-        ) {
-          this.selectChannel(this.channels()![0].id);
-        }
+    this.wsService.on(WSEventType.CHANNEL_DELETE).subscribe((channel) => {
+      if (channel.id === this.currentChannel() && this.channels()!.length > 0) {
+        this.selectChannel(this.channels()![0].id);
+      }
 
-        if (channel.serverId === this.serverService.currentServer()) {
-          this.channels.update((current) =>
-            current!.filter((c) => c.id !== channel.id)
-          );
-        }
-      });
+      if (channel.serverId === this.serverService.currentServer()) {
+        this.channels.update((current) =>
+          current!.filter((c) => c.id !== channel.id)
+        );
+      }
+    });
 
     //Edits
-    this.wsService
-      .on<Channel>(WSEventType.CHANNEL_UPDATE)
-      .subscribe((channel) => {
-        if (channel.serverId === this.serverService.currentServer()) {
-          this.channels.update((currentChannels) =>
-            currentChannels!.map((c) =>
-              c.id === channel.id ? { ...c, ...channel } : c
-            )
-          );
-        }
-      });
+    this.wsService.on(WSEventType.CHANNEL_UPDATE).subscribe((channel) => {
+      if (channel.serverId === this.serverService.currentServer()) {
+        this.channels.update((currentChannels) =>
+          currentChannels!.map((c) =>
+            c.id === channel.id ? { ...c, ...channel } : c
+          )
+        );
+      }
+    });
   }
 
   getChannelById(id: string): Channel | undefined {

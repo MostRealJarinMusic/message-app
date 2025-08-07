@@ -130,9 +130,9 @@ export interface ServerInvite {
 //#endregion
 
 //#region WebSocket types
-export interface WSEvent<T = any> {
-  event: WSEventType;
-  payload: T;
+export interface WSEvent<T extends WSEventType> {
+  event: T;
+  payload: WSEventPayload[T];
 }
 
 export enum WSEventType {
@@ -167,11 +167,34 @@ export enum WSEventType {
   FRIEND_REQUEST_DELETE = "friend:request:delete",
 
   FRIEND_ADD = "friend:add",
-  FRIEND_BLOCK = "friend:block",
 
   PING = "ping",
   PONG = "pong",
 }
+
+export type WSEventPayload = {
+  [WSEventType.RECEIVE]: Message;
+  [WSEventType.EDITED]: Message;
+  [WSEventType.DELETED]: Message;
+  [WSEventType.CHANNEL_CREATE]: Channel;
+  [WSEventType.CHANNEL_UPDATE]: Channel;
+  [WSEventType.CHANNEL_DELETE]: Channel;
+  [WSEventType.CATEGORY_CREATE]: ChannelCategory;
+  [WSEventType.CATEGORY_UPDATE]: ChannelCategory;
+  [WSEventType.CATEGORY_DELETE]: ChannelCategory;
+  [WSEventType.SERVER_CREATE]: Server;
+  [WSEventType.SERVER_UPDATE]: Server;
+  [WSEventType.SERVER_DELETE]: Server;
+  [WSEventType.PRESENCE]: PresenceUpdate;
+  [WSEventType.FRIEND_REQUEST_SENT]: FriendRequest;
+  [WSEventType.FRIEND_REQUEST_RECEIVE]: FriendRequest;
+  [WSEventType.FRIEND_REQUEST_UPDATE]: FriendRequest;
+  [WSEventType.FRIEND_REQUEST_DELETE]: FriendRequest;
+  [WSEventType.FRIEND_ADD]: { id: string };
+  [WSEventType.PING]: { timestamp: number };
+  [WSEventType.PONG]: { timestamp: number };
+};
+
 //#endregion
 
 //#region Presence types

@@ -107,7 +107,7 @@ export class ServerHandler {
       //wsManager.broadcastToAll(WSEventType.CHANNEL_CREATE, newChannel);
       //Eventually, move to only server users
       const serverUserIds = (await UserRepo.getAllUsers()).map((u) => u.id);
-      wsManager.broadcastToServer(
+      wsManager.broadcastToGroup(
         WSEventType.CHANNEL_CREATE,
         newChannel,
         serverUserIds
