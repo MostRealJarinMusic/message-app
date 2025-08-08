@@ -1,4 +1,4 @@
-import { Component, effect, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ChannelListComponent } from '../../features/channel/components/channel-list/channel-list.component';
 import { ServerService } from 'src/app/features/server/services/server/server.service';
 import { DividerModule } from 'primeng/divider';
