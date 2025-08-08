@@ -1,5 +1,10 @@
 <div class="flex flex-col items-center space-y-3">
-  <p-button icon="pi pi-users" [rounded]="true" severity="secondary" />
+  <p-button
+    icon="pi pi-users"
+    [rounded]="true"
+    severity="secondary"
+    (click)="serverService.viewDMs()"
+  />
 
   @for (server of servers(); track $index) {
   <li

@@ -1,7 +1,14 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { Server, ServerCreate, ServerUpdate, WSEventType } from '@common/types';
+import {
+  NavigationView,
+  Server,
+  ServerCreate,
+  ServerUpdate,
+  WSEventType,
+} from '@common/types';
 import { SocketService } from '../../../../core/services/socket/socket.service';
 import { PrivateApiService } from 'src/app/core/services/api/private-api.service';
+import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
 
 @Injectable({
   providedIn: 'root',
@@ -9,6 +16,7 @@ import { PrivateApiService } from 'src/app/core/services/api/private-api.service
 export class ServerService {
   private apiService = inject(PrivateApiService);
   private wsService = inject(SocketService);
+  private navService = inject(NavigationService);
 
   readonly servers = signal<Server[]>([]);
   readonly currentServer = signal<string | null>(null);
@@ -17,8 +25,14 @@ export class ServerService {
     this.initWebSocket();
   }
 
+  viewDMs() {
+    this.currentServer.set(null);
+    this.navService.setView(NavigationView.DMS);
+  }
+
   selectServer(id: string | null) {
     this.currentServer.set(id);
+    this.navService.setView(NavigationView.SERVERS);
   }
 
   loadServers() {

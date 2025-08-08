@@ -23,6 +23,9 @@ export class MessageService {
       if (currentChannel) {
         console.log('Loading message history');
         this.loadMessageHistory(currentChannel);
+      } else {
+        console.log('No channel');
+        this.messages.set([]);
       }
     });
   }

@@ -53,6 +53,7 @@ export class ChannelService {
         console.log('Loading channels');
         this.loadChannels(currentServer);
       } else {
+        console.log('No server');
         this.currentChannel.set(null);
         this.channels.set([]);
       }

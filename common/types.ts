@@ -256,3 +256,11 @@ export interface FriendRequestUpdate {
 }
 
 //#endregion
+
+//#region Navigation types
+export enum NavigationView {
+  SERVERS = "view:servers",
+  DMS = "view:dms",
+}
+
+//#endregion
