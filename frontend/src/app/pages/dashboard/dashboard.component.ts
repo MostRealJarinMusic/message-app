@@ -10,6 +10,9 @@ import { DynamicDialogModule } from 'primeng/dynamicdialog';
 import { ServerListComponent } from 'src/app/features/server/components/server-list/server-list.component';
 import { UserListComponent } from 'src/app/features/user/components/user-list/user-list.component';
 import { FriendService } from 'src/app/features/friend/services/friend/friend.service';
+import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
+import { NavigationView } from '@common/types';
+import { FriendsTitleBarComponent } from 'src/app/features/friend/components/friends-title-bar/friends-title-bar.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -22,6 +25,7 @@ import { FriendService } from 'src/app/features/friend/services/friend/friend.se
     UserListComponent,
     ChannelTitleBarComponent,
     ServerTitleBarComponent,
+    FriendsTitleBarComponent,
     DynamicDialogModule,
   ],
   templateUrl: './dashboard.component.html',
@@ -30,6 +34,9 @@ import { FriendService } from 'src/app/features/friend/services/friend/friend.se
 export class DashboardComponent {
   private serverService = inject(ServerService);
   private friendService = inject(FriendService);
+  protected navService = inject(NavigationService);
+
+  protected NavigationView: typeof NavigationView = NavigationView;
 
   constructor() {
     //Load servers

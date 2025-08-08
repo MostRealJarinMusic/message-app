@@ -18,13 +18,15 @@ export class ChannelTitleBarComponent {
 
   constructor() {
     effect(() => {
-      this.channelName = this.channelService.getChannelById(
-        this.channelService.currentChannel()!
-      )?.name;
+      const currentChannel = this.channelService.currentChannel();
 
-      this.channelTopic = this.channelService.getChannelById(
-        this.channelService.currentChannel()!
-      )?.topic;
+      if (currentChannel) {
+        this.channelName =
+          this.channelService.getChannelById(currentChannel)!.name;
+
+        this.channelTopic =
+          this.channelService.getChannelById(currentChannel)!.topic;
+      }
     });
   }
 }

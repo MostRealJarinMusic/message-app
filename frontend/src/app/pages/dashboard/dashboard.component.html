@@ -51,9 +51,13 @@
     class="col-start-3 row-start-3 m-2 overflow-y-auto"
   ></app-channel-list>
 
-  <app-channel-title-bar
-    class="col-span-3 col-start-4 row-start-1 bg-surface-800"
-  ></app-channel-title-bar>
+  <div class="col-span-3 col-start-4 row-start-1 bg-surface-800">
+    @switch (navService.currentView()) { @case (NavigationView.SERVERS) {
+    <app-channel-title-bar></app-channel-title-bar>
+    } @case (NavigationView.DMS) {
+    <app-friends-title-bar />
+    } }
+  </div>
 
   <!-- Messages + Input + Users (Row 2) -->
   <div
