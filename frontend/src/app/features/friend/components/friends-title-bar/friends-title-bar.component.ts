@@ -1,10 +1,8 @@
 import { Component, inject } from '@angular/core';
-import { FriendRequestService } from '../../services/friend-request/friend-request.service';
-import { FriendService } from '../../services/friend/friend.service';
 import { ButtonModule } from 'primeng/button';
-import { InputIcon } from 'primeng/inputicon';
 import { IconField } from 'primeng/iconfield';
 import { CommonModule } from '@angular/common';
+import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
 
 @Component({
   selector: 'app-friends-title-bar',
@@ -13,6 +11,5 @@ import { CommonModule } from '@angular/common';
   styleUrl: './friends-title-bar.component.scss',
 })
 export class FriendsTitleBarComponent {
-  private friendRequestService = inject(FriendRequestService);
-  private friendService = inject(FriendService);
+  protected navService = inject(NavigationService);
 }

@@ -1,6 +1,4 @@
 <div>
-  @let friendsActive = navService.isActive('friends');
-
   <li
     #channelItem
     [ngClass]="{
@@ -11,7 +9,7 @@
     }"
     (click)="navService.navigate('friends')"
   >
-    <div># Friends</div>
+    <div>Friends</div>
   </li>
 
   <p-divider layout="horizontal" styleClass="!my-0 !py-3"></p-divider>

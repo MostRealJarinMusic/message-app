@@ -6,17 +6,10 @@ import { DividerModule } from 'primeng/divider';
 import { DialogService } from 'primeng/dynamicdialog';
 import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
 import { ChannelService } from 'src/app/features/channel/services/channel/channel.service';
-import { FullscreenOverlayComponent } from 'src/app/shared/components/custom/fullscreen-overlay/fullscreen-overlay.component';
 
 @Component({
   selector: 'app-dms-list',
-  imports: [
-    ButtonModule,
-    ContextMenu,
-    FullscreenOverlayComponent,
-    DividerModule,
-    CommonModule,
-  ],
+  imports: [ButtonModule, ContextMenu, DividerModule, CommonModule],
   providers: [DialogService],
   templateUrl: './dms-list.component.html',
   styleUrl: './dms-list.component.scss',

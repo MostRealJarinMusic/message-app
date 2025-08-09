@@ -4,10 +4,29 @@
   </h1>
 
   <div class="flex items-center gap-x-2">
-    <p-button label="Online" severity="secondary" />
-    <p-button label="All" severity="secondary" />
-    <p-button label="Incoming" severity="secondary" />
-    <p-button label="Pending" severity="secondary" />
-    <p-button label="Add Friend" />
+    <p-button
+      label="Online"
+      severity="secondary"
+      (onClick)="navService.navigate('online')"
+    />
+    <p-button
+      label="All"
+      severity="secondary"
+      (onClick)="navService.navigate('all')"
+    />
+    <p-button
+      label="Incoming"
+      severity="secondary"
+      (onClick)="navService.navigate('incoming')"
+    />
+    <p-button
+      label="Outgoing"
+      severity="secondary"
+      (onClick)="navService.navigate('outgoing')"
+    />
+    <p-button
+      label="Add Friend"
+      (onClick)="navService.navigate('add-friend')"
+    />
   </div>
 </div>

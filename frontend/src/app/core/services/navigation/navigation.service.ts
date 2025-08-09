@@ -1,5 +1,5 @@
 import { computed, Injectable, signal } from '@angular/core';
-import { NavigationNode, NavigationView } from '@common/types';
+import { NavigationNode, NavigationView, Server } from '@common/types';
 
 @Injectable({
   providedIn: 'root',
@@ -63,16 +63,10 @@ export class NavigationService {
 
     parent.activeChildId = childId;
     this.root.update((r) => ({ ...r }));
-    console.log(this.activePath().map((n) => n.id));
-  }
-
-  private findNode(node: NavigationNode, id: string): NavigationNode | null {
-    if (node.id === id) return node;
-    for (const child of node.children ?? []) {
-      const found = this.findNode(child, id);
-      if (found) return found;
-    }
-    return null;
+    console.log(
+      'Active path: ',
+      this.activePath().map((n) => n.id)
+    );
   }
 
   private findNodeWithParent(
