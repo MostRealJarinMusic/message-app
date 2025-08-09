@@ -27,12 +27,12 @@ export class ServerService {
 
   viewDMs() {
     this.currentServer.set(null);
-    this.navService.setView(NavigationView.DMS);
+    this.navService.navigate('direct-messages');
   }
 
   selectServer(id: string | null) {
     this.currentServer.set(id);
-    this.navService.setView(NavigationView.SERVERS);
+    this.navService.navigate('servers');
   }
 
   loadServers() {

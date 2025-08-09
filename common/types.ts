@@ -263,4 +263,10 @@ export enum NavigationView {
   DMS = "view:dms",
 }
 
+export interface NavigationNode {
+  id: string;
+  activeChildId?: string;
+  children?: NavigationNode[];
+}
+
 //#endregion

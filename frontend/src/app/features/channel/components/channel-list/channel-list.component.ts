@@ -69,7 +69,6 @@ export class ChannelListComponent implements OnDestroy, OnInit {
   private channelEditService = inject(ChannelEditService);
   private categoryService = inject(ChannelCategoryService);
   private categoryEditService = inject(ChannelCategoryEditService);
-  protected navService = inject(NavigationService);
   private formBuilder = inject(FormBuilder);
 
   protected NavigationView: typeof NavigationView = NavigationView;

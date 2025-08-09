@@ -13,6 +13,7 @@ import { FriendService } from 'src/app/features/friend/services/friend/friend.se
 import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
 import { NavigationView } from '@common/types';
 import { FriendsTitleBarComponent } from 'src/app/features/friend/components/friends-title-bar/friends-title-bar.component';
+import { DMsListComponent } from 'src/app/features/dms/components/dms-list/dms-list.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -26,6 +27,7 @@ import { FriendsTitleBarComponent } from 'src/app/features/friend/components/fri
     ChannelTitleBarComponent,
     ServerTitleBarComponent,
     FriendsTitleBarComponent,
+    DMsListComponent,
     DynamicDialogModule,
   ],
   templateUrl: './dashboard.component.html',

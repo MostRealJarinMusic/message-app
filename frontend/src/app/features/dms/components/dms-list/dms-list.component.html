@@ -1,0 +1,18 @@
+<div>
+  @let friendsActive = navService.isActive('friends');
+
+  <li
+    #channelItem
+    [ngClass]="{
+      'pl-3 py-1 mb-1 list-none rounded-border transition-colors duration-200 cursor-pointer': true,
+      'text-color-emphasis bg-emphasis': navService.isActive('friends')(),
+      'text-muted-color hover:bg-emphasis hover:text-muted-color-emphasis':
+        !navService.isActive('friends')()
+    }"
+    (click)="navService.navigate('friends')"
+  >
+    <div># Friends</div>
+  </li>
+
+  <p-divider layout="horizontal" styleClass="!my-0 !py-3"></p-divider>
+</div>

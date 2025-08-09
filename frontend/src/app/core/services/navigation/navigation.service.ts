@@ -1,15 +1,92 @@
-import { Injectable, signal } from '@angular/core';
-import { NavigationView } from '@common/types';
+import { computed, Injectable, signal } from '@angular/core';
+import { NavigationNode, NavigationView } from '@common/types';
 
 @Injectable({
   providedIn: 'root',
 })
 export class NavigationService {
-  readonly currentView = signal<NavigationView>(NavigationView.SERVERS);
+  readonly root = signal<NavigationNode>({
+    id: 'root',
+    children: [
+      {
+        id: 'servers',
+      },
+      {
+        id: 'direct-messages',
+        children: [
+          {
+            id: 'friends',
+            children: [
+              { id: 'all' },
+              { id: 'online' },
+              { id: 'incoming' },
+              { id: 'outgoing' },
+              { id: 'add-friend' },
+            ],
+            activeChildId: 'online',
+          },
+          {
+            id: 'direct-message-chat',
+          },
+        ],
+        activeChildId: 'friends', //Default
+      },
+    ],
+    activeChildId: 'servers', //Default
+  });
 
-  constructor() {}
+  readonly activePath = computed(() => {
+    const path: NavigationNode[] = [];
+    let current: NavigationNode = this.root();
+    while (current.activeChildId) {
+      const child = current.children!.find(
+        (c) => c.id === current!.activeChildId
+      );
+      if (!child) break;
+      path.push(child);
+      current = child;
+    }
+    return path;
+  });
 
-  setView(view: NavigationView) {
-    this.currentView.set(view);
+  public isActive = (id: string) =>
+    computed(() => {
+      return this.activePath().some((n) => n.id === id);
+    });
+
+  navigate(childId: string) {
+    const { node, parent } = this.findNodeWithParent(this.root(), childId);
+
+    if (!node || !parent) {
+      throw new Error(`Node ${childId} not found or has no parent`);
+    }
+
+    parent.activeChildId = childId;
+    this.root.update((r) => ({ ...r }));
+    console.log(this.activePath().map((n) => n.id));
+  }
+
+  private findNode(node: NavigationNode, id: string): NavigationNode | null {
+    if (node.id === id) return node;
+    for (const child of node.children ?? []) {
+      const found = this.findNode(child, id);
+      if (found) return found;
+    }
+    return null;
+  }
+
+  private findNodeWithParent(
+    current: NavigationNode,
+    targetId: string,
+    parent: NavigationNode | null = null
+  ): { node: NavigationNode | null; parent: NavigationNode | null } {
+    if (current.id === targetId) {
+      return { node: current, parent };
+    }
+    for (const child of current.children ?? []) {
+      const found = this.findNodeWithParent(child, targetId, current);
+      if (found.node) return found;
+    }
+    return { node: null, parent: null };
   }
 }
