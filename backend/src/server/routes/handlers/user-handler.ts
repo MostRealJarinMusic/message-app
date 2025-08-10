@@ -1,6 +1,6 @@
 import { Request, Response } from "express-serve-static-core";
 import { UserRepo } from "../../../db/repos/user.repo";
-import { SignedRequest } from "types/types";
+import { SignedRequest } from "../../../types/types";
 
 export class UserHandler {
   static async getMe(req: SignedRequest, res: Response) {

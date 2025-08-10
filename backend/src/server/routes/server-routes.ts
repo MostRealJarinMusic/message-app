@@ -1,24 +1,13 @@
 import { Request, Response, Router } from "express";
 import { authMiddleware } from "../../middleware/auth-middleware";
-import { ChannelRepo } from "../../db/repos/channel.repo";
-import { ServerRepo } from "../../db/repos/server.repo";
-import {
-  Channel,
-  ChannelCategory,
-  Server,
-  ServerCreate,
-  WSEventType,
-} from "../../../../common/types";
-import { ulid } from "ulid";
 import { WebSocketManager } from "../ws/websocket-manager";
-import { ChannelCategoryRepo } from "../../db/repos/category.repo";
 import { ServerHandler } from "./handlers/server-handler";
 
 export default function serverRoutes(wsManager: WebSocketManager): Router {
   const serverRoutes = Router();
 
   //Temporarily fetches all servers
-  serverRoutes.get("/", authMiddleware, async (req: Request, res: Response) => {
+  serverRoutes.get("", authMiddleware, async (req: Request, res: Response) => {
     ServerHandler.getAllServers(req, res);
   });
 
@@ -82,13 +71,9 @@ export default function serverRoutes(wsManager: WebSocketManager): Router {
 
   //#region Server CRUD
   //Creating a server
-  serverRoutes.post(
-    "/",
-    authMiddleware,
-    async (req: Request, res: Response) => {
-      ServerHandler.createServer(req, res, wsManager);
-    }
-  );
+  serverRoutes.post("", authMiddleware, async (req: Request, res: Response) => {
+    ServerHandler.createServer(req, res, wsManager);
+  });
 
   //Deleting a server
   serverRoutes.delete(

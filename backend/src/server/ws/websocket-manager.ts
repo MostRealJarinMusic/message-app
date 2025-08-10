@@ -7,8 +7,9 @@ import {
   PresenceUpdate,
   UserSignature,
   WSEvent,
+  WSEventPayload,
   WSEventType,
-} from "@common/types";
+} from "../../../../common/types";
 
 const HEARTBEAT_INTERVAL = 60000;
 const TIMEOUT_LIMIT = 120000;
@@ -48,7 +49,7 @@ export class WebSocketManager {
       this.userSockets.get(userId)?.add(ws);
 
       if (this.userSockets.get(userId)?.size === 1) {
-        this.updatePresence(userId, "online");
+        this.updatePresence(userId, "online" as PresenceStatus);
       }
 
       ws.on("message", async (message) => await this.routeMessage(ws, message));
@@ -66,7 +67,7 @@ export class WebSocketManager {
 
         if (sockets.size === 0) {
           this.userSockets.delete(id);
-          this.updatePresence(id, "offline");
+          this.updatePresence(id, "offline" as PresenceStatus);
         }
       });
     } catch {
@@ -75,16 +76,16 @@ export class WebSocketManager {
   }
 
   //#region Presence
-  private updatePresence(userId: string, status: string) {
+  private updatePresence(userId: string, status: PresenceStatus) {
     const previous = this.presenceStore.get(userId);
     if (previous === status) return;
 
     this.presenceStore.set(userId, status);
 
-    this.broadcastToAll("presence:update", {
+    this.broadcastToAll("presence:update" as WSEventType, {
       userId: userId,
       status: status,
-    } as PresenceUpdate);
+    });
   }
 
   public getPresenceSnapshot(userIds: string[]): PresenceUpdate[] {
@@ -114,48 +115,50 @@ export class WebSocketManager {
     }
   }
 
-  private packageMessage(event: string, payload: any) {
+  private packageMessage<T extends WSEventType>(
+    event: T,
+    payload: WSEventPayload[T]
+  ) {
     return JSON.stringify({ event, payload });
   }
   //#endregion
 
   //#region Broadcasting and single DMs
-  public broadcastToOne(event: string, payload: any, targetId: string) {
+  public broadcastToUser<T extends WSEventType>(
+    event: T,
+    payload: WSEventPayload[T],
+    targetId: string
+  ) {
     const sockets = this.userSockets.get(targetId);
-    if (sockets) this.broadcastToGroup(event, payload, Array.from(sockets));
+    if (sockets) this.broadcast(event, payload, Array.from(sockets));
   }
 
-  public broadcastToAll(event: string, payload: any) {
-    this.broadcastToGroup(event, payload, Array.from(this.wss.clients));
+  public broadcastToAll<T extends WSEventType>(
+    event: T,
+    payload: WSEventPayload[T]
+  ) {
+    this.broadcast(event, payload, Array.from(this.wss.clients));
   }
 
-  public broadcastToGroup(
-    event: string,
-    payload: any,
-    targetGroup: WebSocket[]
+  private broadcast<T extends WSEventType>(
+    event: T,
+    payload: WSEventPayload[T],
+    targets: WebSocket[]
   ) {
     const message = this.packageMessage(event, payload);
-    targetGroup.forEach((client) => {
+    targets.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
         client.send(message);
       }
     });
   }
 
-  public broadcastToServer(
-    event: string,
-    payload: any,
-    serverUserIds: string[]
+  public broadcastToGroup<T extends WSEventType>(
+    event: T,
+    payload: WSEventPayload[T],
+    ids: string[]
   ) {
-    this.broadcastToGroup(
-      event,
-      payload,
-      this.getSocketsFromIds(serverUserIds)
-    );
-  }
-
-  public broadcastToFriends(event: string, payload: any, friendIds: string[]) {
-    this.broadcastToGroup(event, payload, this.getSocketsFromIds(friendIds));
+    this.broadcast(event, payload, this.getSocketsFromIds(ids));
   }
 
   private getSocketsFromIds(ids: string[]) {

@@ -87,6 +87,17 @@ export class UserRepo {
     });
   }
 
+  static async userExists(id: string): Promise<boolean> {
+    const db = await getDB();
+
+    return new Promise((resolve, reject) => {
+      db.get(`SELECT 1 FROM users WHERE id = ? LIMIT 1`, [id], (err, row) => {
+        if (err) return reject(err);
+        resolve(!!row);
+      });
+    });
+  }
+
   static async getAllUsers() {
     const db = await getDB();
 

@@ -1,5 +1,10 @@
 <div class="flex flex-col items-center space-y-3">
-  <p-button icon="pi pi-users" [rounded]="true" severity="secondary" />
+  <p-button
+    icon="pi pi-users"
+    [rounded]="true"
+    severity="secondary"
+    (click)="serverService.viewDMs()"
+  />
 
   @for (server of servers(); track $index) {
   <li
@@ -9,7 +14,7 @@
       'text-muted-color hover:bg-emphasis hover:text-muted-color-emphasis':
         server.id !== currentServer()
     }"
-    (click)="selectServer(server.id)"
+    (click)="serverService.selectServer(server.id)"
     (contextmenu)="showContextMenu($event, server)"
   >
     {{ server.name }}

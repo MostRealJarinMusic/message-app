@@ -5,6 +5,7 @@ import {
   PresenceUpdate,
   Timestamp,
   WSEvent,
+  WSEventPayload,
   WSEventType,
 } from '@common/types';
 import { SessionService } from '../session/session.service';
@@ -13,7 +14,7 @@ import { AuthTokenService } from '../authtoken/auth-token.service';
 @Injectable({ providedIn: 'root' })
 export class SocketService {
   private socket?: WebSocket;
-  private eventStream$ = new Subject<WSEvent>();
+  private eventStream$ = new Subject<WSEvent<any>>();
   public isConnected = false;
 
   private reconnectAttempts = 0;
@@ -53,7 +54,7 @@ export class SocketService {
     this.socket.onmessage = async (event) => {
       try {
         const parsedMessage = await this.parseMessageData(event.data);
-        const data: WSEvent = JSON.parse(parsedMessage);
+        const data: WSEvent<any> = JSON.parse(parsedMessage);
 
         if (data.event === WSEventType.PING) {
           const latency = Date.now() - data.payload.timestamp;
@@ -89,19 +90,19 @@ export class SocketService {
     this.socket = undefined;
   }
 
-  emit<T = any>(event: WSEventType, payload: T): void {
+  emit<T extends WSEventType>(event: T, payload: WSEventPayload[T]): void {
     if (!this.isConnected) {
       console.log('No WebSocket connection - attempt to reconnect logic');
       return;
     }
-    const message: WSEvent = { event, payload };
+    const message: WSEvent<T> = { event, payload };
     this.socket?.send(JSON.stringify(message));
   }
 
-  on<T = any>(event: WSEventType): Observable<T> {
+  on<T extends WSEventType>(event: T): Observable<WSEventPayload[T]> {
     return this.eventStream$.pipe(
       filter((e) => e.event === event),
-      map((e) => e.payload as T)
+      map((e) => e.payload)
     );
   }
 

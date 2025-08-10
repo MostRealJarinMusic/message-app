@@ -8,6 +8,9 @@ import {
   ChannelCategoryUpdate,
   ChannelCreate,
   ChannelUpdate,
+  FriendRequest,
+  FriendRequestCreate,
+  FriendRequestUpdate,
   Message,
   PresenceUpdate,
   Server,
@@ -38,8 +41,7 @@ export class PrivateApiService extends BaseApiService {
     );
   }
 
-  //Message CRUD
-  //#region
+  //#region Message CRUD
   sendMessage(channelId: string, content: string): Observable<Message> {
     return this.authorisedFetch<Message>((_) =>
       this.post<Message>(`channels/${channelId}/messages`, { content })
@@ -65,8 +67,7 @@ export class PrivateApiService extends BaseApiService {
   }
   //#endregion
 
-  //Users CRUD
-  //#region
+  //#region Users CRUD
   getCurrentUser(): Observable<User> {
     return this.authorisedFetch<User>((_) => this.get<User>('users/me'));
   }
@@ -82,8 +83,7 @@ export class PrivateApiService extends BaseApiService {
   }
   //#endregion
 
-  //Channel CRUD
-  //#region
+  //#region Channel CRUD
   getChannels(serverId: string): Observable<Channel[]> {
     return this.authorisedFetch<Channel[]>((_) =>
       this.get<Channel[]>(`servers/${serverId}/channels`)
@@ -113,8 +113,7 @@ export class PrivateApiService extends BaseApiService {
   }
   //#endregion
 
-  //Channel Category CRUD
-  //#region
+  //#region Channel Category CRUD
   getServerStructure(serverId: string): Observable<ChannelCategory[]> {
     return this.authorisedFetch<ChannelCategory[]>((_) =>
       this.get<ChannelCategory[]>(`servers/${serverId}/structure`)
@@ -149,15 +148,14 @@ export class PrivateApiService extends BaseApiService {
   }
   //#endregion
 
-  //Server CRUD
-  //#region
+  //#region Server CRUD
   getServers(): Observable<Server[]> {
     return this.authorisedFetch<Server[]>((_) => this.get<Server[]>('servers'));
   }
 
   createServer(newServerData: ServerCreate) {
     return this.authorisedFetch<Server>((_) =>
-      this.post<Server>(`servers/`, newServerData)
+      this.post<Server>(`servers`, newServerData)
     );
   }
 
@@ -174,12 +172,55 @@ export class PrivateApiService extends BaseApiService {
   }
   //#endregion
 
-  //Presence
-  //#region
+  //#region Presence
   getServerUserPresences(serverId: string): Observable<PresenceUpdate[]> {
     return this.authorisedFetch<PresenceUpdate[]>((_) =>
       this.get<PresenceUpdate[]>(`servers/${serverId}/presences`)
     );
+  }
+
+  //#endregion
+
+  //#region Friend Requests
+  sendFriendRequest(
+    newFriendRequest: FriendRequestCreate
+  ): Observable<FriendRequest> {
+    return this.authorisedFetch<FriendRequest>((_) =>
+      this.post<FriendRequest>(`friend-requests`, newFriendRequest)
+    );
+  }
+
+  getIncomingFriendRequests(): Observable<FriendRequest[]> {
+    return this.authorisedFetch<FriendRequest[]>((_) =>
+      this.get<FriendRequest[]>(`friend-requests/incoming`)
+    );
+  }
+
+  getOutgoingFriendRequests(): Observable<FriendRequest[]> {
+    return this.authorisedFetch<FriendRequest[]>((_) =>
+      this.get<FriendRequest[]>(`friend-requests/outgoing`)
+    );
+  }
+
+  updateFriendRequest(
+    requestId: string,
+    requestUpdate: FriendRequestUpdate
+  ): Observable<void> {
+    return this.authorisedFetch<void>((_) =>
+      this.patch<void>(`friend-requests/${requestId}`, requestUpdate)
+    );
+  }
+
+  cancelFriendRequest(requestId: string): Observable<void> {
+    return this.authorisedFetch<void>((_) =>
+      this.delete<void>(`friend-requests/${requestId}`)
+    );
+  }
+  //#endregion
+
+  //#region Friends
+  getFriends(): Observable<string[]> {
+    return this.authorisedFetch<string[]>((_) => this.get<string[]>(`friends`));
   }
 
   //#endregion

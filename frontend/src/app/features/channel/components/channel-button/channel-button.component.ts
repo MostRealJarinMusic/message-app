@@ -11,8 +11,6 @@ import { MenuItem } from 'primeng/api';
   styleUrl: './channel-button.component.scss',
 })
 export class ChannelButtonComponent {
-  items: MenuItem[] = [];
-
   channel = input<Channel | null>(null);
   isSelected = input(false);
 

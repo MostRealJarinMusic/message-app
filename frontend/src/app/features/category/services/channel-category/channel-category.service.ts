@@ -56,37 +56,31 @@ export class ChannelCategoryService {
 
   private initWebSocket(): void {
     //Listeners for category creation, edits and deletes
-    this.wsService
-      .on<ChannelCategory>(WSEventType.CATEGORY_CREATE)
-      .subscribe((category) => {
-        if (category.serverId === this.serverService.currentServer()) {
-          this.channelCategories.update((current) => [...current!, category]);
-        }
-      });
+    this.wsService.on(WSEventType.CATEGORY_CREATE).subscribe((category) => {
+      if (category.serverId === this.serverService.currentServer()) {
+        this.channelCategories.update((current) => [...current!, category]);
+      }
+    });
 
     //Deletes - if a category gets deleted, the server structure needs to be reloaded
-    this.wsService
-      .on<ChannelCategory>(WSEventType.CATEGORY_DELETE)
-      .subscribe((category) => {
-        if (category.serverId === this.serverService.currentServer()) {
-          this.channelCategories.update((current) =>
-            current!.filter((c) => c.id !== category.id)
-          );
-        }
-      });
+    this.wsService.on(WSEventType.CATEGORY_DELETE).subscribe((category) => {
+      if (category.serverId === this.serverService.currentServer()) {
+        this.channelCategories.update((current) =>
+          current!.filter((c) => c.id !== category.id)
+        );
+      }
+    });
 
     //Edits
-    this.wsService
-      .on<ChannelCategory>(WSEventType.CATEGORY_UPDATE)
-      .subscribe((category) => {
-        if (category.serverId === this.serverService.currentServer()) {
-          this.channelCategories.update((currentCategories) =>
-            currentCategories!.map((c) =>
-              c.id === category.id ? { ...c, ...category } : c
-            )
-          );
-        }
-      });
+    this.wsService.on(WSEventType.CATEGORY_UPDATE).subscribe((category) => {
+      if (category.serverId === this.serverService.currentServer()) {
+        this.channelCategories.update((currentCategories) =>
+          currentCategories!.map((c) =>
+            c.id === category.id ? { ...c, ...category } : c
+          )
+        );
+      }
+    });
   }
 
   public createCategory(serverId: string, categoryName: string) {

@@ -9,7 +9,7 @@ import {
 import { ulid } from "ulid";
 import { WebSocketManager } from "../../ws/websocket-manager";
 import { ChannelRepo } from "../../../db/repos/channel.repo";
-import { SignedRequest } from "types/types";
+import { SignedRequest } from "../../../types/types";
 
 export class ChannelHandler {
   static async deleteChannel(
@@ -61,7 +61,7 @@ export class ChannelHandler {
 
       await MessageRepo.createMessage(message);
 
-      //Broadcast to users
+      //Broadcast to all users for now - only broadcast to server members, DM members, group members
       wsManager.broadcastToAll(WSEventType.RECEIVE, message);
 
       res.status(201).json(message);
@@ -70,15 +70,15 @@ export class ChannelHandler {
     }
   }
 
-  static async getMessages(
-    req: Request,
-    res: Response,
-    wsManager: WebSocketManager
-  ) {
-    const messages = await MessageRepo.getAllChannelMessages(
-      req.params.channelId
-    );
-    res.json(messages);
+  static async getMessages(req: Request, res: Response) {
+    try {
+      const messages = await MessageRepo.getAllChannelMessages(
+        req.params.channelId
+      );
+      res.json(messages);
+    } catch (err) {
+      res.status(500).json({ error: "Failed to fetch channel messages" });
+    }
   }
 
   static async editChannel(

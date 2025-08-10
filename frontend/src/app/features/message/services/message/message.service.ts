@@ -23,6 +23,9 @@ export class MessageService {
       if (currentChannel) {
         console.log('Loading message history');
         this.loadMessageHistory(currentChannel);
+      } else {
+        console.log('No channel');
+        this.messages.set([]);
       }
     });
   }
@@ -51,14 +54,14 @@ export class MessageService {
 
   private initWebSocket(): void {
     //Listeners for sent messages, edits and deletes
-    this.wsService.on<Message>(WSEventType.RECEIVE).subscribe((message) => {
+    this.wsService.on(WSEventType.RECEIVE).subscribe((message) => {
       if (message.channelId === this.channelService.currentChannel()) {
         this.messages.update((current) => [...current, message]);
       }
     });
 
     //Deletes
-    this.wsService.on<Message>(WSEventType.DELETED).subscribe((message) => {
+    this.wsService.on(WSEventType.DELETED).subscribe((message) => {
       //Delete the message from the loaded channel if it exists in the history
       if (message.channelId === this.channelService.currentChannel()) {
         this.messages.update((current) =>
@@ -68,7 +71,7 @@ export class MessageService {
     });
 
     //Edits
-    this.wsService.on<Message>(WSEventType.EDITED).subscribe((message) => {
+    this.wsService.on(WSEventType.EDITED).subscribe((message) => {
       //Edit message from the loaded channel if it exists in the history
       if (message.channelId === this.channelService.currentChannel()) {
         this.messages.update((currentMessages) =>

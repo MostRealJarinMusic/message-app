@@ -1,7 +1,14 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { Server, ServerCreate, ServerUpdate, WSEventType } from '@common/types';
+import {
+  NavigationView,
+  Server,
+  ServerCreate,
+  ServerUpdate,
+  WSEventType,
+} from '@common/types';
 import { SocketService } from '../../../../core/services/socket/socket.service';
 import { PrivateApiService } from 'src/app/core/services/api/private-api.service';
+import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
 
 @Injectable({
   providedIn: 'root',
@@ -9,6 +16,7 @@ import { PrivateApiService } from 'src/app/core/services/api/private-api.service
 export class ServerService {
   private apiService = inject(PrivateApiService);
   private wsService = inject(SocketService);
+  private navService = inject(NavigationService);
 
   readonly servers = signal<Server[]>([]);
   readonly currentServer = signal<string | null>(null);
@@ -17,8 +25,14 @@ export class ServerService {
     this.initWebSocket();
   }
 
+  viewDMs() {
+    this.currentServer.set(null);
+    this.navService.navigate('direct-messages');
+  }
+
   selectServer(id: string | null) {
     this.currentServer.set(id);
+    this.navService.navigate('servers');
   }
 
   loadServers() {
@@ -44,14 +58,14 @@ export class ServerService {
     //Listeners for server creation, edits and deletes
 
     //Currently for all servers -
-    this.wsService.on<Server>(WSEventType.SERVER_CREATE).subscribe((server) => {
+    this.wsService.on(WSEventType.SERVER_CREATE).subscribe((server) => {
       this.servers.update((current) => [...current, server]);
 
       this.selectServer(server.id);
     });
 
     //Deletes
-    this.wsService.on<Server>(WSEventType.SERVER_DELETE).subscribe((server) => {
+    this.wsService.on(WSEventType.SERVER_DELETE).subscribe((server) => {
       this.servers.update((current) =>
         current.filter((s) => s.id !== server.id)
       );
@@ -65,7 +79,7 @@ export class ServerService {
       }
     });
 
-    this.wsService.on<Server>(WSEventType.SERVER_UPDATE).subscribe((server) => {
+    this.wsService.on(WSEventType.SERVER_UPDATE).subscribe((server) => {
       this.servers.update((currentServers) =>
         currentServers!.map((s) =>
           s.id === server.id ? { ...s, ...server } : s

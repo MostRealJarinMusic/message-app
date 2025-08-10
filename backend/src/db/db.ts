@@ -52,7 +52,10 @@ export const getDB = async () => {
       id              TEXT PRIMARY KEY,
       senderId        TEXT NOT NULL,
       receiverId      TEXT NOT NULL,
+      status          TEXT NOT NULL,
       createdAt       TEXT NOT NULL,
+      respondedAt     TEXT,
+      UNIQUE (senderId, receiverId),
       FOREIGN KEY (senderId) REFERENCES users(id) ON DELETE CASCADE,
       FOREIGN KEY (receiverId) REFERENCES users(id) ON DELETE CASCADE
     );

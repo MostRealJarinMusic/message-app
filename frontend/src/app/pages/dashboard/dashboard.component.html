@@ -47,23 +47,32 @@
     styleClass="!my-0"
   ></p-divider>
 
-  <app-channel-list
-    class="col-start-3 row-start-3 m-2 overflow-y-auto"
-  ></app-channel-list>
+  <div class="col-start-3 row-start-3 m-2">
+    @if (navService.isActive('servers')()) {
+    <app-channel-list class="overflow-y-auto"></app-channel-list>
+    } @else if (navService.isActive('direct-messages')()) {
+    <app-dms-list class="overflow-hidden"></app-dms-list>
+    }
+  </div>
 
-  <app-channel-title-bar
-    class="col-span-3 col-start-4 row-start-1 bg-surface-800"
-  ></app-channel-title-bar>
+  <div class="col-span-3 col-start-4 row-start-1 bg-surface-800">
+    @if (navService.isActive('servers')() ||
+    navService.isActive('direct-message-chat')()) {
+    <app-channel-title-bar />
+    } @else if (navService.isActive('friends')()) {
+    <app-friends-title-bar />
+    }
+  </div>
 
   <!-- Messages + Input + Users (Row 2) -->
-  <div
-    class="col-start-4 row-start-3 grid grid-rows-[1fr_auto] overflow-hidden bg-surface-800"
-  >
-    <!-- <app-message-list class="overflow-hidden"></app-message-list>
-    <app-message-input class="pb-4 px-4"></app-message-input> -->
-
-    <app-message-list class="flex-1 overflow-hidden"></app-message-list>
-    <app-message-input class="pb-4 px-4"></app-message-input>
+  <div class="col-start-4 row-start-3 bg-surface-800">
+    @if (navService.isActive('servers')() ||
+    navService.isActive('direct-message-chat')()) {
+    <div class="w-full h-full grid grid-rows-[1fr_auto] overflow-hidden">
+      <app-message-list class="flex-1 overflow-hidden"></app-message-list>
+      <app-message-input class="pb-4 px-4"></app-message-input>
+    </div>
+    }
   </div>
 
   <!-- Divider -->

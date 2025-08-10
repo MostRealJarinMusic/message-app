@@ -19,6 +19,7 @@ import {
   ChannelCategory,
   ChannelCategoryUpdate,
   ChannelUpdate,
+  NavigationView,
 } from '@common/types';
 import { ButtonModule } from 'primeng/button';
 import { ListboxModule } from 'primeng/listbox';
@@ -35,10 +36,11 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ChannelEditService } from 'src/app/features/channel/services/channel-edit/channel-edit.service';
 import { TextareaModule } from 'primeng/textarea';
 import { DividerModule } from 'primeng/divider';
-import { CommonModule, NgClass } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { ChannelCategoryEditService } from 'src/app/features/category/services/channel-category-edit/channel-category-edit.service';
 import { ChannelService } from '../../services/channel/channel.service';
 import { ChannelCategoryService } from 'src/app/features/category/services/channel-category/channel-category.service';
+import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
 
 @Component({
   selector: 'app-channel-list',
@@ -68,6 +70,8 @@ export class ChannelListComponent implements OnDestroy, OnInit {
   private categoryService = inject(ChannelCategoryService);
   private categoryEditService = inject(ChannelCategoryEditService);
   private formBuilder = inject(FormBuilder);
+
+  protected NavigationView: typeof NavigationView = NavigationView;
 
   //Channel button context menu
   @ViewChild('channelContextMenu') channelContextMenu!: ContextMenu;

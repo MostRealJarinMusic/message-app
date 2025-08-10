@@ -68,10 +68,6 @@ export class ServerListComponent implements OnInit, OnDestroy {
   protected currentServer = this.serverService.currentServer;
   protected contextMenuServer: Server | null = null;
 
-  selectServer(id: string) {
-    this.serverService.selectServer(id);
-  }
-
   ngOnInit(): void {
     this.initContextMenu();
   }

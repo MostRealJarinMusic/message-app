@@ -1,4 +1,4 @@
-import { Component, effect, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ChannelListComponent } from '../../features/channel/components/channel-list/channel-list.component';
 import { ServerService } from 'src/app/features/server/services/server/server.service';
 import { DividerModule } from 'primeng/divider';
@@ -9,6 +9,11 @@ import { ServerTitleBarComponent } from '../../features/server/components/server
 import { DynamicDialogModule } from 'primeng/dynamicdialog';
 import { ServerListComponent } from 'src/app/features/server/components/server-list/server-list.component';
 import { UserListComponent } from 'src/app/features/user/components/user-list/user-list.component';
+import { FriendService } from 'src/app/features/friend/services/friend/friend.service';
+import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
+import { NavigationView } from '@common/types';
+import { FriendsTitleBarComponent } from 'src/app/features/friend/components/friends-title-bar/friends-title-bar.component';
+import { DMsListComponent } from 'src/app/features/dms/components/dms-list/dms-list.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -21,6 +26,8 @@ import { UserListComponent } from 'src/app/features/user/components/user-list/us
     UserListComponent,
     ChannelTitleBarComponent,
     ServerTitleBarComponent,
+    FriendsTitleBarComponent,
+    DMsListComponent,
     DynamicDialogModule,
   ],
   templateUrl: './dashboard.component.html',
@@ -28,9 +35,16 @@ import { UserListComponent } from 'src/app/features/user/components/user-list/us
 })
 export class DashboardComponent {
   private serverService = inject(ServerService);
+  private friendService = inject(FriendService);
+  protected navService = inject(NavigationService);
+
+  protected NavigationView: typeof NavigationView = NavigationView;
 
   constructor() {
-    //Load the server
+    //Load servers
     this.serverService.loadServers();
+
+    //Load friends
+    this.friendService.loadFriends();
   }
 }
