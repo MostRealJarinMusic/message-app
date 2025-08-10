@@ -56,9 +56,19 @@
       Pending - {{ incomingRequests().length }}
     </h1>
   } @else if (navService.isActive('add-friend')()) {
-    <div class="self-start flex flex-col items-start">
-      <h1 class="text-md text-muted-color-emphasis">Add Friend</h1>
+    <div class="self-start w-full flex flex-col items-start space-y-2">
+      <h1 class="text-md font-semibold text-muted-color-emphasis">Add Friend</h1>
       <p class="text-sm text-muted-color-emphasis">You can add friends with their usernames.</p>
+
+      <form class="w-full" [formGroup]="friendRequestForm" (submit)="sendFriendRequest()">
+        <textarea
+          pTextarea
+          formControlName="username"
+          rows="1"
+          class="w-full !py-4 !pl-8 !text-sm !bg-surface-700 rounded-lg border !border-surface-600 !focus:outline-none !focus:ring-2 !focus:ring-primary"
+          placeholder="Enter username"
+          style="resize: none; overflow-y: none"></textarea>
+      </form>
     </div>
   }
 </div>
