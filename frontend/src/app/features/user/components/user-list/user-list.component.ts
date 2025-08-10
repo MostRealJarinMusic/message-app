@@ -13,7 +13,7 @@ import { UserService } from 'src/app/features/user/services/user/user.service';
   styleUrl: './user-list.component.scss',
 })
 export class UserListComponent {
-  private presenceService = inject(PresenceService);
+  protected presenceService = inject(PresenceService);
   protected userService = inject(UserService);
 
   protected serverUsers = this.userService.serverUsers;
@@ -27,12 +27,4 @@ export class UserListComponent {
       return { id: user.id, status: this.presenceService.getStatus(user.id)! };
     });
   });
-
-  protected getAvatarStyle(status: PresenceStatus) {
-    return {
-      'background-color':
-        status === PresenceStatus.ONLINE ? '#10B981' : '#6B7280',
-      color: '#ffffff',
-    };
-  }
 }

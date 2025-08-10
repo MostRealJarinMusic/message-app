@@ -1,1 +1,64 @@
-<p>friends-list works!</p>
+<div class="flex flex-col items-center w-full h-full p-4 px-4 gap-y-4">
+  @if (!navService.isActive('add-friend')()) {
+    <p-iconfield class="w-full">
+      <p-inputicon styleClass="pi pi-search" />
+      <input
+        type="text"
+        class="!w-full !text-sm !bg-surface-700 rounded-lg border !border-surface-600 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-200"
+        pInputText
+        placeholder="Search" />
+    </p-iconfield>
+  }
+
+  @if (navService.isActive('all')()) {
+    <div class="flex flex-col w-full gap-y-4">
+      <h1 class="self-start text-sm text-muted-color-emphasis">
+        All friends - {{ friends().length }}
+      </h1>
+      @for (entry of friends(); track $index) {
+        <li
+          [ngClass]="{
+            'pl-3 py-2 mb-1 list-none rounded-border cursor-pointer transition-colors duration-200 hover:bg-surface-700 flex items-center gap-x-3 ': true,
+          }">
+          <p-avatar
+            icon="pi pi-user"
+            [style]="presenceService.getAvatarStyle(entry.status)"
+            shape="circle" />
+
+          <p class="">{{ userService.getUsername(entry.id) }}</p>
+        </li>
+      }
+    </div>
+  } @else if (navService.isActive('online')()) {
+    <div class="flex flex-col w-full gap-y-4">
+      <h1 class="self-start text-sm text-muted-color-emphasis">Online - {{ friends().length }}</h1>
+
+      @for (entry of onlineFriends(); track $index) {
+        <li
+          [ngClass]="{
+            'pl-3 py-2 mb-1 list-none rounded-border cursor-pointer transition-colors duration-200 hover:bg-surface-700 flex items-center gap-x-3 ': true,
+          }">
+          <p-avatar
+            icon="pi pi-user"
+            [style]="presenceService.getAvatarStyle(entry.status)"
+            shape="circle" />
+
+          <p class="">{{ userService.getUsername(entry.id) }}</p>
+        </li>
+      }
+    </div>
+  } @else if (navService.isActive('incoming')()) {
+    <h1 class="self-start text-sm text-muted-color-emphasis">
+      Received - {{ incomingRequests().length }}
+    </h1>
+  } @else if (navService.isActive('outgoing')()) {
+    <h1 class="self-start text-sm text-muted-color-emphasis">
+      Pending - {{ incomingRequests().length }}
+    </h1>
+  } @else if (navService.isActive('add-friend')()) {
+    <div class="self-start flex flex-col items-start">
+      <h1 class="text-md text-muted-color-emphasis">Add Friend</h1>
+      <p class="text-sm text-muted-color-emphasis">You can add friends with their usernames.</p>
+    </div>
+  }
+</div>

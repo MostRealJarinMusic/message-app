@@ -1,32 +1,11 @@
 <div class="flex items-center w-full h-full p-2 px-4 gap-x-10">
-  <h1 class="ml-10 text-lg font-medium text-muted-color-emphasis align-middle">
-    Friends
-  </h1>
+  <h1 class="ml-10 text-lg font-medium text-muted-color-emphasis align-middle">Friends</h1>
 
   <div class="flex items-center gap-x-2">
-    <p-button
-      label="Online"
-      severity="secondary"
-      (onClick)="navService.navigate('online')"
-    />
-    <p-button
-      label="All"
-      severity="secondary"
-      (onClick)="navService.navigate('all')"
-    />
-    <p-button
-      label="Incoming"
-      severity="secondary"
-      (onClick)="navService.navigate('incoming')"
-    />
-    <p-button
-      label="Outgoing"
-      severity="secondary"
-      (onClick)="navService.navigate('outgoing')"
-    />
-    <p-button
-      label="Add Friend"
-      (onClick)="navService.navigate('add-friend')"
-    />
+    <p-button label="Online" severity="secondary" (onClick)="navService.navigate('online')" />
+    <p-button label="All" severity="secondary" (onClick)="navService.navigate('all')" />
+    <p-button label="Incoming" severity="secondary" (onClick)="navService.navigate('incoming')" />
+    <p-button label="Outgoing" severity="secondary" (onClick)="navService.navigate('outgoing')" />
+    <p-button label="Add Friend" (onClick)="navService.navigate('add-friend')" />
   </div>
 </div>
