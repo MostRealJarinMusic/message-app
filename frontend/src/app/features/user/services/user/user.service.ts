@@ -48,6 +48,10 @@ export class UserService {
     return this.userCache.get(userId)!.username || 'Unknown User';
   }
 
+  getUser(userId: string) {
+    return this.userCache.get(userId) || undefined;
+  }
+
   public loadServerUsers(serverId: string): void {
     this.apiService.getServerUsers(serverId).subscribe({
       next: (users) => {

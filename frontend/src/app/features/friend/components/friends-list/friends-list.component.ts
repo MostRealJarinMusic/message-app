@@ -49,4 +49,6 @@ export class FriendsListComponent {
   });
   protected incomingRequests = this.friendRequestService.incomingFriendRequests;
   protected outgoingRequests = this.friendRequestService.outgoingFriendRequests;
+
+  
 }
