@@ -53,7 +53,7 @@
     </h1>
   } @else if (navService.isActive('outgoing')()) {
     <h1 class="self-start text-sm text-muted-color-emphasis">
-      Pending - {{ incomingRequests().length }}
+      Pending - {{ outgoingRequests().length }}
     </h1>
   } @else if (navService.isActive('add-friend')()) {
     <div class="self-start w-full flex flex-col items-start space-y-2">
@@ -69,6 +69,8 @@
           placeholder="Enter username"
           style="resize: none; overflow-y: none"></textarea>
       </form>
+
+      <p-button label="Send Request" (onClick)="sendFriendRequest()" />
     </div>
   }
 </div>

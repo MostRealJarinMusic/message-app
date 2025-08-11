@@ -155,14 +155,7 @@ export enum WSEventType {
   PRESENCE = "presence:update",
 
   FRIEND_REQUEST_SENT = "friend:request:sent",
-  // FRIEND_REQUEST_ACCEPTED = "friend:request:accepted", //Request accepted by receiver
-  // FRIEND_REQUEST_CANCELLED = "friend:request:cancelled", //Request cancelled by sender
-  // FRIEND_REQUEST_REJECTED = "friend:request:rejected", //Request rejected by receiver
-
   FRIEND_REQUEST_RECEIVE = "friend:request:receive", //Request sent to receiver by sender
-  // FRIEND_REQUEST_ACCEPT = "friend:request:accept",
-  // FRIEND_REQUEST_CANCEL = "friend:request:cancel", //Request sent to receiver by sender
-  // FRIEND_REQUEST_REJECT = "friend:request:reject",
   FRIEND_REQUEST_UPDATE = "friend:request:update",
   FRIEND_REQUEST_DELETE = "friend:request:delete",
 
@@ -247,7 +240,7 @@ export enum FriendRequestStatus {
 }
 
 export interface FriendRequestCreate {
-  targetId: string;
+  targetUsername: string;
 }
 
 export interface FriendRequestUpdate {

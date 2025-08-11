@@ -62,9 +62,8 @@ export class FriendsListComponent {
 
 
   protected sendFriendRequest() {
-    if (this.friendRequestForm.valid) {
-      //Check if username exists
-      
+    if (this.friendRequestForm.valid && this.friendRequestForm.value.username) {
+      this.friendRequestService.sendFriendRequest(this.friendRequestForm.value.username)
     }
   }
 

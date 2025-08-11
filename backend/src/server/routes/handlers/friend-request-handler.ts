@@ -11,6 +11,7 @@ import { Response } from "express";
 import { WebSocketManager } from "../../ws/websocket-manager";
 import { SignedRequest } from "../../../types/types";
 import { ulid } from "ulid";
+import { UserRepo } from "../../../db/repos/user.repo";
 
 export class FriendRequestHandler {
   static async sendFriendRequest(
@@ -22,16 +23,31 @@ export class FriendRequestHandler {
       const userId = req.signature.id;
       const newRequestData = req.body as FriendRequestCreate;
 
-      //Check if both users exist???
-      if (!newRequestData || newRequestData.targetId !== userId) {
+      if (!newRequestData) {
         res.status(400).json({ error: "Friend request data required" });
+        return;
+      }
+
+      const targetUser = await UserRepo.getUserByUsername(
+        newRequestData.targetUsername
+      );
+
+      if (!targetUser) {
+        res.status(404).json({
+          error: `User with username ${newRequestData.targetUsername} doesn't exist`,
+        });
+        return;
+      }
+
+      if (targetUser.id === userId) {
+        res.status(404).json({ error: "Cannot friend yourself" });
         return;
       }
 
       const friendRequest: FriendRequest = {
         id: ulid(),
         senderId: userId,
-        receiverId: newRequestData.targetId,
+        receiverId: targetUser.id,
         status: FriendRequestStatus.PENDING,
         createdAt: new Date().toISOString(),
       };
@@ -66,7 +82,8 @@ export class FriendRequestHandler {
         userId
       );
       const incomingRequests = allRequests.filter(
-        (i) => i.receiverId === userId
+        (i) =>
+          i.receiverId === userId && i.status === FriendRequestStatus.PENDING
       );
 
       res.json(incomingRequests);
@@ -84,7 +101,9 @@ export class FriendRequestHandler {
       const allRequests = await FriendRequestRepo.getFriendRequestsForUser(
         userId
       );
-      const outgoingRequests = allRequests.filter((o) => o.senderId === userId);
+      const outgoingRequests = allRequests.filter(
+        (o) => o.senderId === userId && o.status === FriendRequestStatus.PENDING
+      );
 
       res.json(outgoingRequests);
     } catch (err) {
