@@ -15,20 +15,10 @@ import { UserService } from 'src/app/features/user/services/user/user.service';
   providedIn: 'root',
 })
 export class FriendRequestService {
-  private apiService = inject(PrivateApiService);
+    private apiService = inject(PrivateApiService);
   private wsService = inject(SocketService);
   private userService = inject(UserService);
   private navService = inject(NavigationService);
-
-  // readonly friendRequests = signal<FriendRequest[]>([]);
-  // readonly incomingFriendRequests = computed(() => {
-  //   const userId = this.userService.currentUser()!.id;
-  //   return this.friendRequests().filter((r) => r.receiverId === userId) ?? [];
-  // });
-  // readonly outgoingFriendRequests = computed(() => {
-  //   const userId = this.userService.currentUser()!.id;
-  //   return this.friendRequests().filter((r) => r.senderId === userId) ?? [];
-  // });
 
   readonly incomingFriendRequests = signal<FriendRequest[]>([]);
   readonly outgoingFriendRequests = signal<FriendRequest[]>([]);
@@ -38,8 +28,6 @@ export class FriendRequestService {
   constructor() {
     this.initWebSocket();
     this.loadFriendRequests();
-  
-
   }
 
   private loadFriendRequests() {
@@ -76,29 +64,36 @@ export class FriendRequestService {
       .subscribe((request) => {
         const userId = this.userService.currentUser()!.id;
 
-        // if (this.friendRequests().some((r) => r.id === request.id)) {
-        //   //Friend request is valid - either incoming or outgoing
-        //   if (userId === request.senderId) {
-        //     //My friend request to another user has been updated
-        //     if (request.status === FriendRequestStatus.ACCEPTED) {
-        //       //Accepted toast here
-        //       console.log(
-        //         `Friend request to user ${request.receiverId} accepted`
-        //       );
-        //     } else {
-        //       console.log(
-        //         `Friend request to user ${request.receiverId} rejected`
-        //       );
-        //     }
-        //   }
+        if (userId === request.senderId) {
+          //My friend request to another user has been updated
+          if (request.status === FriendRequestStatus.ACCEPTED) {
+            //Accepted toast here
+            console.log(
+              `Friend request to user ${request.receiverId} accepted`
+            );
+          } else {
+            console.log(
+              `Friend request to user ${request.receiverId} rejected`
+            );
+          }
 
-        //   removeRequest(request);
-        // }
+          removeRequest(request, this.incomingFriendRequests);
+        } else {
+          removeRequest(request, this.outgoingFriendRequests);
+        }
       });
 
-    // this.wsService
-    //   .on(WSEventType.FRIEND_REQUEST_DELETE)
-    //   .subscribe(r => removeRequest);
+    this.wsService
+      .on(WSEventType.FRIEND_REQUEST_DELETE)
+      .subscribe((request) => {
+        const userId = this.userService.currentUser()!.id;
+
+        if (userId === request.senderId) {
+          removeRequest(request, this.incomingFriendRequests);
+        } else {
+          removeRequest(request, this.outgoingFriendRequests);
+        }
+      });
   }
 
   public sendFriendRequest(targetUsername: string) {

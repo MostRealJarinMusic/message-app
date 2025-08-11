@@ -65,7 +65,5 @@ export class FriendsListComponent {
     if (this.friendRequestForm.valid && this.friendRequestForm.value.username) {
       this.friendRequestService.sendFriendRequest(this.friendRequestForm.value.username)
     }
-  }
-
-  
+  }  
 }
