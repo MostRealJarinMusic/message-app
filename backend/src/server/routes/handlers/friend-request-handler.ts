@@ -44,6 +44,16 @@ export class FriendRequestHandler {
         return;
       }
 
+      const existingRequest = await FriendRequestRepo.requestExistsByUserIds(
+        userId,
+        targetUser.id
+      );
+
+      if (existingRequest) {
+        res.status(409).json({ error: "Friend request already exists" });
+        return;
+      }
+
       const friendRequest: FriendRequest = {
         id: ulid(),
         senderId: userId,

@@ -95,6 +95,26 @@ export class FriendRequestRepo {
     });
   }
 
+  static async requestExistsByUserIds(
+    senderId: string,
+    receiverId: string
+  ): Promise<boolean> {
+    const db = await getDB();
+
+    return new Promise((resolve, reject) => {
+      db.get(
+        `SELECT 1 FROM friend_requests WHERE (senderId = ? AND receiverId = ?) OR (senderId = ? AND receiverId = ?) LIMIT 1`,
+        [senderId, receiverId, receiverId, senderId],
+        (err, row) => {
+          if (err) return reject(err);
+          console.log(row);
+
+          resolve(!!row);
+        }
+      );
+    });
+  }
+
   static async deleteFriendRequest(id: string): Promise<void> {
     const db = await getDB();
 
