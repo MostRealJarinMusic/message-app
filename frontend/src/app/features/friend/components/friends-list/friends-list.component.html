@@ -48,23 +48,35 @@
       }
     </div>
   } @else if (navService.isActive('incoming')()) {
-    <h1 class="self-start text-sm text-muted-color-emphasis">
-      Received - {{ incomingRequests().length }}
-    </h1>
-  } @else if (navService.isActive('outgoing')()) {
-    <h1 class="self-start text-sm text-muted-color-emphasis">
-      Pending - {{ outgoingRequests().length }}
-    </h1>
-    @for (request of outgoingRequests(); track $index) {
-      <li
-        [ngClass]="{
-          'pl-3 py-2 mb-1 list-none rounded-border cursor-pointer transition-colors duration-200 hover:bg-surface-700 flex items-center gap-x-3 ': true,
-        }">
-        <p-avatar icon="pi pi-user" shape="circle" />
+    <div class="self-start items-start w-full space-y-4">
+      <h1 class="text-sm text-muted-color-emphasis">Received - {{ incomingRequests().length }}</h1>
 
-        <p class="">{{ request.id }}</p>
-      </li>
-    }
+      @for (request of incomingRequests(); track $index) {
+        <li
+          [ngClass]="{
+            'w-full pl-3 py-2 mb-1 list-none rounded-border cursor-pointer transition-colors duration-200 hover:bg-surface-700 flex items-center gap-x-3 ': true,
+          }">
+          <p-avatar icon="pi pi-user" shape="circle" />
+
+          <p class="">{{ userService.getUsername(request.senderId) }}</p>
+        </li>
+      }
+    </div>
+  } @else if (navService.isActive('outgoing')()) {
+    <div class="self-start items-start w-full space-y-4">
+      <h1 class="text-sm text-muted-color-emphasis">Pending - {{ outgoingRequests().length }}</h1>
+
+      @for (request of outgoingRequests(); track $index) {
+        <li
+          [ngClass]="{
+            'w-full pl-3 py-2 mb-1 list-none rounded-border cursor-pointer transition-colors duration-200 hover:bg-surface-700 flex items-center gap-x-3 ': true,
+          }">
+          <p-avatar icon="pi pi-user" shape="circle" />
+
+          <p class="">{{ userService.getUsername(request.receiverId) }}</p>
+        </li>
+      }
+    </div>
   } @else if (navService.isActive('add-friend')()) {
     <div class="self-start w-full flex flex-col items-start space-y-2">
       <h1 class="text-md font-semibold text-muted-color-emphasis">Add Friend</h1>
