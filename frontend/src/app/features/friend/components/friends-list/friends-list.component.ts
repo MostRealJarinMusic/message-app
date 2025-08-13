@@ -8,7 +8,7 @@ import { IconField } from 'primeng/iconfield';
 import { InputTextModule } from 'primeng/inputtext';
 import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
 import { PresenceService } from 'src/app/features/user/services/presence/presence.service';
-import { PresenceStatus } from '@common/types';
+import { FriendRequestStatus, PresenceStatus } from '@common/types';
 import { CommonModule } from '@angular/common';
 import { AvatarModule } from 'primeng/avatar';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -66,4 +66,16 @@ export class FriendsListComponent {
       this.friendRequestService.sendFriendRequest(this.friendRequestForm.value.username)
     }
   }  
+
+  protected acceptFriendRequest(requestId: string) {
+    this.friendRequestService.updateFriendRequest(requestId, FriendRequestStatus.ACCEPTED);
+  }
+
+  protected rejectFriendRequest(requestId: string) {
+    this.friendRequestService.updateFriendRequest(requestId, FriendRequestStatus.REJECTED);
+  }
+
+  protected cancelFriendRequest(requestId: string) {
+    this.friendRequestService.cancelFriendRequest(requestId);
+  }
 }

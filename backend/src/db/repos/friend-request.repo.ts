@@ -63,7 +63,7 @@ export class FriendRequestRepo {
           if (err) return reject(err);
           if (!row)
             return reject(
-              new Error(`Friend request with senderId ${id} not found`)
+              new Error(`Friend request with requestId ${id} not found`)
             );
 
           const friendRequest: FriendRequest = {
@@ -107,8 +107,6 @@ export class FriendRequestRepo {
         [senderId, receiverId, receiverId, senderId],
         (err, row) => {
           if (err) return reject(err);
-          console.log(row);
-
           resolve(!!row);
         }
       );

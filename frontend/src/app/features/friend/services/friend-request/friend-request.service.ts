@@ -86,12 +86,14 @@ export class FriendRequestService {
     this.wsService
       .on(WSEventType.FRIEND_REQUEST_DELETE)
       .subscribe((request) => {
+        console.log('Friend request delete triggered')
+
         const userId = this.userService.currentUser()!.id;
 
         if (userId === request.senderId) {
-          removeRequest(request, this.incomingFriendRequests);
-        } else {
           removeRequest(request, this.outgoingFriendRequests);
+        } else {
+          removeRequest(request, this.incomingFriendRequests);
         }
       });
   }
@@ -135,7 +137,7 @@ export class FriendRequestService {
   public cancelFriendRequest(requestId: string) {
     this.apiService.cancelFriendRequest(requestId).subscribe({
       next: () => {
-        console.log('Successful friend request deleton');
+        console.log('Successful friend request deletion');
       },
       error: (err) => {
         console.log('Unsuccessful friend request deletion', err);

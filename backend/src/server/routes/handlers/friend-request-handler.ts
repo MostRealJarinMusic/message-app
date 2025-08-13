@@ -233,6 +233,7 @@ export class FriendRequestHandler {
 
       res.status(204).send();
     } catch (err) {
+      console.log(err);
       res.status(500).json({ error: "Failed to delete friend request" });
     }
   }

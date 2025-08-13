@@ -181,7 +181,7 @@ export class PrivateApiService extends BaseApiService {
 
   //#endregion
 
-  //#region Friend Requests
+  //#region Friend Requests CRUD
   sendFriendRequest(
     newFriendRequest: FriendRequestCreate
   ): Observable<FriendRequest> {
