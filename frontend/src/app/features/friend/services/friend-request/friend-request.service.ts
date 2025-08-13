@@ -77,9 +77,9 @@ export class FriendRequestService {
             );
           }
 
-          removeRequest(request, this.incomingFriendRequests);
-        } else {
           removeRequest(request, this.outgoingFriendRequests);
+        } else {
+          removeRequest(request, this.incomingFriendRequests);
         }
       });
 
