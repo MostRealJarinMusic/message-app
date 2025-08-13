@@ -65,6 +65,13 @@
             <button
               pButton
               pRipple
+              icon="pi pi-check"
+              class="p-button-rounded p-button-text"
+              (click)="acceptFriendRequest(request.id)"></button>
+
+            <button
+              pButton
+              pRipple
               icon="pi pi-times"
               class="p-button-rounded p-button-text"
               (click)="rejectFriendRequest(request.id)"></button>
