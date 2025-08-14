@@ -14,4 +14,8 @@ export class FriendHandler {
       res.status(500).json({ error: "Failed to fetch friends" });
     }
   }
+
+  static async blockFriend(req: SignedRequest, res: Response) {}
+
+  static async removeFriend(req: SignedRequest, res: Response) {}
 }

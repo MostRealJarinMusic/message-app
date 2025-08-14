@@ -57,6 +57,8 @@ export class UserService {
       next: (users) => {
         users.forEach((user) => this.userCache.set(user.id, user));
         this.serverUsers.set(users);
+
+        console.log(users)
       },
       error: (err) => {
         console.error('Error loading server users', err);

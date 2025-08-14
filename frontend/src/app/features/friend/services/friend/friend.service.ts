@@ -28,7 +28,7 @@ export class FriendService {
       next: (friendIds) => {
         this.friends.set(friendIds);
 
-        console.log('Friends: ', this.friends());
+        //console.log('Friends: ', this.friends());
       },
     });
   }

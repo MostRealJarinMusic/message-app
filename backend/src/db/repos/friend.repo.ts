@@ -20,7 +20,7 @@ export class FriendRepo {
             return reject(err);
           }
 
-          const friendIds: string[] = rows.map((row: any) => row);
+          const friendIds: string[] = rows.map((row: any) => row.friendId);
 
           resolve(friendIds);
         }
