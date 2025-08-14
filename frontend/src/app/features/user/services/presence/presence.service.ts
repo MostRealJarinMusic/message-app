@@ -42,8 +42,8 @@ export class PresenceService {
     this.presenceMap.set(map);
   }
 
-  public getStatus(userId: string): PresenceStatus | undefined {
-    return this.presenceMap().get(userId);
+  public getStatus(userId: string): PresenceStatus {
+    return this.presenceMap().get(userId) ?? PresenceStatus.OFFLINE;
   }
 
   private loadServerUserPresences(serverId: string) {
@@ -56,5 +56,13 @@ export class PresenceService {
         console.error('Error with initial server presence payload', err);
       },
     });
+  }
+
+  getAvatarStyle(status: PresenceStatus) {
+    return {
+      'background-color':
+        status === PresenceStatus.ONLINE ? '#10B981' : '#6B7280',
+      color: '#ffffff',
+    };
   }
 }

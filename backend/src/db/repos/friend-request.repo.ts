@@ -63,7 +63,7 @@ export class FriendRequestRepo {
           if (err) return reject(err);
           if (!row)
             return reject(
-              new Error(`Friend request with senderId ${id} not found`)
+              new Error(`Friend request with requestId ${id} not found`)
             );
 
           const friendRequest: FriendRequest = {
@@ -87,6 +87,24 @@ export class FriendRequestRepo {
       db.get(
         `SELECT 1 FROM friend_requests WHERE id = ? LIMIT 1`,
         [id],
+        (err, row) => {
+          if (err) return reject(err);
+          resolve(!!row);
+        }
+      );
+    });
+  }
+
+  static async requestExistsByUserIds(
+    senderId: string,
+    receiverId: string
+  ): Promise<boolean> {
+    const db = await getDB();
+
+    return new Promise((resolve, reject) => {
+      db.get(
+        `SELECT 1 FROM friend_requests WHERE (senderId = ? AND receiverId = ?) OR (senderId = ? AND receiverId = ?) LIMIT 1`,
+        [senderId, receiverId, receiverId, senderId],
         (err, row) => {
           if (err) return reject(err);
           resolve(!!row);

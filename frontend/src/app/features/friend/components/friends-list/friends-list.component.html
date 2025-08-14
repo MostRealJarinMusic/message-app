@@ -1,1 +1,125 @@
-<p>friends-list works!</p>
+<div class="flex flex-col items-center w-full h-full p-4 px-4 gap-y-4">
+  @if (!navService.isActive('add-friend')()) {
+    <p-iconfield class="w-full">
+      <p-inputicon styleClass="pi pi-search" />
+      <input
+        type="text"
+        class="!w-full !text-sm !bg-surface-700 rounded-lg border !border-surface-600 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-200"
+        pInputText
+        placeholder="Search" />
+    </p-iconfield>
+  }
+
+  @if (navService.isActive('all')()) {
+    <div class="flex flex-col w-full gap-y-4">
+      <h1 class="self-start text-sm text-muted-color-emphasis">
+        All friends - {{ friends().length }}
+      </h1>
+      @for (entry of friends(); track $index) {
+        <li
+          [ngClass]="{
+            'pl-3 py-2 mb-1 list-none rounded-border cursor-pointer transition-colors duration-200 hover:bg-surface-700 flex items-center gap-x-3 ': true,
+          }">
+          <p-avatar
+            icon="pi pi-user"
+            [style]="presenceService.getAvatarStyle(entry.status)"
+            shape="circle" />
+
+          <p class="">{{ userService.getUsername(entry.id) }}</p>
+        </li>
+      }
+    </div>
+  } @else if (navService.isActive('online')()) {
+    <div class="flex flex-col w-full gap-y-4">
+      <h1 class="self-start text-sm text-muted-color-emphasis">
+        Online - {{ onlineFriends().length }}
+      </h1>
+
+      @for (entry of onlineFriends(); track $index) {
+        <li
+          [ngClass]="{
+            'pl-3 py-2 mb-1 list-none rounded-border cursor-pointer transition-colors duration-200 hover:bg-surface-700 flex items-center gap-x-3 ': true,
+          }">
+          <p-avatar
+            icon="pi pi-user"
+            [style]="presenceService.getAvatarStyle(entry.status)"
+            shape="circle" />
+
+          <p class="">{{ userService.getUsername(entry.id) }}</p>
+        </li>
+      }
+    </div>
+  } @else if (navService.isActive('incoming')()) {
+    <div class="self-start items-start w-full space-y-4">
+      <h1 class="text-sm text-muted-color-emphasis">Received - {{ incomingRequests().length }}</h1>
+
+      @for (request of incomingRequests(); track $index) {
+        <li
+          [ngClass]="{
+            'w-full px-3 py-2 mb-1 list-none rounded-border cursor-pointer transition-colors duration-200 hover:bg-surface-700 flex items-center justify-between': true,
+          }">
+          <div class="flex items-center gap-x-4">
+            <p-avatar icon="pi pi-user" shape="circle" />
+            <p class="">{{ userService.getUsername(request.senderId) }}</p>
+          </div>
+
+          <div class="flex items-center gap-x-4">
+            <button
+              pButton
+              pRipple
+              icon="pi pi-check"
+              class="p-button-rounded p-button-text"
+              (click)="acceptFriendRequest(request.id)"></button>
+
+            <button
+              pButton
+              pRipple
+              icon="pi pi-times"
+              class="p-button-rounded p-button-text"
+              (click)="rejectFriendRequest(request.id)"></button>
+          </div>
+        </li>
+      }
+    </div>
+  } @else if (navService.isActive('outgoing')()) {
+    <div class="self-start items-start w-full space-y-4">
+      <h1 class="text-sm text-muted-color-emphasis">Pending - {{ outgoingRequests().length }}</h1>
+
+      @for (request of outgoingRequests(); track $index) {
+        <li
+          [ngClass]="{
+            'w-full px-3 py-2 mb-1 list-none rounded-border cursor-pointer transition-colors duration-200 hover:bg-surface-700 flex items-center justify-between ': true,
+          }">
+          <div class="flex items-center gap-x-4">
+            <p-avatar icon="pi pi-user" shape="circle" />
+            <p class="">{{ userService.getUsername(request.receiverId) }}</p>
+          </div>
+
+          <button
+            pButton
+            pRipple
+            icon="pi pi-times"
+            class="p-button-rounded p-button-text"
+            (click)="cancelFriendRequest(request.id)"></button>
+        </li>
+      }
+    </div>
+  } @else if (navService.isActive('add-friend')()) {
+    <div class="self-start w-full flex flex-col items-start space-y-2">
+      <h1 class="text-md font-semibold text-muted-color-emphasis">Add Friend</h1>
+      <p class="text-sm text-muted-color-emphasis">You can add friends with their usernames.</p>
+
+      <form class="w-full" [formGroup]="friendRequestForm" (submit)="sendFriendRequest()">
+        <textarea
+          pTextarea
+          formControlName="username"
+          rows="1"
+          class="w-full !py-4 !pl-8 !text-sm !bg-surface-700 rounded-lg border !border-surface-600 !focus:outline-none !focus:ring-2 !focus:ring-primary"
+          placeholder="Enter username"
+          style="resize: none; overflow-y: none"></textarea>
+      </form>
+
+      <p-button label="Send Request" (onClick)="sendFriendRequest()" />
+    </div>
+  }
+</div>

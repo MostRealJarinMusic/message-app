@@ -49,13 +49,17 @@ export default function friendRequestRoutes(
     }
   );
 
-  // friendRequestRoutes.post(
-  //   "/:receiverId/cancel",
-  //   authMiddleware,
-  //   async (req: Request, res: Response) => {
-  //     FriendRequestHandler.cancelRequest(req as SignedRequest, res, wsManager);
-  //   }
-  // );
+  friendRequestRoutes.delete(
+    "/:requestId",
+    authMiddleware,
+    async (req: Request, res: Response) => {
+      FriendRequestHandler.deleteFriendRequest(
+        req as SignedRequest,
+        res,
+        wsManager
+      );
+    }
+  );
 
   return friendRequestRoutes;
 }

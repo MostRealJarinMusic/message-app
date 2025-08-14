@@ -48,11 +48,17 @@ export class UserService {
     return this.userCache.get(userId)!.username || 'Unknown User';
   }
 
+  getUser(userId: string) {
+    return this.userCache.get(userId) || undefined;
+  }
+
   public loadServerUsers(serverId: string): void {
     this.apiService.getServerUsers(serverId).subscribe({
       next: (users) => {
         users.forEach((user) => this.userCache.set(user.id, user));
         this.serverUsers.set(users);
+
+        console.log(users)
       },
       error: (err) => {
         console.error('Error loading server users', err);

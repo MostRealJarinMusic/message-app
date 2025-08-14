@@ -6,7 +6,7 @@ import { NavigationService } from 'src/app/core/services/navigation/navigation.s
 
 @Component({
   selector: 'app-friends-title-bar',
-  imports: [ButtonModule, IconField, CommonModule],
+  imports: [ButtonModule, CommonModule],
   templateUrl: './friends-title-bar.component.html',
   styleUrl: './friends-title-bar.component.scss',
 })

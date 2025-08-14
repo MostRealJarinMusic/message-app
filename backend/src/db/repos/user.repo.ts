@@ -87,6 +87,29 @@ export class UserRepo {
     });
   }
 
+  static async getUserByUsername(username: string): Promise<User | null> {
+    const db = await getDB();
+
+    return new Promise((resolve, reject) => {
+      db.get(
+        `SELECT id, username, email FROM users WHERE username = ?`,
+        [username],
+        (err, row: any) => {
+          if (err) return reject(err);
+          if (!row) return resolve(null);
+
+          const user: User = {
+            id: row.id.toString(),
+            username: row.username,
+            email: row.email,
+          };
+
+          resolve(user);
+        }
+      );
+    });
+  }
+
   static async userExists(id: string): Promise<boolean> {
     const db = await getDB();
 

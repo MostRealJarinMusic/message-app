@@ -1,84 +1,54 @@
-<!-- <div class="flex h-screen bg-surface-900">
-  <app-server-list class="w-32 p-2 overflow-y-auto"></app-server-list>
-  <p-divider layout="vertical" styleClass="!mx-0" />
-
-  <div class="w-72 flex-col">
-    <app-server-title-bar></app-server-title-bar>
-
-    <p-divider layout="horizontal" styleClass="!my-0"></p-divider>
-    <app-channel-list
-      class="flex flex-col flex-1 m-2 overflow-y-auto"
-    ></app-channel-list>
-  </div>
-
-  <div class="flex flex-col flex-1 bg-surface-800">
-    <app-channel-title-bar></app-channel-title-bar>
-
-    <p-divider layout="horizontal" styleClass="!my-0"></p-divider>
-
-    <div class="flex flex-1 overflow-hidden">
-      <div class="flex flex-col flex-1">
-        <app-message-list class="flex-1 overflow-hidden"></app-message-list>
-        <app-message-input class="pb-4 px-4"></app-message-input>
-      </div>
-
-      <p-divider layout="vertical" styleClass="!mx-0" />
-
-      <div class="w-56 p-2 overflow-y-auto">
-        <app-user-list></app-user-list>
-      </div>
-    </div>
-  </div>
-</div> -->
+@let serversViewActive = navService.isActive('servers');
+@let friendsViewActive = navService.isActive('friends');
+@let directChatViewActive = navService.isActive('direct-message-chat');
+@let directMessagesViewActive = navService.isActive('direct-messages');
 
 <div class="grid h-screen bg-surface-900 grid-cols-layout grid-rows-layout">
   <app-server-list class="row-span-3 p-2 overflow-y-auto"></app-server-list>
 
-  <p-divider
-    class="row-span-3 col-start-2 row-start-1 !mx-0"
-    layout="vertical"
-  />
+  <p-divider class="row-span-3 !mx-0" layout="vertical" />
 
   <app-server-title-bar class="col-start-3 row-start-1"></app-server-title-bar>
 
   <p-divider
     layout="horizontal"
     class="col-span-4 col-start-3 row-start-2"
-    styleClass="!my-0"
-  ></p-divider>
+    styleClass="!my-0"></p-divider>
 
   <div class="col-start-3 row-start-3 m-2">
-    @if (navService.isActive('servers')()) {
-    <app-channel-list class="overflow-y-auto"></app-channel-list>
-    } @else if (navService.isActive('direct-messages')()) {
-    <app-dms-list class="overflow-hidden"></app-dms-list>
+    @if (serversViewActive()) {
+      <app-channel-list class="overflow-y-auto"></app-channel-list>
+    } @else if (directMessagesViewActive()) {
+      <app-dms-list class="overflow-hidden"></app-dms-list>
     }
   </div>
 
   <div class="col-span-3 col-start-4 row-start-1 bg-surface-800">
-    @if (navService.isActive('servers')() ||
-    navService.isActive('direct-message-chat')()) {
-    <app-channel-title-bar />
+    @if (serversViewActive() || directChatViewActive()) {
+      <app-channel-title-bar />
     } @else if (navService.isActive('friends')()) {
-    <app-friends-title-bar />
+      <app-friends-title-bar />
     }
   </div>
 
   <!-- Messages + Input + Users (Row 2) -->
-  <div class="col-start-4 row-start-3 bg-surface-800">
-    @if (navService.isActive('servers')() ||
-    navService.isActive('direct-message-chat')()) {
-    <div class="w-full h-full grid grid-rows-[1fr_auto] overflow-hidden">
-      <app-message-list class="flex-1 overflow-hidden"></app-message-list>
-      <app-message-input class="pb-4 px-4"></app-message-input>
+  @if (friendsViewActive()) {
+    <div class="bg-surface-800 col-start-4 col-span-3 row-start-3">
+      <app-friends-list />
     </div>
-    }
-  </div>
+  } @else {
+    <div class="col-start-4 row-start-3 bg-surface-800">
+      <div class="w-full h-full grid grid-rows-[1fr_auto] overflow-hidden">
+        <app-message-list class="flex-1 overflow-hidden"></app-message-list>
+        <app-message-input class="pb-4 px-4"></app-message-input>
+      </div>
+    </div>
 
-  <!-- Divider -->
-  <p-divider class="col-start-5 row-start-3 !mx-0" layout="vertical" />
+    <!-- Divider -->
+    <p-divider class="col-start-5 row-start-3 !mx-0" layout="vertical" />
 
-  <div class="col-start-6 row-start-3 p-2 overflow-y-auto bg-surface-800">
-    <app-user-list></app-user-list>
-  </div>
+    <div class="col-start-6 row-start-3 p-2 overflow-y-auto bg-surface-800">
+      <app-user-list></app-user-list>
+    </div>
+  }
 </div>
