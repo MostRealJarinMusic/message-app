@@ -31,7 +31,9 @@
     </div>
   } @else if (navService.isActive('online')()) {
     <div class="flex flex-col w-full gap-y-4">
-      <h1 class="self-start text-sm text-muted-color-emphasis">Online - {{ friends().length }}</h1>
+      <h1 class="self-start text-sm text-muted-color-emphasis">
+        Online - {{ onlineFriends().length }}
+      </h1>
 
       @for (entry of onlineFriends(); track $index) {
         <li
