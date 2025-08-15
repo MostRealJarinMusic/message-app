@@ -10,6 +10,7 @@ export class NavigationService {
     children: [
       {
         id: 'servers',
+        children: []
       },
       {
         id: 'direct-messages',
@@ -49,6 +50,9 @@ export class NavigationService {
     return path;
   });
 
+  readonly currentServerId = signal<string | null>(null);
+  readonly currentChannelid = signal<string | null>(null);
+
   public isActive = (id: string) =>
     computed(() => {
       return this.activePath().some((n) => n.id === id);
@@ -82,5 +86,46 @@ export class NavigationService {
       if (found.node) return found;
     }
     return { node: null, parent: null };
+  }
+
+  private findNode(current: NavigationNode, targetId: string): NavigationNode | null {
+    if (current.id === targetId) return current;
+    for (const child of current.children ?? []) {
+      const found = this.findNode(child, targetId);
+      if (found) return found;
+    }
+    return null;
+  }
+
+  getChildren(parentId: string): NavigationNode[] {
+    const parent = this.findNode(this.root(), parentId);
+    return parent?.children ?? [];
+  }
+
+  addChildren(parentId: string, children: NavigationNode[]) {
+    this.root.update((root) => {
+      const parent = this.findNode(root, parentId);
+      if (!parent) throw new Error(`Parent node ${parentId} not found`);
+      parent.children = [...(parent.children ?? []), ...children];
+      return { ...root };
+    });
+  }
+
+  setChildren(parentId: string, children: NavigationNode[]) {
+    this.root.update((root) => {
+      const parent = this.findNode(root, parentId);
+      if (!parent) throw new Error(`Parent node ${parentId} not found`);
+      parent.children = [...children];
+      return { ...root };
+    });
+  }
+
+  deleteChild(parentId: string, childId: string) {
+    this.root.update((root) => {
+      const parent = this.findNode(root, parentId);
+      if (!parent) throw new Error(`Parent node ${parentId} not found`);
+      parent.children = (parent.children ?? []).filter((child) => child.id !== childId);
+      return { ...root };
+    })
   }
 }

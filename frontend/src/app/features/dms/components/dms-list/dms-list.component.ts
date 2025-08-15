@@ -17,4 +17,6 @@ import { ChannelService } from 'src/app/features/channel/services/channel/channe
 export class DMsListComponent {
   private channelService = inject(ChannelService);
   protected navService = inject(NavigationService);
+
+  
 }
