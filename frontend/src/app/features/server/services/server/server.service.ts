@@ -26,7 +26,6 @@ export class ServerService {
     this.apiService.getServers().subscribe({
       next: (servers) => {
         this.servers.set(servers);
-        console.log(servers);
 
         this.navService.setChildren(
           'servers',
@@ -62,14 +61,6 @@ export class ServerService {
       this.servers.update((current) => current.filter((s) => s.id !== server.id));
 
       this.navService.deleteChild('servers', server.id);
-
-      // if (server.id === this.currentServer()) {
-      //   if (this.servers().length > 0) {
-      //     this.selectServer(this.servers()[0].id);
-      //   } else {
-      //     this.selectServer(null);
-      //   }
-      // }
     });
 
     this.wsService.on(WSEventType.SERVER_UPDATE).subscribe((server) => {

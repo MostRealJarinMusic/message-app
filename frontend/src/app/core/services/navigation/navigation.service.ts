@@ -92,23 +92,8 @@ export class NavigationService {
     this.logger.log(
       LoggerType.SERVICE_NAVIGATION,
       'Navigated to path: ',
-      path.map((n) => n.id),
+      this.activePath().map((n) => n.id),
     );
-  }
-
-  private findNodeWithParent(
-    current: NavigationNode,
-    targetId: string,
-    parent: NavigationNode | null = null,
-  ): { node: NavigationNode | null; parent: NavigationNode | null } {
-    if (current.id === targetId) {
-      return { node: current, parent };
-    }
-    for (const child of current.children ?? []) {
-      const found = this.findNodeWithParent(child, targetId, current);
-      if (found.node) return found;
-    }
-    return { node: null, parent: null };
   }
 
   private findNode(current: NavigationNode, targetId: string): NavigationNode | null {
