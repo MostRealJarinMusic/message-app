@@ -21,11 +21,9 @@ export class ChannelTitleBarComponent {
       const currentChannel = this.channelService.currentChannel();
 
       if (currentChannel) {
-        this.channelName =
-          this.channelService.getChannelById(currentChannel)!.name;
+        this.channelName = this.channelService.getChannelById(currentChannel)!.name;
 
-        this.channelTopic =
-          this.channelService.getChannelById(currentChannel)!.topic;
+        this.channelTopic = this.channelService.getChannelById(currentChannel)!.topic;
       }
     });
   }

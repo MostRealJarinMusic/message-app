@@ -36,7 +36,7 @@ export class UserService {
         console.error('Failed to fetch current user:', err);
         this.currentUser.set(null);
         return of(null);
-      })
+      }),
     );
   }
 
@@ -58,7 +58,7 @@ export class UserService {
         users.forEach((user) => this.userCache.set(user.id, user));
         this.serverUsers.set(users);
 
-        console.log(users)
+        console.log(users);
       },
       error: (err) => {
         console.error('Error loading server users', err);

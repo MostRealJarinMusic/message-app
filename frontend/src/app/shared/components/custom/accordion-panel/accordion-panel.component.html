@@ -1,8 +1,7 @@
 <div class="border-none mb-4">
   <div
     class="flex cursor-pointer bg-transparent select-none pl-3 py-1 text-sm text-muted-color hover:text-muted-color-emphasis justify-between items-center"
-    (click)="toggle()"
-  >
+    (click)="toggle()">
     <div class="flex items-center space-x-2">
       <span>{{ header() }}</span>
       <span class="chevron" [class.open]="isOpen()">›</span>
@@ -10,14 +9,13 @@
 
     <button
       class="text-sm text-muted-color hover:text-muted-color-emphasis px-2"
-      (click)="handleAdd($event)"
-    >
+      (click)="handleAdd($event)">
       +
     </button>
   </div>
   @if (isOpen()) {
-  <div class="p-0">
-    <ng-content />
-  </div>
+    <div class="p-0">
+      <ng-content />
+    </div>
   }
 </div>

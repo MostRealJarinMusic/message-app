@@ -45,9 +45,7 @@ export class ChannelCategoryService {
   }
 
   getCategoryName(categoryId: string) {
-    return this.channelCategories()!.find(
-      (category) => category.id === categoryId
-    )?.name;
+    return this.channelCategories()!.find((category) => category.id === categoryId)?.name;
   }
 
   getCategoryById(id: string): ChannelCategory | undefined {
@@ -65,9 +63,7 @@ export class ChannelCategoryService {
     //Deletes - if a category gets deleted, the server structure needs to be reloaded
     this.wsService.on(WSEventType.CATEGORY_DELETE).subscribe((category) => {
       if (category.serverId === this.serverService.currentServer()) {
-        this.channelCategories.update((current) =>
-          current!.filter((c) => c.id !== category.id)
-        );
+        this.channelCategories.update((current) => current!.filter((c) => c.id !== category.id));
       }
     });
 
@@ -75,9 +71,7 @@ export class ChannelCategoryService {
     this.wsService.on(WSEventType.CATEGORY_UPDATE).subscribe((category) => {
       if (category.serverId === this.serverService.currentServer()) {
         this.channelCategories.update((currentCategories) =>
-          currentCategories!.map((c) =>
-            c.id === category.id ? { ...c, ...category } : c
-          )
+          currentCategories!.map((c) => (c.id === category.id ? { ...c, ...category } : c)),
         );
       }
     });
@@ -109,10 +103,7 @@ export class ChannelCategoryService {
     });
   }
 
-  public editCategory(
-    categoryId: string,
-    categoryUpdate: ChannelCategoryUpdate
-  ) {
+  public editCategory(categoryId: string, categoryUpdate: ChannelCategoryUpdate) {
     this.apiService.editCategory(categoryId, categoryUpdate).subscribe({
       next: () => {
         console.log('Successful category edit');

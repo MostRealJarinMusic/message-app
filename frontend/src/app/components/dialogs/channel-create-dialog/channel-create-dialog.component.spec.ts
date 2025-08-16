@@ -8,9 +8,8 @@ describe('ChannelCreateDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ChannelCreateDialogComponent]
-    })
-    .compileComponents();
+      imports: [ChannelCreateDialogComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ChannelCreateDialogComponent);
     component = fixture.componentInstance;

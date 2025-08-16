@@ -2,8 +2,7 @@
   <p-card
     class="w-50% sm:w-30rem shadow-4"
     header="Welcome"
-    subheader="Sign in or create an account"
-  >
+    subheader="Sign in or create an account">
     <p-tabs value="0">
       <p-tablist>
         <p-tab value="0">Login</p-tab>
@@ -24,8 +23,7 @@
                     type="text"
                     [(ngModel)]="username"
                     autocomplete="off"
-                    required
-                  />
+                    required />
                 </p-iconfield>
                 <label for="username">Username</label>
               </p-floatlabel>
@@ -42,8 +40,7 @@
                     type="password"
                     [(ngModel)]="password"
                     autocomplete="current-password"
-                    required
-                  />
+                    required />
                 </p-iconfield>
                 <label for="password">Password</label>
               </p-floatlabel>
@@ -54,17 +51,12 @@
               type="submit"
               label="Sign In"
               class="w-full"
-              [disabled]="!loginForm.form.valid"
-            ></button>
+              [disabled]="!loginForm.form.valid"></button>
           </form>
         </p-tabpanel>
 
         <p-tabpanel value="1">
-          <form
-            class="p-fluid mt-3"
-            (ngSubmit)="onRegister()"
-            #registerForm="ngForm"
-          >
+          <form class="p-fluid mt-3" (ngSubmit)="onRegister()" #registerForm="ngForm">
             <div class="field mb-4">
               <p-floatlabel variant="on">
                 <p-iconfield>
@@ -76,8 +68,7 @@
                     type="text"
                     [(ngModel)]="username"
                     autocomplete="off"
-                    required
-                  />
+                    required />
                 </p-iconfield>
                 <label for="username">Username</label>
               </p-floatlabel>
@@ -94,8 +85,7 @@
                     type="email"
                     [(ngModel)]="email"
                     autocomplete="email"
-                    required
-                  />
+                    required />
                 </p-iconfield>
                 <label for="email">Email</label>
               </p-floatlabel>
@@ -112,8 +102,7 @@
                     type="password"
                     [(ngModel)]="password"
                     autocomplete="current-password"
-                    required
-                  />
+                    required />
                 </p-iconfield>
                 <label for="password">Password</label>
               </p-floatlabel>
@@ -124,8 +113,7 @@
               type="submit"
               label="Register"
               class="w-full"
-              [disabled]="!registerForm.form.valid"
-            ></button>
+              [disabled]="!registerForm.form.valid"></button>
           </form>
         </p-tabpanel>
       </p-tabpanels>

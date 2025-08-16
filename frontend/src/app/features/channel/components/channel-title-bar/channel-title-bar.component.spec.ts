@@ -8,9 +8,8 @@ describe('ChannelTitleBarComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ChannelTitleBarComponent]
-    })
-    .compileComponents();
+      imports: [ChannelTitleBarComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ChannelTitleBarComponent);
     component = fixture.componentInstance;

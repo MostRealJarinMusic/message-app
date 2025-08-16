@@ -1,13 +1,5 @@
 import { CommonModule, NgClass } from '@angular/common';
-import {
-  Component,
-  effect,
-  inject,
-  OnDestroy,
-  OnInit,
-  signal,
-  ViewChild,
-} from '@angular/core';
+import { Component, effect, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { Server } from '@common/types';
 import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -120,22 +112,19 @@ export class ServerListComponent implements OnInit, OnDestroy {
   }
 
   protected startChannelCreate() {
-    this.createChannelDialogRef = this.dialogService.open(
-      ChannelCreateDialogComponent,
-      {
-        header: 'Create Channel',
-        width: '30%',
-        baseZIndex: 10000,
-        modal: true,
-        dismissableMask: true,
-        closeOnEscape: true,
-        closable: true,
-        styleClass: '!bg-surface-700 !pt-0',
-        data: {
-          categoryName: null,
-        },
-      }
-    );
+    this.createChannelDialogRef = this.dialogService.open(ChannelCreateDialogComponent, {
+      header: 'Create Channel',
+      width: '30%',
+      baseZIndex: 10000,
+      modal: true,
+      dismissableMask: true,
+      closeOnEscape: true,
+      closable: true,
+      styleClass: '!bg-surface-700 !pt-0',
+      data: {
+        categoryName: null,
+      },
+    });
 
     this.createChannelDialogRef.onClose.subscribe((newChannelName) => {
       if (newChannelName) {
@@ -146,45 +135,36 @@ export class ServerListComponent implements OnInit, OnDestroy {
   }
 
   protected startCategoryCreate() {
-    this.createCategoryDialogRef = this.dialogService.open(
-      CategoryCreateDialogComponent,
-      {
-        header: 'Create Category',
-        width: '30%',
-        baseZIndex: 10000,
-        modal: true,
-        dismissableMask: true,
-        closeOnEscape: true,
-        closable: true,
-        styleClass: '!bg-surface-700 !pt-0',
-      }
-    );
+    this.createCategoryDialogRef = this.dialogService.open(CategoryCreateDialogComponent, {
+      header: 'Create Category',
+      width: '30%',
+      baseZIndex: 10000,
+      modal: true,
+      dismissableMask: true,
+      closeOnEscape: true,
+      closable: true,
+      styleClass: '!bg-surface-700 !pt-0',
+    });
 
     this.createCategoryDialogRef.onClose.subscribe((newCategoryName) => {
       if (newCategoryName) {
-        this.categoryService.createCategory(
-          this.contextMenuServer!.id,
-          newCategoryName
-        );
+        this.categoryService.createCategory(this.contextMenuServer!.id, newCategoryName);
         this.contextMenuServer = null;
       }
     });
   }
 
   protected startServerCreate() {
-    this.createServerDialogRef = this.dialogService.open(
-      ServerCreateDialogComponent,
-      {
-        header: 'Create Server',
-        width: '30%',
-        baseZIndex: 10000,
-        modal: true,
-        dismissableMask: true,
-        closeOnEscape: true,
-        closable: true,
-        styleClass: '!bg-surface-700 !pt-0',
-      }
-    );
+    this.createServerDialogRef = this.dialogService.open(ServerCreateDialogComponent, {
+      header: 'Create Server',
+      width: '30%',
+      baseZIndex: 10000,
+      modal: true,
+      dismissableMask: true,
+      closeOnEscape: true,
+      closable: true,
+      styleClass: '!bg-surface-700 !pt-0',
+    });
 
     this.createServerDialogRef.onClose.subscribe((newServerName) => {
       if (newServerName) {

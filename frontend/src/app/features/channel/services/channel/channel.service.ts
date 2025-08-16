@@ -1,10 +1,5 @@
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
-import {
-  Channel,
-  ChannelCreate,
-  ChannelUpdate,
-  WSEventType,
-} from '@common/types';
+import { Channel, ChannelCreate, ChannelUpdate, WSEventType } from '@common/types';
 import { ChannelCategoryService } from 'src/app/features/category/services/channel-category/channel-category.service';
 import { ServerService } from 'src/app/features/server/services/server/server.service';
 import { SocketService } from 'src/app/core/services/socket/socket.service';
@@ -22,9 +17,7 @@ export class ChannelService {
   readonly currentChannel = signal<string | null>(null);
   readonly channels = signal<Channel[]>([]);
   readonly currentChannelName = computed(
-    () =>
-      this.channels()!.find((channel) => channel.id === this.currentChannel())
-        ?.name
+    () => this.channels()!.find((channel) => channel.id === this.currentChannel())?.name,
   );
   readonly groupedChannels = computed(() => {
     const map = new Map<string | null, Channel[]>();
@@ -89,16 +82,14 @@ export class ChannelService {
       categoryId: categoryId,
     };
 
-    this.apiService
-      .createChannel(this.serverService.currentServer()!, newChannelData)
-      .subscribe({
-        next: (channel) => {
-          console.log('Successfuly channel creation');
-        },
-        error: (err) => {
-          console.error('Failed to create channel:', err);
-        },
-      });
+    this.apiService.createChannel(this.serverService.currentServer()!, newChannelData).subscribe({
+      next: (channel) => {
+        console.log('Successfuly channel creation');
+      },
+      error: (err) => {
+        console.error('Failed to create channel:', err);
+      },
+    });
   }
 
   public editChannel(channelid: string, channelUpdate: ChannelUpdate) {
@@ -138,9 +129,7 @@ export class ChannelService {
       }
 
       if (channel.serverId === this.serverService.currentServer()) {
-        this.channels.update((current) =>
-          current!.filter((c) => c.id !== channel.id)
-        );
+        this.channels.update((current) => current!.filter((c) => c.id !== channel.id));
       }
     });
 
@@ -148,9 +137,7 @@ export class ChannelService {
     this.wsService.on(WSEventType.CHANNEL_UPDATE).subscribe((channel) => {
       if (channel.serverId === this.serverService.currentServer()) {
         this.channels.update((currentChannels) =>
-          currentChannels!.map((c) =>
-            c.id === channel.id ? { ...c, ...channel } : c
-          )
+          currentChannels!.map((c) => (c.id === channel.id ? { ...c, ...channel } : c)),
         );
       }
     });

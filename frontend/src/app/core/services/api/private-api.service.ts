@@ -31,39 +31,35 @@ export class PrivateApiService extends BaseApiService {
     super(http, 'http://localhost:3000/api/private');
   }
 
-  private authorisedFetch<T>(
-    fetchFunction: (token: string) => Observable<T>
-  ): Observable<T> {
+  private authorisedFetch<T>(fetchFunction: (token: string) => Observable<T>): Observable<T> {
     return this.tokenService.token$.pipe(
       filter((token): token is string => !!token),
       take(1),
-      switchMap((token) => fetchFunction(token))
+      switchMap((token) => fetchFunction(token)),
     );
   }
 
   //#region Message CRUD
   sendMessage(channelId: string, content: string): Observable<Message> {
     return this.authorisedFetch<Message>((_) =>
-      this.post<Message>(`channels/${channelId}/messages`, { content })
+      this.post<Message>(`channels/${channelId}/messages`, { content }),
     );
   }
 
   getMessageHistory(channelId: string): Observable<Message[]> {
     return this.authorisedFetch<Message[]>((_) =>
-      this.get<Message[]>(`channels/${channelId}/messages`)
+      this.get<Message[]>(`channels/${channelId}/messages`),
     );
   }
 
   editMessage(messageId: string, content: string): Observable<void> {
     return this.authorisedFetch<void>((_) =>
-      this.patch<void>(`messages/${messageId}`, { content })
+      this.patch<void>(`messages/${messageId}`, { content }),
     );
   }
 
   deleteMessage(messageId: string): Observable<void> {
-    return this.authorisedFetch<void>((_) =>
-      this.delete<void>(`messages/${messageId}`)
-    );
+    return this.authorisedFetch<void>((_) => this.delete<void>(`messages/${messageId}`));
   }
   //#endregion
 
@@ -77,73 +73,58 @@ export class PrivateApiService extends BaseApiService {
   }
 
   getServerUsers(serverId: string) {
-    return this.authorisedFetch<User[]>((_) =>
-      this.get<User[]>(`servers/${serverId}/users`)
-    );
+    return this.authorisedFetch<User[]>((_) => this.get<User[]>(`servers/${serverId}/users`));
   }
   //#endregion
 
   //#region Channel CRUD
   getChannels(serverId: string): Observable<Channel[]> {
     return this.authorisedFetch<Channel[]>((_) =>
-      this.get<Channel[]>(`servers/${serverId}/channels`)
+      this.get<Channel[]>(`servers/${serverId}/channels`),
     );
   }
 
   createChannel(serverId: string, newChannelData: ChannelCreate) {
     console.log(newChannelData);
     return this.authorisedFetch<Channel>((_) =>
-      this.post<Channel>(`servers/${serverId}/channels`, newChannelData)
+      this.post<Channel>(`servers/${serverId}/channels`, newChannelData),
     );
   }
 
-  editChannel(
-    channelId: string,
-    channelUpdate: ChannelUpdate
-  ): Observable<void> {
+  editChannel(channelId: string, channelUpdate: ChannelUpdate): Observable<void> {
     return this.authorisedFetch<void>((_) =>
-      this.patch<void>(`channels/${channelId}`, { channelUpdate })
+      this.patch<void>(`channels/${channelId}`, { channelUpdate }),
     );
   }
 
   deleteChannel(channelId: string) {
-    return this.authorisedFetch<void>((_) =>
-      this.delete<void>(`channels/${channelId}`)
-    );
+    return this.authorisedFetch<void>((_) => this.delete<void>(`channels/${channelId}`));
   }
   //#endregion
 
   //#region Channel Category CRUD
   getServerStructure(serverId: string): Observable<ChannelCategory[]> {
     return this.authorisedFetch<ChannelCategory[]>((_) =>
-      this.get<ChannelCategory[]>(`servers/${serverId}/structure`)
+      this.get<ChannelCategory[]>(`servers/${serverId}/structure`),
     );
   }
 
   createCategory(
     serverId: string,
-    newCategoryData: ChannelCategoryCreate
+    newCategoryData: ChannelCategoryCreate,
   ): Observable<ChannelCategory> {
     return this.authorisedFetch<ChannelCategory>((_) =>
-      this.post<ChannelCategory>(
-        `servers/${serverId}/categories`,
-        newCategoryData
-      )
+      this.post<ChannelCategory>(`servers/${serverId}/categories`, newCategoryData),
     );
   }
 
   deleteCategory(categoryId: string) {
-    return this.authorisedFetch<void>((_) =>
-      this.delete<void>(`categories/${categoryId}`)
-    );
+    return this.authorisedFetch<void>((_) => this.delete<void>(`categories/${categoryId}`));
   }
 
-  editCategory(
-    categoryId: string,
-    categoryUpdate: ChannelCategoryUpdate
-  ): Observable<void> {
+  editCategory(categoryId: string, categoryUpdate: ChannelCategoryUpdate): Observable<void> {
     return this.authorisedFetch<void>((_) =>
-      this.patch<void>(`categories/${categoryId}`, { categoryUpdate })
+      this.patch<void>(`categories/${categoryId}`, { categoryUpdate }),
     );
   }
   //#endregion
@@ -154,20 +135,16 @@ export class PrivateApiService extends BaseApiService {
   }
 
   createServer(newServerData: ServerCreate) {
-    return this.authorisedFetch<Server>((_) =>
-      this.post<Server>(`servers`, newServerData)
-    );
+    return this.authorisedFetch<Server>((_) => this.post<Server>(`servers`, newServerData));
   }
 
   deleteServer(serverId: string) {
-    return this.authorisedFetch<void>((_) =>
-      this.delete<void>(`servers/${serverId}`)
-    );
+    return this.authorisedFetch<void>((_) => this.delete<void>(`servers/${serverId}`));
   }
 
   editServer(serverId: string, serverUpdate: ServerUpdate): Observable<void> {
     return this.authorisedFetch<void>((_) =>
-      this.patch<void>(`servers/${serverId}`, { serverUpdate })
+      this.patch<void>(`servers/${serverId}`, { serverUpdate }),
     );
   }
   //#endregion
@@ -175,46 +152,39 @@ export class PrivateApiService extends BaseApiService {
   //#region Presence
   getServerUserPresences(serverId: string): Observable<PresenceUpdate[]> {
     return this.authorisedFetch<PresenceUpdate[]>((_) =>
-      this.get<PresenceUpdate[]>(`servers/${serverId}/presences`)
+      this.get<PresenceUpdate[]>(`servers/${serverId}/presences`),
     );
   }
 
   //#endregion
 
   //#region Friend Requests CRUD
-  sendFriendRequest(
-    newFriendRequest: FriendRequestCreate
-  ): Observable<FriendRequest> {
+  sendFriendRequest(newFriendRequest: FriendRequestCreate): Observable<FriendRequest> {
     return this.authorisedFetch<FriendRequest>((_) =>
-      this.post<FriendRequest>(`friend-requests`, newFriendRequest)
+      this.post<FriendRequest>(`friend-requests`, newFriendRequest),
     );
   }
 
   getIncomingFriendRequests(): Observable<FriendRequest[]> {
     return this.authorisedFetch<FriendRequest[]>((_) =>
-      this.get<FriendRequest[]>(`friend-requests/incoming`)
+      this.get<FriendRequest[]>(`friend-requests/incoming`),
     );
   }
 
   getOutgoingFriendRequests(): Observable<FriendRequest[]> {
     return this.authorisedFetch<FriendRequest[]>((_) =>
-      this.get<FriendRequest[]>(`friend-requests/outgoing`)
+      this.get<FriendRequest[]>(`friend-requests/outgoing`),
     );
   }
 
-  updateFriendRequest(
-    requestId: string,
-    requestUpdate: FriendRequestUpdate
-  ): Observable<void> {
+  updateFriendRequest(requestId: string, requestUpdate: FriendRequestUpdate): Observable<void> {
     return this.authorisedFetch<void>((_) =>
-      this.patch<void>(`friend-requests/${requestId}`, requestUpdate)
+      this.patch<void>(`friend-requests/${requestId}`, requestUpdate),
     );
   }
 
   cancelFriendRequest(requestId: string): Observable<void> {
-    return this.authorisedFetch<void>((_) =>
-      this.delete<void>(`friend-requests/${requestId}`)
-    );
+    return this.authorisedFetch<void>((_) => this.delete<void>(`friend-requests/${requestId}`));
   }
   //#endregion
 

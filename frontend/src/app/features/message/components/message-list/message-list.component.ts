@@ -1,11 +1,4 @@
-import {
-  Component,
-  effect,
-  ElementRef,
-  inject,
-  ViewChild,
-  ViewContainerRef,
-} from '@angular/core';
+import { Component, effect, ElementRef, inject, ViewChild, ViewContainerRef } from '@angular/core';
 import { Message } from '@common/types';
 import { MessageService } from 'src/app/features/message/services/message/message.service';
 import { MessageComponent } from '../message/message.component';
@@ -38,8 +31,7 @@ export class MessageListComponent {
   private renderMessages(messages: Message[]) {
     this.container.clear();
     for (const message of messages) {
-      const componentReference =
-        this.container.createComponent(MessageComponent);
+      const componentReference = this.container.createComponent(MessageComponent);
       componentReference.instance.message = message;
       componentReference.instance.isMine =
         message.authorId === this.sessionService.currentUser()?.id;

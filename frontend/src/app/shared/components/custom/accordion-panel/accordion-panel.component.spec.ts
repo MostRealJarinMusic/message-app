@@ -8,9 +8,8 @@ describe('AccordionPanelComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AccordionPanelComponent]
-    })
-    .compileComponents();
+      imports: [AccordionPanelComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(AccordionPanelComponent);
     component = fixture.componentInstance;

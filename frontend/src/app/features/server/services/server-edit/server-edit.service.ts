@@ -17,10 +17,7 @@ export class ServerEditService {
   readonly currentlyEditedServer = this.editedServer.asReadonly();
   readonly currentInitialServer = this.initialServer.asReadonly();
   readonly isDirty = computed(() => {
-    return (
-      this.editedServerId() !== null &&
-      this.editedServer() !== this.initialServer()
-    );
+    return this.editedServerId() !== null && this.editedServer() !== this.initialServer();
   });
 
   readonly editActive = computed(() => {

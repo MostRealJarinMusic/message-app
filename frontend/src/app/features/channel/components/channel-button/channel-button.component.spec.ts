@@ -8,9 +8,8 @@ describe('ChannelButtonComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ChannelButtonComponent]
-    })
-    .compileComponents();
+      imports: [ChannelButtonComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ChannelButtonComponent);
     component = fixture.componentInstance;

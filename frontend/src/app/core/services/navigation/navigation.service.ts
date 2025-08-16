@@ -10,7 +10,7 @@ export class NavigationService {
     children: [
       {
         id: 'servers',
-        children: []
+        children: [],
       },
       {
         id: 'direct-messages',
@@ -40,9 +40,7 @@ export class NavigationService {
     const path: NavigationNode[] = [];
     let current: NavigationNode = this.root();
     while (current.activeChildId) {
-      const child = current.children!.find(
-        (c) => c.id === current!.activeChildId
-      );
+      const child = current.children!.find((c) => c.id === current!.activeChildId);
       if (!child) break;
       path.push(child);
       current = child;
@@ -69,14 +67,14 @@ export class NavigationService {
     this.root.update((r) => ({ ...r }));
     console.log(
       'Active path: ',
-      this.activePath().map((n) => n.id)
+      this.activePath().map((n) => n.id),
     );
   }
 
   private findNodeWithParent(
     current: NavigationNode,
     targetId: string,
-    parent: NavigationNode | null = null
+    parent: NavigationNode | null = null,
   ): { node: NavigationNode | null; parent: NavigationNode | null } {
     if (current.id === targetId) {
       return { node: current, parent };
@@ -126,6 +124,6 @@ export class NavigationService {
       if (!parent) throw new Error(`Parent node ${parentId} not found`);
       parent.children = (parent.children ?? []).filter((child) => child.id !== childId);
       return { ...root };
-    })
+    });
   }
 }

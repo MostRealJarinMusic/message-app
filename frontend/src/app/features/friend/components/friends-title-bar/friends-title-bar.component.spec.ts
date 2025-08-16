@@ -8,9 +8,8 @@ describe('FriendsTitleBarComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [FriendsTitleBarComponent]
-    })
-    .compileComponents();
+      imports: [FriendsTitleBarComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(FriendsTitleBarComponent);
     component = fixture.componentInstance;

@@ -11,6 +11,6 @@ export class PouchService {
 
   async getMessages() {
     const result = await this.db.allDocs({ include_docs: true });
-    return result.rows.map(r => r.doc);
+    return result.rows.map((r) => r.doc);
   }
 }

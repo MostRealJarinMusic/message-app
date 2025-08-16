@@ -43,11 +43,11 @@ export class FriendsListComponent {
 
     if (!friendIds) return [];
 
-    const friends =  friendIds.map((id) => {
+    const friends = friendIds.map((id) => {
       return { id: id, status: this.presenceService.getStatus(id) };
     });
 
-    console.log(friends)
+    console.log(friends);
     return friends;
   });
   protected onlineFriends = computed(() => {
@@ -61,15 +61,14 @@ export class FriendsListComponent {
   protected outgoingRequests = this.friendRequestService.outgoingFriendRequests;
 
   protected friendRequestForm = this.formBuilder.group({
-    username: new FormControl<string>('')
-  })
-
+    username: new FormControl<string>(''),
+  });
 
   protected sendFriendRequest() {
     if (this.friendRequestForm.valid && this.friendRequestForm.value.username) {
-      this.friendRequestService.sendFriendRequest(this.friendRequestForm.value.username)
+      this.friendRequestService.sendFriendRequest(this.friendRequestForm.value.username);
     }
-  }  
+  }
 
   protected acceptFriendRequest(requestId: string) {
     this.friendRequestService.updateFriendRequest(requestId, FriendRequestStatus.ACCEPTED);

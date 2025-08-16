@@ -2,12 +2,13 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { catchError, Observable, throwError } from 'rxjs';
 
 export abstract class BaseApiService {
-  protected constructor(protected http: HttpClient, private baseUrl: string) {}
+  protected constructor(
+    protected http: HttpClient,
+    private baseUrl: string,
+  ) {}
 
   protected get<T>(endpoint: string): Observable<T> {
-    return this.http
-      .get<T>(`${this.baseUrl}/${endpoint}`)
-      .pipe(catchError(this.handleError));
+    return this.http.get<T>(`${this.baseUrl}/${endpoint}`).pipe(catchError(this.handleError));
   }
 
   protected post<T>(endpoint: string, body: any): Observable<T> {
@@ -17,9 +18,7 @@ export abstract class BaseApiService {
   }
 
   protected delete<T>(endpoint: string) {
-    return this.http
-      .delete<T>(`${this.baseUrl}/${endpoint}`)
-      .pipe(catchError(this.handleError));
+    return this.http.delete<T>(`${this.baseUrl}/${endpoint}`).pipe(catchError(this.handleError));
   }
 
   protected patch<T>(endpoint: string, body: any): Observable<T> {
