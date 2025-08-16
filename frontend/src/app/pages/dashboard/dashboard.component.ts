@@ -11,10 +11,10 @@ import { ServerListComponent } from 'src/app/features/server/components/server-l
 import { UserListComponent } from 'src/app/features/user/components/user-list/user-list.component';
 import { FriendService } from 'src/app/features/friend/services/friend/friend.service';
 import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
-import { NavigationView } from '@common/types';
 import { FriendsTitleBarComponent } from 'src/app/features/friend/components/friends-title-bar/friends-title-bar.component';
 import { DMsListComponent } from 'src/app/features/dms/components/dms-list/dms-list.component';
 import { FriendsListComponent } from 'src/app/features/friend/components/friends-list/friends-list.component';
+import { ChannelService } from 'src/app/features/channel/services/channel/channel.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -38,9 +38,8 @@ import { FriendsListComponent } from 'src/app/features/friend/components/friends
 export class DashboardComponent {
   private serverService = inject(ServerService);
   private friendService = inject(FriendService);
+  protected channelService = inject(ChannelService);
   protected navService = inject(NavigationService);
-
-  protected NavigationView: typeof NavigationView = NavigationView;
 
   constructor() {
     //Load servers

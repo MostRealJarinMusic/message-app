@@ -258,7 +258,7 @@ export enum NavigationView {
 
 export interface NavigationNode {
   id: string;
-  activeChildId?: string;
+  activeChildId?: string | null;
   children?: NavigationNode[];
 }
 

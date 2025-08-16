@@ -43,12 +43,9 @@ export class FriendsListComponent {
 
     if (!friendIds) return [];
 
-    const friends = friendIds.map((id) => {
+    return friendIds.map((id) => {
       return { id: id, status: this.presenceService.getStatus(id) };
     });
-
-    console.log(friends);
-    return friends;
   });
   protected onlineFriends = computed(() => {
     const friends = this.friends();

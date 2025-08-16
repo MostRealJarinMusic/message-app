@@ -5,6 +5,7 @@ import { ServerService } from 'src/app/features/server/services/server/server.se
 import { SocketService } from 'src/app/core/services/socket/socket.service';
 import { PrivateApiService } from 'src/app/core/services/api/private-api.service';
 import { LoggerService } from 'src/app/core/services/logger/logger.service';
+import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
 
 @Injectable({
   providedIn: 'root',
@@ -14,6 +15,7 @@ export class ChannelService {
   private serverService = inject(ServerService);
   private wsService = inject(SocketService);
   private categoryService = inject(ChannelCategoryService);
+  private navService = inject(NavigationService);
   private logger = inject(LoggerService);
 
   readonly currentChannel = signal<string | null>(null);
@@ -46,7 +48,7 @@ export class ChannelService {
       const currentCategories = this.categoryService.channelCategories();
       if (currentServer && currentCategories) {
         this.logger.log(LoggerType.SERVICE_CHANNEL, 'Loading channels');
-        this.loadChannels(currentServer);
+        this.loadServerChannels(currentServer);
       } else {
         this.logger.log(LoggerType.SERVICE_CHANNEL, 'No server');
         this.currentChannel.set(null);
@@ -55,11 +57,11 @@ export class ChannelService {
     });
   }
 
-  selectChannel(id: string) {
+  selectChannel(id: string | null) {
     this.currentChannel.set(id);
   }
 
-  private loadChannels(serverId: string) {
+  private loadServerChannels(serverId: string) {
     this.apiService.getChannels(serverId).subscribe({
       next: (channels) => {
         this.channels.set(channels);
@@ -126,12 +128,16 @@ export class ChannelService {
 
     //Deletes
     this.wsService.on(WSEventType.CHANNEL_DELETE).subscribe((channel) => {
-      if (channel.id === this.currentChannel() && this.channels()!.length > 0) {
-        this.selectChannel(this.channels()![0].id);
-      }
-
       if (channel.serverId === this.serverService.currentServer()) {
         this.channels.update((current) => current!.filter((c) => c.id !== channel.id));
+      }
+
+      if (channel.id === this.currentChannel()) {
+        if (this.channels().length > 0) {
+          this.selectChannel(this.channels()[0].id);
+        } else {
+          this.selectChannel(null);
+        }
       }
     });
 

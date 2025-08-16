@@ -45,16 +45,16 @@ export class ServerService {
       next: (servers) => {
         this.servers.set(servers);
 
-        if (!this.currentServer() && servers.length > 0) {
-          this.selectServer(servers[0].id);
-        }
-
         this.navService.setChildren(
           'servers',
           this.servers().map((s) => {
             return { id: s.id };
           }),
         );
+
+        if (!this.currentServer() && servers.length > 0) {
+          this.selectServer(servers[0].id);
+        }
       },
       error: (err) => this.logger.error(LoggerType.SERVICE_SERVER, 'Failed to load servers', err),
     });
@@ -95,8 +95,6 @@ export class ServerService {
       this.servers.update((currentServers) =>
         currentServers!.map((s) => (s.id === server.id ? { ...s, ...server } : s)),
       );
-
-      //Doesn't change the navigation tree
     });
   }
 

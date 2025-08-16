@@ -111,7 +111,7 @@ export class NavigationService {
       if (!parent) throw new Error(`Parent node ${parentId} not found`);
       parent.children = [...(parent.children ?? []), ...children];
 
-      this.logger.log(LoggerType.SERVICE_NAVIGATION, 'Root', this.root());
+      this.logger.log(LoggerType.SERVICE_NAVIGATION, 'Added children', this.root());
       return { ...root };
     });
   }
@@ -122,7 +122,7 @@ export class NavigationService {
       if (!parent) throw new Error(`Parent node ${parentId} not found`);
       parent.children = [...children];
 
-      this.logger.log(LoggerType.SERVICE_NAVIGATION, 'Root', this.root());
+      this.logger.log(LoggerType.SERVICE_NAVIGATION, 'Set children', this.root());
       return { ...root };
     });
   }
@@ -133,7 +133,7 @@ export class NavigationService {
       if (!parent) throw new Error(`Parent node ${parentId} not found`);
       parent.children = (parent.children ?? []).filter((child) => child.id !== childId);
 
-      this.logger.log(LoggerType.SERVICE_NAVIGATION, 'Root', this.root());
+      this.logger.log(LoggerType.SERVICE_NAVIGATION, 'Deleted child', this.root());
       return { ...root };
     });
   }
