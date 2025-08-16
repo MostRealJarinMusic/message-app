@@ -1,18 +1,12 @@
 import { effect, inject, Injectable } from '@angular/core';
 import { filter, Observable, Subject, map, timer } from 'rxjs';
-import {
-  PresenceStatus,
-  PresenceUpdate,
-  Timestamp,
-  WSEvent,
-  WSEventPayload,
-  WSEventType,
-} from '@common/types';
-import { SessionService } from '../session/session.service';
-import { AuthTokenService } from '../authtoken/auth-token.service';
+import { LoggerType, WSEvent, WSEventPayload, WSEventType } from '@common/types';
+import { LoggerService } from '../logger/logger.service';
 
 @Injectable({ providedIn: 'root' })
 export class SocketService {
+  private logger = inject(LoggerService);
+
   private socket?: WebSocket;
   private eventStream$ = new Subject<WSEvent<any>>();
   public isConnected = false;
@@ -26,12 +20,11 @@ export class SocketService {
 
   connect(token: string | null): void {
     if (this.socket && (this.isConnected || this.socket.readyState < WebSocket.CLOSING)) {
-      console.log('Got here');
       return;
     }
 
     if (!token) {
-      console.log('Invalid token');
+      this.logger.warn(LoggerType.SERVICE_SOCKET, 'Invalid token');
       return;
     }
 
@@ -42,7 +35,7 @@ export class SocketService {
 
     this.socket.onopen = () => {
       this.isConnected = true;
-      console.log('Websocket connected');
+      this.logger.log(LoggerType.SERVICE_SOCKET, 'Websocket connected');
 
       this.reconnectAttempts = 0;
       //this.startHeartbeat();
@@ -61,7 +54,7 @@ export class SocketService {
 
         this.eventStream$.next(data);
       } catch (err) {
-        console.error('Invalid message', err);
+        this.logger.error(LoggerType.SERVICE_SOCKET, 'Invalid message', err);
       }
     };
 
@@ -69,7 +62,7 @@ export class SocketService {
       this.isConnected = false;
       //this.stopHeartbeat();
 
-      console.log('Websocket disconnected');
+      this.logger.log(LoggerType.SERVICE_SOCKET, 'Websocket disconnected');
 
       if (!this.explicitClose) {
         this.reconnect(token);
@@ -77,7 +70,7 @@ export class SocketService {
     };
 
     this.socket.onerror = (err) => {
-      console.error('WebSocket error:', err);
+      this.logger.error(LoggerType.SERVICE_SOCKET, 'WebSocket error:', err);
     };
   }
 
@@ -89,7 +82,10 @@ export class SocketService {
 
   emit<T extends WSEventType>(event: T, payload: WSEventPayload[T]): void {
     if (!this.isConnected) {
-      console.log('No WebSocket connection - attempt to reconnect logic');
+      this.logger.warn(
+        LoggerType.SERVICE_SOCKET,
+        'No WebSocket connection - attempt to reconnect logic',
+      );
       return;
     }
     const message: WSEvent<T> = { event, payload };
@@ -109,7 +105,10 @@ export class SocketService {
 
     const delay = Math.min(1000 * this.reconnectAttempts, 5000);
     timer(delay).subscribe(() => {
-      console.log(`Reconnecting... attempt ${this.reconnectAttempts}`);
+      this.logger.log(
+        LoggerType.SERVICE_SOCKET,
+        `Reconnecting... attempt ${this.reconnectAttempts}`,
+      );
       this.connect(token);
     });
   }

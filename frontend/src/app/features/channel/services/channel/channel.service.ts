@@ -1,9 +1,10 @@
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
-import { Channel, ChannelCreate, ChannelUpdate, WSEventType } from '@common/types';
+import { Channel, ChannelCreate, ChannelUpdate, LoggerType, WSEventType } from '@common/types';
 import { ChannelCategoryService } from 'src/app/features/category/services/channel-category/channel-category.service';
 import { ServerService } from 'src/app/features/server/services/server/server.service';
 import { SocketService } from 'src/app/core/services/socket/socket.service';
 import { PrivateApiService } from 'src/app/core/services/api/private-api.service';
+import { LoggerService } from 'src/app/core/services/logger/logger.service';
 
 @Injectable({
   providedIn: 'root',
@@ -13,6 +14,7 @@ export class ChannelService {
   private serverService = inject(ServerService);
   private wsService = inject(SocketService);
   private categoryService = inject(ChannelCategoryService);
+  private logger = inject(LoggerService);
 
   readonly currentChannel = signal<string | null>(null);
   readonly channels = signal<Channel[]>([]);
@@ -43,10 +45,10 @@ export class ChannelService {
       const currentServer = this.serverService.currentServer();
       const currentCategories = this.categoryService.channelCategories();
       if (currentServer && currentCategories) {
-        console.log('Loading channels');
+        this.logger.log(LoggerType.SERVICE_CHANNEL, 'Loading channels');
         this.loadChannels(currentServer);
       } else {
-        console.log('No server');
+        this.logger.log(LoggerType.SERVICE_CHANNEL, 'No server');
         this.currentChannel.set(null);
         this.channels.set([]);
       }
@@ -72,7 +74,7 @@ export class ChannelService {
           this.selectChannel(channels[0].id);
         }
       },
-      error: (err) => console.error('Failed to load channels', err),
+      error: (err) => this.logger.error(LoggerType.SERVICE_CHANNEL, 'Failed to load channels', err),
     });
   }
 
@@ -84,10 +86,10 @@ export class ChannelService {
 
     this.apiService.createChannel(this.serverService.currentServer()!, newChannelData).subscribe({
       next: (channel) => {
-        console.log('Successfuly channel creation');
+        this.logger.log(LoggerType.SERVICE_CHANNEL, 'Successfuly channel creation');
       },
       error: (err) => {
-        console.error('Failed to create channel:', err);
+        this.logger.error(LoggerType.SERVICE_CHANNEL, 'Failed to create channel:', err);
       },
     });
   }
@@ -95,10 +97,10 @@ export class ChannelService {
   public editChannel(channelid: string, channelUpdate: ChannelUpdate) {
     this.apiService.editChannel(channelid, channelUpdate).subscribe({
       next: () => {
-        console.log('Succcessful edit');
+        this.logger.log(LoggerType.SERVICE_CHANNEL, 'Succcessful edit');
       },
       error: (err) => {
-        console.error('Unsuccessful edit', err);
+        this.logger.error(LoggerType.SERVICE_CHANNEL, 'Unsuccessful edit', err);
       },
     });
   }
@@ -106,10 +108,10 @@ export class ChannelService {
   public deleteChannel(channelId: string) {
     this.apiService.deleteChannel(channelId).subscribe({
       next: () => {
-        console.log('Successful channel deletion');
+        this.logger.log(LoggerType.SERVICE_CHANNEL, 'Successful channel deletion');
       },
       error: (err) => {
-        console.error('Unsuccessful channel deletion', err);
+        this.logger.error(LoggerType.SERVICE_CHANNEL, 'Unsuccessful channel deletion', err);
       },
     });
   }

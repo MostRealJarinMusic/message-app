@@ -4,9 +4,11 @@ import {
   FriendRequestCreate,
   FriendRequestStatus,
   FriendRequestUpdate,
+  LoggerType,
   WSEventType,
 } from '@common/types';
 import { PrivateApiService } from 'src/app/core/services/api/private-api.service';
+import { LoggerService } from 'src/app/core/services/logger/logger.service';
 import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
 import { SocketService } from 'src/app/core/services/socket/socket.service';
 import { UserService } from 'src/app/features/user/services/user/user.service';
@@ -19,6 +21,7 @@ export class FriendRequestService {
   private wsService = inject(SocketService);
   private userService = inject(UserService);
   private navService = inject(NavigationService);
+  private logger = inject(LoggerService);
 
   readonly incomingFriendRequests = signal<FriendRequest[]>([]);
   readonly outgoingFriendRequests = signal<FriendRequest[]>([]);
@@ -71,9 +74,15 @@ export class FriendRequestService {
         //My friend request to another user has been updated
         if (request.status === FriendRequestStatus.ACCEPTED) {
           //Accepted toast here
-          console.log(`Friend request to user ${request.receiverId} accepted`);
+          this.logger.log(
+            LoggerType.SERVICE_FRIEND_REQUEST,
+            `Friend request to user ${request.receiverId} accepted`,
+          );
         } else {
-          console.log(`Friend request to user ${request.receiverId} rejected`);
+          this.logger.log(
+            LoggerType.SERVICE_FRIEND_REQUEST,
+            `Friend request to user ${request.receiverId} rejected`,
+          );
         }
 
         removeRequest(request, this.outgoingFriendRequests);
@@ -83,7 +92,7 @@ export class FriendRequestService {
     });
 
     this.wsService.on(WSEventType.FRIEND_REQUEST_DELETE).subscribe((request) => {
-      console.log('Friend request delete triggered');
+      this.logger.log(LoggerType.SERVICE_FRIEND_REQUEST, 'Friend request delete triggered');
 
       const userId = this.userService.currentUser()!.id;
 
@@ -102,10 +111,14 @@ export class FriendRequestService {
 
     this.apiService.sendFriendRequest(newFriendRequest).subscribe({
       next: () => {
-        console.log('Succcessful friend request creation');
+        this.logger.log(LoggerType.SERVICE_FRIEND_REQUEST, 'Succcessful friend request creation');
       },
       error: (err) => {
-        console.log('Unsuccessful friend request creation', err);
+        this.logger.log(
+          LoggerType.SERVICE_FRIEND_REQUEST,
+          'Unsuccessful friend request creation',
+          err,
+        );
       },
     });
   }
@@ -118,10 +131,14 @@ export class FriendRequestService {
 
     this.apiService.updateFriendRequest(requestId, friendRequestUpdate).subscribe({
       next: () => {
-        console.log('Succcessful friend request update');
+        this.logger.log(LoggerType.SERVICE_FRIEND_REQUEST, 'Succcessful friend request update');
       },
       error: (err) => {
-        console.log('Unsuccessful friend request update', err);
+        this.logger.log(
+          LoggerType.SERVICE_FRIEND_REQUEST,
+          'Unsuccessful friend request update',
+          err,
+        );
       },
     });
   }
@@ -129,10 +146,14 @@ export class FriendRequestService {
   public cancelFriendRequest(requestId: string) {
     this.apiService.cancelFriendRequest(requestId).subscribe({
       next: () => {
-        console.log('Successful friend request deletion');
+        this.logger.log(LoggerType.SERVICE_FRIEND_REQUEST, 'Successful friend request deletion');
       },
       error: (err) => {
-        console.log('Unsuccessful friend request deletion', err);
+        this.logger.log(
+          LoggerType.SERVICE_FRIEND_REQUEST,
+          'Unsuccessful friend request deletion',
+          err,
+        );
       },
     });
   }

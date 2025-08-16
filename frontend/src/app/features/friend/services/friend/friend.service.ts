@@ -27,8 +27,6 @@ export class FriendService {
     this.apiService.getFriends().subscribe({
       next: (friendIds) => {
         this.friends.set(friendIds);
-
-        //console.log('Friends: ', this.friends());
       },
     });
   }

@@ -1,8 +1,9 @@
 import { effect, inject, Injectable, signal } from '@angular/core';
 import { SocketService } from '../../../../core/services/socket/socket.service';
-import { Message, WSEventType } from '@common/types';
+import { LoggerType, Message, WSEventType } from '@common/types';
 import { ChannelService } from 'src/app/features/channel/services/channel/channel.service';
 import { PrivateApiService } from 'src/app/core/services/api/private-api.service';
+import { LoggerService } from 'src/app/core/services/logger/logger.service';
 
 @Injectable({
   providedIn: 'root',
@@ -11,6 +12,7 @@ export class MessageService {
   private wsService = inject(SocketService);
   private channelService = inject(ChannelService);
   private apiService = inject(PrivateApiService);
+  private logger = inject(LoggerService);
 
   readonly messages = signal<Message[]>([]);
 
@@ -21,10 +23,10 @@ export class MessageService {
     effect(() => {
       const currentChannel = this.channelService.currentChannel();
       if (currentChannel) {
-        console.log('Loading message history');
+        this.logger.log(LoggerType.SERVICE_MESSAGE, 'Loading message history');
         this.loadMessageHistory(currentChannel);
       } else {
-        console.log('No channel');
+        this.logger.log(LoggerType.SERVICE_MESSAGE, 'No channel');
         this.messages.set([]);
       }
     });
@@ -46,7 +48,7 @@ export class MessageService {
   public loadMessageHistory(channelId: string): void {
     this.apiService.getMessageHistory(channelId).subscribe({
       next: (messages) => this.messages.set(messages),
-      error: (err) => console.error('Failed to load history', err),
+      error: (err) => this.logger.error(LoggerType.SERVICE_MESSAGE, 'Failed to load history', err),
     });
   }
 
@@ -82,10 +84,10 @@ export class MessageService {
   public editMessage(messageId: string, newContent: string) {
     this.apiService.editMessage(messageId, newContent).subscribe({
       next: () => {
-        console.log('Successful edit');
+        this.logger.log(LoggerType.SERVICE_MESSAGE, 'Successful edit');
       },
       error: (err) => {
-        console.error('Unsuccessful edit', err);
+        this.logger.error(LoggerType.SERVICE_MESSAGE, 'Unsuccessful edit', err);
       },
     });
   }
@@ -95,10 +97,10 @@ export class MessageService {
     this.apiService.deleteMessage(messageId).subscribe({
       next: () => {
         //
-        console.log('Successful delete');
+        this.logger.log(LoggerType.SERVICE_MESSAGE, 'Successful delete');
       },
       error: (err) => {
-        console.error('Unsuccessful delete', err);
+        this.logger.error(LoggerType.SERVICE_MESSAGE, 'Unsuccessful delete', err);
       },
     });
   }

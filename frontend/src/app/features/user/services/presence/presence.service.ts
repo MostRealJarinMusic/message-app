@@ -1,8 +1,9 @@
 import { effect, inject, Injectable, signal } from '@angular/core';
 import { SocketService } from '../../../../core/services/socket/socket.service';
-import { PresenceStatus, PresenceUpdate, WSEventType } from '@common/types';
+import { LoggerType, PresenceStatus, PresenceUpdate, WSEventType } from '@common/types';
 import { PrivateApiService } from '../../../../core/services/api/private-api.service';
 import { ServerService } from 'src/app/features/server/services/server/server.service';
+import { LoggerService } from 'src/app/core/services/logger/logger.service';
 
 @Injectable({
   providedIn: 'root',
@@ -11,6 +12,7 @@ export class PresenceService {
   private socketService = inject(SocketService);
   private serverService = inject(ServerService);
   private apiService = inject(PrivateApiService);
+  private logger = inject(LoggerService);
 
   public presenceMap = signal(new Map<string, PresenceStatus>());
 
@@ -31,7 +33,7 @@ export class PresenceService {
         this.handlePresenceUpdate(update);
       },
       error: (err) => {
-        console.error('Error with presence update', err);
+        this.logger.error(LoggerType.SERVICE_PRESENCE, 'Error with presence update', err);
       },
     });
   }
@@ -47,13 +49,17 @@ export class PresenceService {
   }
 
   private loadServerUserPresences(serverId: string) {
-    console.log('Attempting to load server presences');
+    this.logger.log(LoggerType.SERVICE_PRESENCE, 'Attempting to load server presences');
     this.apiService.getServerUserPresences(serverId).subscribe({
       next: (presences) => {
         presences.forEach((update) => this.handlePresenceUpdate(update));
       },
       error: (err) => {
-        console.error('Error with initial server presence payload', err);
+        this.logger.error(
+          LoggerType.SERVICE_PRESENCE,
+          'Error with initial server presence payload',
+          err,
+        );
       },
     });
   }
