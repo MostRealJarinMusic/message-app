@@ -8,9 +8,8 @@ describe('ServerTitleBarComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ServerTitleBarComponent]
-    })
-    .compileComponents();
+      imports: [ServerTitleBarComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ServerTitleBarComponent);
     component = fixture.componentInstance;

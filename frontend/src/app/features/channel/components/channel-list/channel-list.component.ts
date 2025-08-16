@@ -8,18 +8,8 @@ import {
   signal,
   ViewChild,
 } from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormsModule,
-  ReactiveFormsModule,
-} from '@angular/forms';
-import {
-  Channel,
-  ChannelCategory,
-  ChannelCategoryUpdate,
-  ChannelUpdate,
-} from '@common/types';
+import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Channel, ChannelCategory, ChannelCategoryUpdate, ChannelUpdate } from '@common/types';
 import { ButtonModule } from 'primeng/button';
 import { ListboxModule } from 'primeng/listbox';
 import { AccordionModule } from 'primeng/accordion';
@@ -182,22 +172,19 @@ export class ChannelListComponent implements OnDestroy, OnInit {
   }
 
   protected startChannelCreate(categoryId: string) {
-    this.createChannelDialogRef = this.dialogService.open(
-      ChannelCreateDialogComponent,
-      {
-        header: 'Create Channel',
-        width: '30%',
-        baseZIndex: 10000,
-        modal: true,
-        dismissableMask: true,
-        closeOnEscape: true,
-        closable: true,
-        styleClass: '!bg-surface-700 !pt-0',
-        data: {
-          categoryName: this.categoryService.getCategoryName(categoryId),
-        },
-      }
-    );
+    this.createChannelDialogRef = this.dialogService.open(ChannelCreateDialogComponent, {
+      header: 'Create Channel',
+      width: '30%',
+      baseZIndex: 10000,
+      modal: true,
+      dismissableMask: true,
+      closeOnEscape: true,
+      closable: true,
+      styleClass: '!bg-surface-700 !pt-0',
+      data: {
+        categoryName: this.categoryService.getCategoryName(categoryId),
+      },
+    });
 
     this.createChannelDialogRef.onClose.subscribe((newChannelName) => {
       if (newChannelName) {
@@ -212,9 +199,7 @@ export class ChannelListComponent implements OnDestroy, OnInit {
   private startChannelEdit(): void {
     //Open the channel editor overlay
     this.channelEditOverlayVisible.set(true);
-    const channel = this.channelService.getChannelById(
-      this.contextMenuChannel!.id
-    );
+    const channel = this.channelService.getChannelById(this.contextMenuChannel!.id);
 
     this.channelEditForm.reset({
       name: channel!.name,
@@ -236,10 +221,7 @@ export class ChannelListComponent implements OnDestroy, OnInit {
         topic: this.channelEditForm.value.topic!,
       };
 
-      this.channelService.editChannel(
-        this.channelEditService.currentlyEditedId()!,
-        updates
-      );
+      this.channelService.editChannel(this.channelEditService.currentlyEditedId()!, updates);
 
       //this.channelEditOverlayVisible.set(false);
       this.channelEditForm.markAsPristine();
@@ -252,10 +234,7 @@ export class ChannelListComponent implements OnDestroy, OnInit {
     this.channelService.selectChannel(id);
   }
 
-  protected showCategoryContextMenu(
-    event: MouseEvent,
-    category: ChannelCategory
-  ) {
+  protected showCategoryContextMenu(event: MouseEvent, category: ChannelCategory) {
     event.preventDefault();
     this.contextMenuCategory = category;
     this.categoryContextMenu.show(event);
@@ -263,9 +242,7 @@ export class ChannelListComponent implements OnDestroy, OnInit {
 
   protected startCategoryEdit(): void {
     this.categoryEditOverlayVisible.set(true);
-    const category = this.categoryService.getCategoryById(
-      this.contextMenuCategory!.id
-    );
+    const category = this.categoryService.getCategoryById(this.contextMenuCategory!.id);
 
     this.categoryEditForm.reset({
       name: category!.name,
@@ -285,10 +262,7 @@ export class ChannelListComponent implements OnDestroy, OnInit {
         name: this.categoryEditForm.value.name!,
       };
 
-      this.categoryService.editCategory(
-        this.categoryEditService.currentlyEditedId()!,
-        updates
-      );
+      this.categoryService.editCategory(this.categoryEditService.currentlyEditedId()!, updates);
 
       this.categoryEditForm.markAsPristine();
     } catch (err) {

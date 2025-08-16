@@ -8,9 +8,8 @@ describe('FullscreenOverlayComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [FullscreenOverlayComponent]
-    })
-    .compileComponents();
+      imports: [FullscreenOverlayComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(FullscreenOverlayComponent);
     component = fixture.componentInstance;

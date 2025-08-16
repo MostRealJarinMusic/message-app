@@ -8,9 +8,8 @@ describe('ChannelEditorComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ChannelEditorComponent]
-    })
-    .compileComponents();
+      imports: [ChannelEditorComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ChannelEditorComponent);
     component = fixture.componentInstance;

@@ -1,11 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import {
-  NavigationView,
-  Server,
-  ServerCreate,
-  ServerUpdate,
-  WSEventType,
-} from '@common/types';
+import { NavigationView, Server, ServerCreate, ServerUpdate, WSEventType } from '@common/types';
 import { SocketService } from '../../../../core/services/socket/socket.service';
 import { PrivateApiService } from 'src/app/core/services/api/private-api.service';
 import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
@@ -66,9 +60,7 @@ export class ServerService {
 
     //Deletes
     this.wsService.on(WSEventType.SERVER_DELETE).subscribe((server) => {
-      this.servers.update((current) =>
-        current.filter((s) => s.id !== server.id)
-      );
+      this.servers.update((current) => current.filter((s) => s.id !== server.id));
 
       if (server.id === this.currentServer()) {
         if (this.servers().length > 0) {
@@ -81,9 +73,7 @@ export class ServerService {
 
     this.wsService.on(WSEventType.SERVER_UPDATE).subscribe((server) => {
       this.servers.update((currentServers) =>
-        currentServers!.map((s) =>
-          s.id === server.id ? { ...s, ...server } : s
-        )
+        currentServers!.map((s) => (s.id === server.id ? { ...s, ...server } : s)),
       );
     });
   }

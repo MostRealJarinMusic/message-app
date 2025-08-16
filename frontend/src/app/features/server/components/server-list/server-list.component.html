@@ -3,29 +3,22 @@
     icon="pi pi-users"
     [rounded]="true"
     severity="secondary"
-    (click)="serverService.viewDMs()"
-  />
+    (click)="serverService.viewDMs()" />
 
   @for (server of servers(); track $index) {
-  <li
-    [ngClass]="{
-      'py-2 px-3 w-full list-none rounded-border transition-colors duration-200 cursor-pointer': true,
-      'text-color-emphasis bg-emphasis': server.id === currentServer(),
-      'text-muted-color hover:bg-emphasis hover:text-muted-color-emphasis':
-        server.id !== currentServer()
-    }"
-    (click)="serverService.selectServer(server.id)"
-    (contextmenu)="showContextMenu($event, server)"
-  >
-    {{ server.name }}
-  </li>
+    <li
+      [ngClass]="{
+        'py-2 px-3 w-full list-none rounded-border transition-colors duration-200 cursor-pointer': true,
+        'text-color-emphasis bg-emphasis': server.id === currentServer(),
+        'text-muted-color hover:bg-emphasis hover:text-muted-color-emphasis':
+          server.id !== currentServer(),
+      }"
+      (click)="serverService.selectServer(server.id)"
+      (contextmenu)="showContextMenu($event, server)">
+      {{ server.name }}
+    </li>
   }
-  <p-button
-    icon="pi pi-plus"
-    [rounded]="true"
-    (click)="startServerCreate()"
-    severity="secondary"
-  />
+  <p-button icon="pi pi-plus" [rounded]="true" (click)="startServerCreate()" severity="secondary" />
 
   <p-contextmenu #serverContextMenu [model]="contextMenuItems" />
   <!-- (onHide)="contextMenuServer = null" -->

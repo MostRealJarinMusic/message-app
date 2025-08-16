@@ -10,13 +10,7 @@ import { ChannelService } from 'src/app/features/channel/services/channel/channe
 
 @Component({
   selector: 'app-message-input',
-  imports: [
-    InputTextModule,
-    FormsModule,
-    ButtonModule,
-    CardModule,
-    TextareaModule,
-  ],
+  imports: [InputTextModule, FormsModule, ButtonModule, CardModule, TextareaModule],
   templateUrl: './message-input.component.html',
   styleUrl: './message-input.component.scss',
 })
@@ -26,11 +20,9 @@ export class MessageInputComponent {
   private draftService = inject(MessageDraftService);
 
   protected newMessage = signal('');
-  protected currentChannel = computed(() =>
-    this.channelService.currentChannel()
-  );
+  protected currentChannel = computed(() => this.channelService.currentChannel());
   protected placeholderMessage = computed(
-    () => `Message ${this.channelService.currentChannelName()}`
+    () => `Message ${this.channelService.currentChannelName()}`,
   );
 
   private sync = effect(() => {

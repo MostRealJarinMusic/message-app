@@ -1,13 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  EventEmitter,
-  input,
-  Input,
-  output,
-  Output,
-  signal,
-} from '@angular/core';
+import { Component, EventEmitter, input, Input, output, Output, signal } from '@angular/core';
 
 @Component({
   selector: 'app-accordion-panel',

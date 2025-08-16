@@ -25,10 +25,7 @@ export class SocketService {
   private readonly heartbeatRate = 30000;
 
   connect(token: string | null): void {
-    if (
-      this.socket &&
-      (this.isConnected || this.socket.readyState < WebSocket.CLOSING)
-    ) {
+    if (this.socket && (this.isConnected || this.socket.readyState < WebSocket.CLOSING)) {
       console.log('Got here');
       return;
     }
@@ -102,7 +99,7 @@ export class SocketService {
   on<T extends WSEventType>(event: T): Observable<WSEventPayload[T]> {
     return this.eventStream$.pipe(
       filter((e) => e.event === event),
-      map((e) => e.payload)
+      map((e) => e.payload),
     );
   }
 

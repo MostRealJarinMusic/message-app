@@ -35,14 +35,12 @@ export class MessageService {
 
     //Should use HTTP
     //Temporary message response code
-    this.apiService
-      .sendMessage(this.channelService.currentChannel()!, content)
-      .subscribe({
-        next: (message) => {},
-        error: (err) => {
-          //Response to any errors - optimistic UI
-        },
-      });
+    this.apiService.sendMessage(this.channelService.currentChannel()!, content).subscribe({
+      next: (message) => {},
+      error: (err) => {
+        //Response to any errors - optimistic UI
+      },
+    });
   }
 
   public loadMessageHistory(channelId: string): void {
@@ -64,9 +62,7 @@ export class MessageService {
     this.wsService.on(WSEventType.DELETED).subscribe((message) => {
       //Delete the message from the loaded channel if it exists in the history
       if (message.channelId === this.channelService.currentChannel()) {
-        this.messages.update((current) =>
-          current.filter((m) => m.id !== message.id)
-        );
+        this.messages.update((current) => current.filter((m) => m.id !== message.id));
       }
     });
 
@@ -76,8 +72,8 @@ export class MessageService {
       if (message.channelId === this.channelService.currentChannel()) {
         this.messages.update((currentMessages) =>
           currentMessages.map((m) =>
-            m.id === message.id ? { ...m, content: message.content } : m
-          )
+            m.id === message.id ? { ...m, content: message.content } : m,
+          ),
         );
       }
     });

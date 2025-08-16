@@ -60,8 +60,7 @@ export class PresenceService {
 
   getAvatarStyle(status: PresenceStatus) {
     return {
-      'background-color':
-        status === PresenceStatus.ONLINE ? '#10B981' : '#6B7280',
+      'background-color': status === PresenceStatus.ONLINE ? '#10B981' : '#6B7280',
       color: '#ffffff',
     };
   }

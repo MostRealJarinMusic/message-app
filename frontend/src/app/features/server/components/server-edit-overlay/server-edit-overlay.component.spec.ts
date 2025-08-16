@@ -8,9 +8,8 @@ describe('ServerEditOverlayComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ServerEditOverlayComponent]
-    })
-    .compileComponents();
+      imports: [ServerEditOverlayComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ServerEditOverlayComponent);
     component = fixture.componentInstance;

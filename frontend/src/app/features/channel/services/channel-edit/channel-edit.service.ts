@@ -1,10 +1,4 @@
-import {
-  computed,
-  effect,
-  Injectable,
-  signal,
-  WritableSignal,
-} from '@angular/core';
+import { computed, effect, Injectable, signal, WritableSignal } from '@angular/core';
 import { ChannelUpdate } from '@common/types';
 
 @Injectable({

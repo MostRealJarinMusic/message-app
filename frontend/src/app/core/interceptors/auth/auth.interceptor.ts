@@ -2,10 +2,7 @@ import { HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { AuthTokenService } from '../../services/authtoken/auth-token.service';
 
-export const authInterceptor: HttpInterceptorFn = (
-  req: HttpRequest<unknown>,
-  next
-) => {
+export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, next) => {
   const token = inject(AuthTokenService).getToken();
   const isPrivate = req.url.includes('private');
 

@@ -26,8 +26,7 @@ export class AuthTokenService {
   }
 
   clearToken(): void {
-    if (typeof window !== 'undefined' && sessionStorage)
-      sessionStorage.removeItem(this.tokenKey);
+    if (typeof window !== 'undefined' && sessionStorage) sessionStorage.removeItem(this.tokenKey);
     this.tokenSubject.next(null);
   }
 

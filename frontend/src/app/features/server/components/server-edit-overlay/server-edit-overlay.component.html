@@ -1,7 +1,6 @@
 <app-fullscreen-overlay
   [visible]="serverEditService.editActive()"
-  (visibleChange)="serverEditService.closeEdit()"
->
+  (visibleChange)="serverEditService.closeEdit()">
   <div class="space-y-5 w-full mx-auto">
     <h1 class="text-lg font-medium text-color-emphasis">
       Overview - {{ serverEditForm.value.name }} Settings
@@ -15,8 +14,7 @@
           type="text"
           class="!w-full !p-4 !text-sm !bg-surface-700 rounded-lg border !border-surface-600 focus:outline-none focus:ring-2 focus:ring-primary"
           pInputText
-          formControlName="name"
-        />
+          formControlName="name" />
       </div>
 
       <p-divider class="!mx-0" layout="horizontal" />
@@ -31,28 +29,23 @@
           rows="5"
           formControlName="description"
           placeholder="Write a channel topic."
-          style="resize: none"
-        ></textarea>
+          style="resize: none"></textarea>
       </div>
     </form>
 
-    @if(serverEditForm.dirty) {
-    <div
-      class="flex justify-between items-center pt-4 border-t border-surface-600"
-    >
-      <button
-        pButton
-        label="Cancel"
-        class="p-button-text"
-        (click)="serverEditService.resetEditForm(serverEditForm)"
-      ></button>
-      <button
-        pButton
-        label="Save Changes"
-        (click)="serverEditService.saveEdit(serverEditForm)"
-        [disabled]="!serverEditForm.dirty || serverEditForm.invalid"
-      ></button>
-    </div>
+    @if (serverEditForm.dirty) {
+      <div class="flex justify-between items-center pt-4 border-t border-surface-600">
+        <button
+          pButton
+          label="Cancel"
+          class="p-button-text"
+          (click)="serverEditService.resetEditForm(serverEditForm)"></button>
+        <button
+          pButton
+          label="Save Changes"
+          (click)="serverEditService.saveEdit(serverEditForm)"
+          [disabled]="!serverEditForm.dirty || serverEditForm.invalid"></button>
+      </div>
     }
   </div>
 </app-fullscreen-overlay>
