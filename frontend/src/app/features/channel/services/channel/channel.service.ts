@@ -66,6 +66,13 @@ export class ChannelService {
       next: (channels) => {
         this.channels.set(channels);
 
+        this.navService.setChildren(
+          serverId,
+          this.channels().map((c) => {
+            return { id: c.id };
+          }),
+        );
+
         if (
           (!this.currentChannel() ||
             !this.channels()!
@@ -124,6 +131,8 @@ export class ChannelService {
       if (channel.serverId === this.serverService.currentServer()) {
         this.channels.update((current) => [...current!, channel]);
       }
+
+      this.navService.addChildren(channel.serverId, [{ id: channel.id }]);
     });
 
     //Deletes
@@ -131,6 +140,8 @@ export class ChannelService {
       if (channel.serverId === this.serverService.currentServer()) {
         this.channels.update((current) => current!.filter((c) => c.id !== channel.id));
       }
+
+      this.navService.deleteChild(channel.serverId, channel.id);
 
       if (channel.id === this.currentChannel()) {
         if (this.channels().length > 0) {
