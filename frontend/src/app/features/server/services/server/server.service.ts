@@ -48,8 +48,15 @@ export class ServerService {
         if (!this.currentServer() && servers.length > 0) {
           this.selectServer(servers[0].id);
         }
+
+        this.navService.setChildren(
+          'servers',
+          this.servers().map((s) => {
+            return { id: s.id };
+          }),
+        );
       },
-      error: (err) => this.logger.error(LoggerType.SERVICE_SERVER, 'Failed to load channels', err),
+      error: (err) => this.logger.error(LoggerType.SERVICE_SERVER, 'Failed to load servers', err),
     });
   }
 
@@ -64,12 +71,16 @@ export class ServerService {
     this.wsService.on(WSEventType.SERVER_CREATE).subscribe((server) => {
       this.servers.update((current) => [...current, server]);
 
+      this.navService.addChildren('servers', [{ id: server.id }]);
+
       this.selectServer(server.id);
     });
 
     //Deletes
     this.wsService.on(WSEventType.SERVER_DELETE).subscribe((server) => {
       this.servers.update((current) => current.filter((s) => s.id !== server.id));
+
+      this.navService.deleteChild('servers', server.id);
 
       if (server.id === this.currentServer()) {
         if (this.servers().length > 0) {
@@ -84,6 +95,8 @@ export class ServerService {
       this.servers.update((currentServers) =>
         currentServers!.map((s) => (s.id === server.id ? { ...s, ...server } : s)),
       );
+
+      //Doesn't change the navigation tree
     });
   }
 

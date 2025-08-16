@@ -13,7 +13,7 @@ export class NavigationService {
     children: [
       {
         id: 'servers',
-        children: [],
+        children: [], //All server IDs, with channel IDs as children
       },
       {
         id: 'direct-messages',
@@ -31,6 +31,7 @@ export class NavigationService {
           },
           {
             id: 'direct-message-chat',
+            children: [], //DMs open - currently all friend chats will be loaded by default
           },
         ],
         activeChildId: 'friends', //Default
@@ -52,7 +53,7 @@ export class NavigationService {
   });
 
   readonly currentServerId = signal<string | null>(null);
-  readonly currentChannelid = signal<string | null>(null);
+  readonly currentChannelId = signal<string | null>(null);
 
   public isActive = (id: string) =>
     computed(() => {
@@ -109,6 +110,8 @@ export class NavigationService {
       const parent = this.findNode(root, parentId);
       if (!parent) throw new Error(`Parent node ${parentId} not found`);
       parent.children = [...(parent.children ?? []), ...children];
+
+      this.logger.log(LoggerType.SERVICE_NAVIGATION, 'Root', this.root());
       return { ...root };
     });
   }
@@ -118,6 +121,8 @@ export class NavigationService {
       const parent = this.findNode(root, parentId);
       if (!parent) throw new Error(`Parent node ${parentId} not found`);
       parent.children = [...children];
+
+      this.logger.log(LoggerType.SERVICE_NAVIGATION, 'Root', this.root());
       return { ...root };
     });
   }
@@ -127,6 +132,8 @@ export class NavigationService {
       const parent = this.findNode(root, parentId);
       if (!parent) throw new Error(`Parent node ${parentId} not found`);
       parent.children = (parent.children ?? []).filter((child) => child.id !== childId);
+
+      this.logger.log(LoggerType.SERVICE_NAVIGATION, 'Root', this.root());
       return { ...root };
     });
   }

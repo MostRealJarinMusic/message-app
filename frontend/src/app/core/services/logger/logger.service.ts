@@ -10,6 +10,9 @@ export class LoggerService {
     LoggerType.SERVICE_CHANNEL,
     LoggerType.SERVICE_CATEGORY,
     LoggerType.SERVICE_MESSAGE,
+    LoggerType.SERVICE_USER,
+    LoggerType.SERVICE_PRESENCE,
+    LoggerType.SERVICE_SOCKET,
   ];
 
   log(loggedBy: LoggerType, message: string, ...optional: any[]) {
