@@ -1,7 +1,12 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { inject } from '@angular/core';
 import { catchError, Observable, throwError } from 'rxjs';
+import { LoggerService } from '../logger/logger.service';
+import { LoggerType } from '@common/types';
 
 export abstract class BaseApiService {
+  private logger = inject(LoggerService);
+
   protected constructor(
     protected http: HttpClient,
     private baseUrl: string,
@@ -28,7 +33,7 @@ export abstract class BaseApiService {
   }
 
   protected handleError(error: HttpErrorResponse) {
-    console.error('API error:', error);
+    this.logger.error(LoggerType.SERVICE_API, 'API error:', error);
 
     let errorMessage = 'An unknown error occured.';
     if (error.error instanceof ErrorEvent) {

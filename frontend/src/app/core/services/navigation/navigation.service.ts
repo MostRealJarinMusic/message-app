@@ -1,10 +1,13 @@
-import { computed, Injectable, signal } from '@angular/core';
-import { NavigationNode, NavigationView, Server } from '@common/types';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { LoggerType, NavigationNode, NavigationView, Server } from '@common/types';
+import { LoggerService } from '../logger/logger.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class NavigationService {
+  private logger = inject(LoggerService);
+
   readonly root = signal<NavigationNode>({
     id: 'root',
     children: [
@@ -65,7 +68,8 @@ export class NavigationService {
 
     parent.activeChildId = childId;
     this.root.update((r) => ({ ...r }));
-    console.log(
+    this.logger.log(
+      LoggerType.SERVICE_NAVIGATION,
       'Active path: ',
       this.activePath().map((n) => n.id),
     );

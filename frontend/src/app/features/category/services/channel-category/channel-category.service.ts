@@ -3,16 +3,19 @@ import {
   ChannelCategory,
   ChannelCategoryCreate,
   ChannelCategoryUpdate,
+  LoggerType,
   WSEventType,
 } from '@common/types';
 import { PrivateApiService } from 'src/app/core/services/api/private-api.service';
 import { ServerService } from 'src/app/features/server/services/server/server.service';
 import { SocketService } from 'src/app/core/services/socket/socket.service';
+import { LoggerService } from 'src/app/core/services/logger/logger.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ChannelCategoryService {
+  private logger = inject(LoggerService);
   private apiService = inject(PrivateApiService);
   private serverService = inject(ServerService);
   private wsService = inject(SocketService);
@@ -26,7 +29,7 @@ export class ChannelCategoryService {
     effect(() => {
       const currentServer = this.serverService.currentServer();
       if (currentServer) {
-        console.log('Loading channel categories');
+        this.logger.log(LoggerType.SERVICE_CATEGORY, 'Loading channel categories');
         this.channelCategories.set(null);
         this.loadCategories(currentServer);
       } else {
@@ -40,7 +43,8 @@ export class ChannelCategoryService {
       next: (categories) => {
         this.channelCategories.set(categories);
       },
-      error: (err) => console.error('Failed to load server structure', err),
+      error: (err) =>
+        this.logger.error(LoggerType.SERVICE_CATEGORY, 'Failed to load server structure', err),
     });
   }
 
@@ -84,10 +88,10 @@ export class ChannelCategoryService {
 
     this.apiService.createCategory(serverId, newCategoryData).subscribe({
       next: (category) => {
-        console.log('Successfully category creation');
+        this.logger.log(LoggerType.SERVICE_CATEGORY, 'Successfully category creation');
       },
       error: (err) => {
-        console.error('Failed to create category:', err);
+        this.logger.error(LoggerType.SERVICE_CATEGORY, 'Failed to create category:', err);
       },
     });
   }
@@ -95,10 +99,10 @@ export class ChannelCategoryService {
   public deleteCategory(categoryId: string) {
     this.apiService.deleteCategory(categoryId).subscribe({
       next: () => {
-        console.log('Successful category deletion');
+        this.logger.log(LoggerType.SERVICE_CATEGORY, 'Successful category deletion');
       },
       error: (err) => {
-        console.error('Unsuccessful edit', err);
+        this.logger.error(LoggerType.SERVICE_CATEGORY, 'Unsuccessful edit', err);
       },
     });
   }
@@ -106,10 +110,10 @@ export class ChannelCategoryService {
   public editCategory(categoryId: string, categoryUpdate: ChannelCategoryUpdate) {
     this.apiService.editCategory(categoryId, categoryUpdate).subscribe({
       next: () => {
-        console.log('Successful category edit');
+        this.logger.log(LoggerType.SERVICE_CATEGORY, 'Successful category edit');
       },
       error: (err) => {
-        console.error('Unsuccessful category edit', err);
+        this.logger.error(LoggerType.SERVICE_CATEGORY, 'Unsuccessful category edit', err);
       },
     });
   }

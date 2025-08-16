@@ -85,7 +85,6 @@ export class PrivateApiService extends BaseApiService {
   }
 
   createChannel(serverId: string, newChannelData: ChannelCreate) {
-    console.log(newChannelData);
     return this.authorisedFetch<Channel>((_) =>
       this.post<Channel>(`servers/${serverId}/channels`, newChannelData),
     );

@@ -1,8 +1,16 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { NavigationView, Server, ServerCreate, ServerUpdate, WSEventType } from '@common/types';
+import {
+  LoggerType,
+  NavigationView,
+  Server,
+  ServerCreate,
+  ServerUpdate,
+  WSEventType,
+} from '@common/types';
 import { SocketService } from '../../../../core/services/socket/socket.service';
 import { PrivateApiService } from 'src/app/core/services/api/private-api.service';
 import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
+import { LoggerService } from 'src/app/core/services/logger/logger.service';
 
 @Injectable({
   providedIn: 'root',
@@ -11,6 +19,7 @@ export class ServerService {
   private apiService = inject(PrivateApiService);
   private wsService = inject(SocketService);
   private navService = inject(NavigationService);
+  private logger = inject(LoggerService);
 
   readonly servers = signal<Server[]>([]);
   readonly currentServer = signal<string | null>(null);
@@ -30,7 +39,7 @@ export class ServerService {
   }
 
   loadServers() {
-    console.log('Loading servers');
+    this.logger.log(LoggerType.SERVICE_SERVER, 'Loading servers');
 
     this.apiService.getServers().subscribe({
       next: (servers) => {
@@ -40,7 +49,7 @@ export class ServerService {
           this.selectServer(servers[0].id);
         }
       },
-      error: (err) => console.error('Failed to load channels', err),
+      error: (err) => this.logger.error(LoggerType.SERVICE_SERVER, 'Failed to load channels', err),
     });
   }
 
@@ -85,10 +94,10 @@ export class ServerService {
 
     this.apiService.createServer(newServerData).subscribe({
       next: (server) => {
-        console.log('Successful server creation');
+        this.logger.log(LoggerType.SERVICE_SERVER, 'Successful server creation');
       },
       error: (err) => {
-        console.error('Failed to create server:', err);
+        this.logger.error(LoggerType.SERVICE_SERVER, 'Failed to create server:', err);
       },
     });
   }
@@ -96,10 +105,10 @@ export class ServerService {
   public deleteServer(serverId: string) {
     this.apiService.deleteServer(serverId).subscribe({
       next: () => {
-        console.log('Successful server deletion');
+        this.logger.log(LoggerType.SERVICE_SERVER, 'Successful server deletion');
       },
       error: (err) => {
-        console.error('Unsuccessful server deletion', err);
+        this.logger.error(LoggerType.SERVICE_SERVER, 'Unsuccessful server deletion', err);
       },
     });
   }
@@ -107,10 +116,10 @@ export class ServerService {
   public editServer(serverId: string, serverUpdate: ServerUpdate) {
     this.apiService.editServer(serverId, serverUpdate).subscribe({
       next: () => {
-        console.log('Successful edit');
+        this.logger.log(LoggerType.SERVICE_SERVER, 'Successful edit');
       },
       error: (err) => {
-        console.error('Unsuccesful edit', err);
+        this.logger.error(LoggerType.SERVICE_SERVER, 'Unsuccesful edit', err);
       },
     });
   }

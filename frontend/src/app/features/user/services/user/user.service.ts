@@ -1,8 +1,9 @@
 import { effect, inject, Injectable, signal } from '@angular/core';
-import { User } from '@common/types';
+import { LoggerType, User } from '@common/types';
 import { catchError, Observable, of, tap } from 'rxjs';
 import { PrivateApiService } from '../../../../core/services/api/private-api.service';
 import { ServerService } from 'src/app/features/server/services/server/server.service';
+import { LoggerService } from 'src/app/core/services/logger/logger.service';
 
 @Injectable({
   providedIn: 'root',
@@ -10,6 +11,7 @@ import { ServerService } from 'src/app/features/server/services/server/server.se
 export class UserService {
   private apiService = inject(PrivateApiService);
   private serverService = inject(ServerService);
+  private logger = inject(LoggerService);
 
   readonly currentUser = signal<User | null>(null);
   private userCache = new Map<string, User>();
@@ -33,7 +35,7 @@ export class UserService {
         this.currentUser.set(user);
       }),
       catchError((err) => {
-        console.error('Failed to fetch current user:', err);
+        this.logger.error(LoggerType.SERVICE_USER, 'Failed to fetch current user:', err);
         this.currentUser.set(null);
         return of(null);
       }),
@@ -58,10 +60,10 @@ export class UserService {
         users.forEach((user) => this.userCache.set(user.id, user));
         this.serverUsers.set(users);
 
-        console.log(users);
+        this.logger.log(LoggerType.SERVICE_USER, '', users);
       },
       error: (err) => {
-        console.error('Error loading server users', err);
+        this.logger.error(LoggerType.SERVICE_USER, 'Error loading server users', err);
       },
     });
   }
