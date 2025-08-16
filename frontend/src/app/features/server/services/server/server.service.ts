@@ -44,6 +44,7 @@ export class ServerService {
     this.apiService.getServers().subscribe({
       next: (servers) => {
         this.servers.set(servers);
+        console.log(servers);
 
         this.navService.setChildren(
           'servers',

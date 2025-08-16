@@ -13,7 +13,7 @@ export class NavigationService {
     children: [
       {
         id: 'servers',
-        children: [], //All server IDs, with channel IDs as children
+        children: [],
       },
       {
         id: 'direct-messages',
@@ -31,7 +31,7 @@ export class NavigationService {
           },
           {
             id: 'direct-message-chat',
-            children: [], //DMs open - currently all friend chats will be loaded by default
+            children: [],
           },
         ],
         activeChildId: 'friends', //Default

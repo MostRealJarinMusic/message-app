@@ -1,6 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { WSEventType } from '@common/types';
+import { LoggerType, WSEventType } from '@common/types';
 import { PrivateApiService } from 'src/app/core/services/api/private-api.service';
+import { LoggerService } from 'src/app/core/services/logger/logger.service';
 import { SocketService } from 'src/app/core/services/socket/socket.service';
 
 @Injectable({
@@ -9,6 +10,7 @@ import { SocketService } from 'src/app/core/services/socket/socket.service';
 export class FriendService {
   private apiService = inject(PrivateApiService);
   private wsService = inject(SocketService);
+  private logger = inject(LoggerService);
 
   readonly friends = signal<string[]>([]);
 
@@ -24,6 +26,8 @@ export class FriendService {
   }
 
   loadFriends() {
+    this.logger.log(LoggerType.SERVICE_FRIEND, 'Loading friends');
+
     this.apiService.getFriends().subscribe({
       next: (friendIds) => {
         this.friends.set(friendIds);

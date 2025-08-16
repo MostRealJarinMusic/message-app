@@ -14,8 +14,6 @@ export class MessageListComponent {
   private messageService = inject(MessageService);
   private sessionService = inject(SessionService);
 
-  private messages = this.messageService.messages;
-
   @ViewChild('container', { read: ViewContainerRef, static: true })
   container!: ViewContainerRef;
 
@@ -24,7 +22,7 @@ export class MessageListComponent {
 
   constructor() {
     effect(() => {
-      this.renderMessages(this.messages());
+      this.renderMessages(this.messageService.messages());
     });
   }
 

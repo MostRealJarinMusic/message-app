@@ -20,13 +20,13 @@ export class ChannelTitleBarComponent {
     effect(() => {
       const channelId = this.channelService.currentChannel();
 
-      if (channelId != null && channelId !== undefined) {
+      if (channelId !== null && channelId !== undefined) {
         this.channelName = this.channelService.getChannelById(channelId)?.name;
         this.channelTopic = this.channelService.getChannelById(channelId)?.topic;
-      } else {
-        this.channelName = undefined;
-        this.channelTopic = undefined;
-      }
+      } //else {
+      //   this.channelName = undefined;
+      //   this.channelTopic = undefined;
+      // }
     });
   }
 }

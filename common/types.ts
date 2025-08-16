@@ -258,7 +258,7 @@ export enum NavigationView {
 
 export interface NavigationNode {
   id: string;
-  activeChildId?: string | null;
+  activeChildId?: string;
   children?: NavigationNode[];
 }
 
@@ -278,6 +278,7 @@ export enum LoggerType {
   SERVICE_NAVIGATION = "NAVIGATION SERVICE",
   SERVICE_SOCKET = "SOCKET SERVICE",
   SERVICE_FRIEND_REQUEST = "FRIEND REQUEST SERVICE",
+  SERVICE_FRIEND = "FRIEND SERVICE",
 }
 
 //#endregion
