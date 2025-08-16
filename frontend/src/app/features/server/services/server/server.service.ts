@@ -1,12 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import {
-  LoggerType,
-  NavigationView,
-  Server,
-  ServerCreate,
-  ServerUpdate,
-  WSEventType,
-} from '@common/types';
+import { LoggerType, Server, ServerCreate, ServerUpdate, WSEventType } from '@common/types';
 import { SocketService } from '../../../../core/services/socket/socket.service';
 import { PrivateApiService } from 'src/app/core/services/api/private-api.service';
 import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
@@ -22,20 +15,9 @@ export class ServerService {
   private logger = inject(LoggerService);
 
   readonly servers = signal<Server[]>([]);
-  readonly currentServer = signal<string | null>(null);
 
   constructor() {
     this.initWebSocket();
-  }
-
-  viewDMs() {
-    this.currentServer.set(null);
-    this.navService.navigate('direct-messages');
-  }
-
-  selectServer(id: string | null) {
-    this.currentServer.set(id);
-    this.navService.navigate('servers');
   }
 
   loadServers() {
@@ -53,8 +35,8 @@ export class ServerService {
           }),
         );
 
-        if (!this.currentServer() && servers.length > 0) {
-          this.selectServer(servers[0].id);
+        if (!this.navService.currentServerId() && servers.length > 0) {
+          this.navService.navigate(servers[0].id);
         }
       },
       error: (err) => this.logger.error(LoggerType.SERVICE_SERVER, 'Failed to load servers', err),
@@ -73,8 +55,6 @@ export class ServerService {
       this.servers.update((current) => [...current, server]);
 
       this.navService.addChildren('servers', [{ id: server.id }]);
-
-      this.selectServer(server.id);
     });
 
     //Deletes
@@ -83,13 +63,13 @@ export class ServerService {
 
       this.navService.deleteChild('servers', server.id);
 
-      if (server.id === this.currentServer()) {
-        if (this.servers().length > 0) {
-          this.selectServer(this.servers()[0].id);
-        } else {
-          this.selectServer(null);
-        }
-      }
+      // if (server.id === this.currentServer()) {
+      //   if (this.servers().length > 0) {
+      //     this.selectServer(this.servers()[0].id);
+      //   } else {
+      //     this.selectServer(null);
+      //   }
+      // }
     });
 
     this.wsService.on(WSEventType.SERVER_UPDATE).subscribe((server) => {

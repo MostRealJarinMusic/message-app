@@ -3,17 +3,17 @@
     icon="pi pi-users"
     [rounded]="true"
     severity="secondary"
-    (click)="serverService.viewDMs()" />
+    (click)="navService.navigate('direct-messages')" />
 
   @for (server of servers(); track $index) {
     <li
       [ngClass]="{
         'py-2 px-3 w-full list-none rounded-border transition-colors duration-200 cursor-pointer': true,
-        'text-color-emphasis bg-emphasis': server.id === currentServer(),
+        'text-color-emphasis bg-emphasis': server.id === currentServerId(),
         'text-muted-color hover:bg-emphasis hover:text-muted-color-emphasis':
-          server.id !== currentServer(),
+          server.id !== currentServerId(),
       }"
-      (click)="serverService.selectServer(server.id)"
+      (click)="navService.navigate(server.id)"
       (contextmenu)="showContextMenu($event, server)">
       {{ server.name }}
     </li>

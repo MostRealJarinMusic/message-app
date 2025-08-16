@@ -17,6 +17,7 @@ import { CategoryCreateDialogComponent } from 'src/app/components/dialogs/catego
 import { ChannelCreateDialogComponent } from 'src/app/components/dialogs/channel-create-dialog/channel-create-dialog.component';
 import { ServerCreateDialogComponent } from 'src/app/components/dialogs/server-create-dialog/server-create-dialog.component';
 import { ServerEditOverlayComponent } from '../server-edit-overlay/server-edit-overlay.component';
+import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
 
 @Component({
   selector: 'app-server-list',
@@ -40,6 +41,7 @@ export class ServerListComponent implements OnInit, OnDestroy {
   protected serverEditService = inject(ServerEditService);
   private channelService = inject(ChannelService);
   private categoryService = inject(ChannelCategoryService);
+  protected navService = inject(NavigationService);
   private dialogService = inject(DialogService);
 
   //Context menu
@@ -57,7 +59,7 @@ export class ServerListComponent implements OnInit, OnDestroy {
 
   //Current values tracked
   protected servers = this.serverService.servers;
-  protected currentServer = this.serverService.currentServer;
+  protected currentServerId = this.navService.currentServerId;
   protected contextMenuServer: Server | null = null;
 
   ngOnInit(): void {

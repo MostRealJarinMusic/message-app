@@ -4,6 +4,7 @@ import { catchError, Observable, of, tap } from 'rxjs';
 import { PrivateApiService } from '../../../../core/services/api/private-api.service';
 import { ServerService } from 'src/app/features/server/services/server/server.service';
 import { LoggerService } from 'src/app/core/services/logger/logger.service';
+import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
 
 @Injectable({
   providedIn: 'root',
@@ -11,6 +12,7 @@ import { LoggerService } from 'src/app/core/services/logger/logger.service';
 export class UserService {
   private apiService = inject(PrivateApiService);
   private serverService = inject(ServerService);
+  private navService = inject(NavigationService);
   private logger = inject(LoggerService);
 
   readonly currentUser = signal<User | null>(null);
@@ -20,7 +22,7 @@ export class UserService {
 
   constructor() {
     effect(() => {
-      const currentServer = this.serverService.currentServer();
+      const currentServer = this.navService.currentServerId();
       if (currentServer) {
         this.loadServerUsers(currentServer);
       } else {

@@ -44,7 +44,7 @@ export class ChannelService {
 
     //Load channels
     effect(() => {
-      const currentServer = this.serverService.currentServer();
+      const currentServer = this.navService.currentServerId();
       const currentCategories = this.categoryService.channelCategories();
       if (currentServer && currentCategories) {
         this.logger.log(LoggerType.SERVICE_CHANNEL, 'Loading channels');
@@ -93,7 +93,7 @@ export class ChannelService {
       categoryId: categoryId,
     };
 
-    this.apiService.createChannel(this.serverService.currentServer()!, newChannelData).subscribe({
+    this.apiService.createChannel(this.navService.currentServerId()!, newChannelData).subscribe({
       next: (channel) => {
         this.logger.log(LoggerType.SERVICE_CHANNEL, 'Successfuly channel creation');
       },
@@ -128,7 +128,7 @@ export class ChannelService {
   private initWebSocket(): void {
     //Listeners for channel creation, edits and deletes
     this.wsService.on(WSEventType.CHANNEL_CREATE).subscribe((channel) => {
-      if (channel.serverId === this.serverService.currentServer()) {
+      if (channel.serverId === this.navService.currentServerId()) {
         this.channels.update((current) => [...current!, channel]);
       }
 
@@ -137,7 +137,7 @@ export class ChannelService {
 
     //Deletes
     this.wsService.on(WSEventType.CHANNEL_DELETE).subscribe((channel) => {
-      if (channel.serverId === this.serverService.currentServer()) {
+      if (channel.serverId === this.navService.currentServerId()) {
         this.channels.update((current) => current!.filter((c) => c.id !== channel.id));
       }
 
@@ -154,7 +154,7 @@ export class ChannelService {
 
     //Edits
     this.wsService.on(WSEventType.CHANNEL_UPDATE).subscribe((channel) => {
-      if (channel.serverId === this.serverService.currentServer()) {
+      if (channel.serverId === this.navService.currentServerId()) {
         this.channels.update((currentChannels) =>
           currentChannels!.map((c) => (c.id === channel.id ? { ...c, ...channel } : c)),
         );

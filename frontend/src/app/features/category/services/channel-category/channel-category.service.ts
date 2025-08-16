@@ -10,6 +10,7 @@ import { PrivateApiService } from 'src/app/core/services/api/private-api.service
 import { ServerService } from 'src/app/features/server/services/server/server.service';
 import { SocketService } from 'src/app/core/services/socket/socket.service';
 import { LoggerService } from 'src/app/core/services/logger/logger.service';
+import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
 
 @Injectable({
   providedIn: 'root',
@@ -18,6 +19,7 @@ export class ChannelCategoryService {
   private logger = inject(LoggerService);
   private apiService = inject(PrivateApiService);
   private serverService = inject(ServerService);
+  private navService = inject(NavigationService);
   private wsService = inject(SocketService);
 
   readonly channelCategories = signal<ChannelCategory[] | null>(null);
@@ -27,7 +29,7 @@ export class ChannelCategoryService {
 
     //Load categories
     effect(() => {
-      const currentServer = this.serverService.currentServer();
+      const currentServer = this.navService.currentServerId();
       if (currentServer) {
         this.logger.log(LoggerType.SERVICE_CATEGORY, 'Loading channel categories');
         this.channelCategories.set(null);
@@ -59,21 +61,21 @@ export class ChannelCategoryService {
   private initWebSocket(): void {
     //Listeners for category creation, edits and deletes
     this.wsService.on(WSEventType.CATEGORY_CREATE).subscribe((category) => {
-      if (category.serverId === this.serverService.currentServer()) {
+      if (category.serverId === this.navService.currentServerId()) {
         this.channelCategories.update((current) => [...current!, category]);
       }
     });
 
     //Deletes - if a category gets deleted, the server structure needs to be reloaded
     this.wsService.on(WSEventType.CATEGORY_DELETE).subscribe((category) => {
-      if (category.serverId === this.serverService.currentServer()) {
+      if (category.serverId === this.navService.currentServerId()) {
         this.channelCategories.update((current) => current!.filter((c) => c.id !== category.id));
       }
     });
 
     //Edits
     this.wsService.on(WSEventType.CATEGORY_UPDATE).subscribe((category) => {
-      if (category.serverId === this.serverService.currentServer()) {
+      if (category.serverId === this.navService.currentServerId()) {
         this.channelCategories.update((currentCategories) =>
           currentCategories!.map((c) => (c.id === category.id ? { ...c, ...category } : c)),
         );
