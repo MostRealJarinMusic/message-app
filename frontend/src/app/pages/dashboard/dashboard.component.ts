@@ -43,7 +43,7 @@ export class DashboardComponent {
 
   constructor() {
     //Load servers
-    this.serverService.loadServers();
+    // this.serverService.loadServers();
 
     //Load friends
     this.friendService.loadFriends();

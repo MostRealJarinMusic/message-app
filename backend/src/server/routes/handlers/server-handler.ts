@@ -23,6 +23,9 @@ export class ServerHandler {
       //For now, we will assume that all users have access to all servers from login
 
       const servers = await ServerRepo.getServers();
+
+      console.log("Getting all servers");
+
       res.json(servers);
     } catch (err) {
       console.error("Error getting servers", err);

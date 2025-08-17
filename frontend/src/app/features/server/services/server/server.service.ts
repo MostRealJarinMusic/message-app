@@ -1,15 +1,17 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { effect, inject, Injectable, signal } from '@angular/core';
 import { LoggerType, Server, ServerCreate, ServerUpdate, WSEventType } from '@common/types';
 import { SocketService } from '../../../../core/services/socket/socket.service';
 import { PrivateApiService } from 'src/app/core/services/api/private-api.service';
 import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
 import { LoggerService } from 'src/app/core/services/logger/logger.service';
+import { UserService } from 'src/app/features/user/services/user/user.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ServerService {
   private apiService = inject(PrivateApiService);
+  private userService = inject(UserService);
   private wsService = inject(SocketService);
   private navService = inject(NavigationService);
   private logger = inject(LoggerService);
@@ -18,9 +20,17 @@ export class ServerService {
 
   constructor() {
     this.initWebSocket();
+
+    effect(() => {
+      const currentUser = this.userService.currentUser();
+
+      if (currentUser) {
+        this.loadServers();
+      }
+    });
   }
 
-  loadServers() {
+  private loadServers() {
     this.logger.log(LoggerType.SERVICE_SERVER, 'Loading servers');
 
     this.apiService.getServers().subscribe({
@@ -34,9 +44,9 @@ export class ServerService {
           }),
         );
 
-        if (!this.navService.currentServerId() && servers.length > 0) {
-          this.navService.navigate(servers[0].id);
-        }
+        // if (!this.navService.currentServerId() && servers.length > 0) {
+        //   this.navService.navigate(servers[0].id);
+        // }
       },
       error: (err) => this.logger.error(LoggerType.SERVICE_SERVER, 'Failed to load servers', err),
     });
@@ -54,6 +64,7 @@ export class ServerService {
       this.servers.update((current) => [...current, server]);
 
       this.navService.addChildren('servers', [{ id: server.id }]);
+      this.navService.navigate(server.id);
     });
 
     //Deletes

@@ -5,7 +5,7 @@
         <app-channel-button
           [channel]="channel"
           [isSelected]="channel.id === currentChannel()"
-          (select)="selectChannel($event)"
+          (select)="navService.navigate($event)"
           (openContextMenu)="showChannelContextMenu($event, channel)" />
       }
     </div>
@@ -19,7 +19,7 @@
         <app-channel-button
           [channel]="channel"
           [isSelected]="channel.id === currentChannel()"
-          (select)="selectChannel($event)"
+          (select)="navService.navigate($event)"
           (openContextMenu)="showChannelContextMenu($event, channel)" />
       }
     </app-accordion-panel>

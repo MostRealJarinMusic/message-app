@@ -4,6 +4,7 @@ import { InputIcon } from 'primeng/inputicon';
 import { IconField } from 'primeng/iconfield';
 import { InputTextModule } from 'primeng/inputtext';
 import { ChannelService } from '../../services/channel/channel.service';
+import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
 
 @Component({
   selector: 'app-channel-title-bar',
@@ -13,12 +14,13 @@ import { ChannelService } from '../../services/channel/channel.service';
 })
 export class ChannelTitleBarComponent {
   private channelService = inject(ChannelService);
+  private navService = inject(NavigationService);
   protected channelName: string | undefined;
   protected channelTopic: string | undefined;
 
   constructor() {
     effect(() => {
-      const channelId = this.channelService.currentChannel();
+      const channelId = this.navService.currentChannelId();
 
       if (channelId !== null && channelId !== undefined) {
         this.channelName = this.channelService.getChannelById(channelId)?.name;

@@ -11,7 +11,6 @@ import { NavigationService } from 'src/app/core/services/navigation/navigation.s
 })
 export class UserService {
   private apiService = inject(PrivateApiService);
-  private serverService = inject(ServerService);
   private navService = inject(NavigationService);
   private logger = inject(LoggerService);
 

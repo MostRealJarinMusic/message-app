@@ -4,6 +4,7 @@ import { LoggerType, Message, WSEventType } from '@common/types';
 import { ChannelService } from 'src/app/features/channel/services/channel/channel.service';
 import { PrivateApiService } from 'src/app/core/services/api/private-api.service';
 import { LoggerService } from 'src/app/core/services/logger/logger.service';
+import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
 
 @Injectable({
   providedIn: 'root',
@@ -11,6 +12,7 @@ import { LoggerService } from 'src/app/core/services/logger/logger.service';
 export class MessageService {
   private wsService = inject(SocketService);
   private channelService = inject(ChannelService);
+  private navService = inject(NavigationService);
   private apiService = inject(PrivateApiService);
   private logger = inject(LoggerService);
 
@@ -21,7 +23,7 @@ export class MessageService {
 
     //Load message history
     effect(() => {
-      const currentChannel = this.channelService.currentChannel();
+      const currentChannel = this.navService.currentChannelId();
       if (currentChannel) {
         this.logger.log(LoggerType.SERVICE_MESSAGE, 'Loading message history');
         this.loadMessageHistory(currentChannel);
@@ -37,7 +39,7 @@ export class MessageService {
 
     //Should use HTTP
     //Temporary message response code
-    this.apiService.sendMessage(this.channelService.currentChannel()!, content).subscribe({
+    this.apiService.sendMessage(this.navService.currentChannelId()!, content).subscribe({
       next: (message) => {},
       error: (err) => {
         //Response to any errors - optimistic UI
@@ -55,7 +57,7 @@ export class MessageService {
   private initWebSocket(): void {
     //Listeners for sent messages, edits and deletes
     this.wsService.on(WSEventType.RECEIVE).subscribe((message) => {
-      if (message.channelId === this.channelService.currentChannel()) {
+      if (message.channelId === this.navService.currentChannelId()) {
         this.messages.update((current) => [...current, message]);
       }
     });
@@ -63,7 +65,7 @@ export class MessageService {
     //Deletes
     this.wsService.on(WSEventType.DELETED).subscribe((message) => {
       //Delete the message from the loaded channel if it exists in the history
-      if (message.channelId === this.channelService.currentChannel()) {
+      if (message.channelId === this.navService.currentChannelId()) {
         this.messages.update((current) => current.filter((m) => m.id !== message.id));
       }
     });
@@ -71,7 +73,7 @@ export class MessageService {
     //Edits
     this.wsService.on(WSEventType.EDITED).subscribe((message) => {
       //Edit message from the loaded channel if it exists in the history
-      if (message.channelId === this.channelService.currentChannel()) {
+      if (message.channelId === this.navService.currentChannelId()) {
         this.messages.update((currentMessages) =>
           currentMessages.map((m) =>
             m.id === message.id ? { ...m, content: message.content } : m,

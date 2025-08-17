@@ -12,16 +12,15 @@ import { NavigationService } from 'src/app/core/services/navigation/navigation.s
 })
 export class ChannelService {
   private apiService = inject(PrivateApiService);
-  private serverService = inject(ServerService);
   private wsService = inject(SocketService);
   private categoryService = inject(ChannelCategoryService);
   private navService = inject(NavigationService);
   private logger = inject(LoggerService);
 
-  readonly currentChannel = signal<string | null>(null);
   readonly channels = signal<Channel[]>([]);
   readonly currentChannelName = computed(
-    () => this.channels()!.find((channel) => channel.id === this.currentChannel())?.name,
+    () =>
+      this.channels()!.find((channel) => channel.id === this.navService.currentChannelId())?.name,
   );
   readonly groupedChannels = computed(() => {
     const map = new Map<string | null, Channel[]>();
@@ -51,14 +50,10 @@ export class ChannelService {
         this.loadServerChannels(currentServer);
       } else {
         this.logger.log(LoggerType.SERVICE_CHANNEL, 'No server');
-        this.currentChannel.set(null);
+        //this.currentChannel.set(null);
         this.channels.set([]);
       }
     });
-  }
-
-  selectChannel(id: string | null) {
-    this.currentChannel.set(id);
   }
 
   private loadServerChannels(serverId: string) {
@@ -73,15 +68,15 @@ export class ChannelService {
           }),
         );
 
-        if (
-          (!this.currentChannel() ||
-            !this.channels()!
-              .map((channel) => channel.id)
-              .includes(this.currentChannel()!)) &&
-          channels.length > 0
-        ) {
-          this.selectChannel(channels[0].id);
-        }
+        // if (
+        //   (!this.navService.currentChannelId() ||
+        //     !this.channels()!
+        //       .map((channel) => channel.id)
+        //       .includes(this.navService.currentChannelId()!)) &&
+        //   channels.length > 0
+        // ) {
+        //   this.navService.navigate(channels[0].id);
+        // }
       },
       error: (err) => this.logger.error(LoggerType.SERVICE_CHANNEL, 'Failed to load channels', err),
     });
@@ -143,13 +138,13 @@ export class ChannelService {
 
       this.navService.deleteChild(channel.serverId, channel.id);
 
-      if (channel.id === this.currentChannel()) {
-        if (this.channels().length > 0) {
-          this.selectChannel(this.channels()[0].id);
-        } else {
-          this.selectChannel(null);
-        }
-      }
+      // if (channel.id === this.currentChannel()) {
+      //   if (this.channels().length > 0) {
+      //     this.selectChannel(this.channels()[0].id);
+      //   } else {
+      //     this.selectChannel(null);
+      //   }
+      // }
     });
 
     //Edits

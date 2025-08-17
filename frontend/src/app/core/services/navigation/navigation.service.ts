@@ -1,7 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { LoggerType, NavigationNode, NavigationView, Server } from '@common/types';
 import { LoggerService } from '../logger/logger.service';
-import { channel } from 'diagnostics_channel';
 
 @Injectable({
   providedIn: 'root',
@@ -14,7 +13,6 @@ export class NavigationService {
     children: [
       {
         id: 'servers',
-        children: [],
       },
       {
         id: 'direct-messages',
@@ -32,13 +30,12 @@ export class NavigationService {
           },
           {
             id: 'direct-message-chat',
-            children: [],
           },
         ],
         activeChildId: 'friends', //Default
       },
     ],
-    activeChildId: 'servers', //Default
+    activeChildId: 'direct-messages', //Default
   });
 
   readonly activePath = computed(() => {
@@ -66,24 +63,36 @@ export class NavigationService {
 
     if (!path) throw new Error(`Node ${targetId} not found or has no parent`);
 
+    const fullPath = this.getFullPath(path);
+
     this.root.update((root) => {
-      let current = root;
-      for (let i = 1; i < path.length; i++) {
-        const node = path[i];
-        current.activeChildId = node.id;
-        current = node;
+      let node = root;
+      for (const step of fullPath) {
+        node.activeChildId = step.id;
+        console.log(node);
+        const child = node.children?.find((c) => c.id === step.id);
+        if (child) node = child;
       }
       return { ...root };
     });
 
-    const serverNode = path.find((n) => this.getChildren('servers').some((s) => s.id === n.id));
-    const channelNode = path.length > 1 ? path[path.length - 1] : null;
+    const serverNode = fullPath.find((n) => this.getChildren('servers').some((s) => s.id === n.id));
+    const lastNode = fullPath[fullPath.length - 1];
+    //const channelNode = path.length > 1 ? path[path.length - 1] : null;
 
+    // if (serverNode) {
+    //   this.currentServerId.set(serverNode.id);
+    //   // this.currentChannelId.set(
+    //   //   channelNode && channelNode.id !== serverNode.id ? channelNode.id : null,
+    //   // );
+    //   this.currentChannelId.set(serverNode.activeChildId ? serverNode.activeChildId : null);
+    // } else {
+    //   this.currentServerId.set(null);
+    //   this.currentChannelId.set(null);
+    // }
     if (serverNode) {
       this.currentServerId.set(serverNode.id);
-      this.currentChannelId.set(
-        channelNode && channelNode.id !== serverNode.id ? channelNode.id : null,
-      );
+      this.currentChannelId.set(lastNode.id !== serverNode.id ? lastNode.id : null);
     } else {
       this.currentServerId.set(null);
       this.currentChannelId.set(null);
@@ -94,6 +103,9 @@ export class NavigationService {
       'Navigated to path: ',
       this.activePath().map((n) => n.id),
     );
+
+    this.logger.log(LoggerType.SERVICE_NAVIGATION, 'Current server ID:', this.currentServerId());
+    this.logger.log(LoggerType.SERVICE_NAVIGATION, 'Current channel ID:', this.currentChannelId());
   }
 
   private findNode(current: NavigationNode, targetId: string): NavigationNode | null {
@@ -120,6 +132,20 @@ export class NavigationService {
     }
 
     return null;
+  }
+
+  private getFullPath(pathStart: NavigationNode[]) {
+    let fullPath = [...pathStart];
+    let current = pathStart[pathStart.length - 1];
+
+    while (current.activeChildId) {
+      const child = current.children?.find((c) => c.id === current.activeChildId);
+      if (!child) break;
+      fullPath.push(child);
+      current = child;
+    }
+
+    return fullPath;
   }
 
   getChildren(parentId: string): NavigationNode[] {
@@ -171,12 +197,26 @@ export class NavigationService {
           this.currentChannelId.set(null);
           root.activeChildId = 'direct-messages';
         } else if (this.currentServerId() === childId && childIndex >= 0) {
+          //Pick closest neighbour
           const neighbourIndex = Math.min(childIndex, parent.children.length - 1);
           const neighbour = parent.children[neighbourIndex];
           if (neighbour) {
             this.currentServerId.set(neighbour.id);
             this.navigate(neighbour.id);
           }
+        }
+      } else if (this.currentChannelId() === childId && childIndex >= 0) {
+        if ((parent.children?.length ?? 0) > 0) {
+          const neighbourIndex = Math.min(childIndex, parent.children.length - 1);
+          const neighbour = parent.children[neighbourIndex];
+          if (neighbour) {
+            if (parent.id === this.currentChannelId()) {
+              this.currentChannelId.set(neighbour.id);
+            }
+            this.navigate(neighbour.id);
+          }
+        } else {
+          this.navigate(parent.id);
         }
       }
 

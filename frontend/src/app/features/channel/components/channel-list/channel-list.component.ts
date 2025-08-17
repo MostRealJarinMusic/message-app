@@ -29,6 +29,7 @@ import { CommonModule } from '@angular/common';
 import { ChannelCategoryEditService } from 'src/app/features/category/services/channel-category-edit/channel-category-edit.service';
 import { ChannelService } from '../../services/channel/channel.service';
 import { ChannelCategoryService } from 'src/app/features/category/services/channel-category/channel-category.service';
+import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
 
 @Component({
   selector: 'app-channel-list',
@@ -57,6 +58,7 @@ export class ChannelListComponent implements OnDestroy, OnInit {
   private channelEditService = inject(ChannelEditService);
   private categoryService = inject(ChannelCategoryService);
   private categoryEditService = inject(ChannelCategoryEditService);
+  protected navService = inject(NavigationService);
   private formBuilder = inject(FormBuilder);
 
   //Channel button context menu
@@ -86,7 +88,7 @@ export class ChannelListComponent implements OnDestroy, OnInit {
   //Current values tracked
   protected categories = this.categoryService.channelCategories;
   protected groupedChannels = this.channelService.groupedChannels;
-  protected currentChannel = this.channelService.currentChannel;
+  protected currentChannel = this.navService.currentChannelId;
   protected contextMenuChannel: Channel | null = null;
   protected contextMenuCategory: ChannelCategory | null = null;
 
@@ -228,10 +230,6 @@ export class ChannelListComponent implements OnDestroy, OnInit {
     } catch (err) {
       console.error('Failed to update channel:', err);
     }
-  }
-
-  protected selectChannel(id: string) {
-    this.channelService.selectChannel(id);
   }
 
   protected showCategoryContextMenu(event: MouseEvent, category: ChannelCategory) {

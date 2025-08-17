@@ -7,6 +7,7 @@ import { MessageDraftService } from 'src/app/features/message/services/message-d
 import { MessageService } from 'src/app/features/message/services/message/message.service';
 import { TextareaModule } from 'primeng/textarea';
 import { ChannelService } from 'src/app/features/channel/services/channel/channel.service';
+import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
 
 @Component({
   selector: 'app-message-input',
@@ -16,22 +17,25 @@ import { ChannelService } from 'src/app/features/channel/services/channel/channe
 })
 export class MessageInputComponent {
   private messageService = inject(MessageService);
+  private navService = inject(NavigationService);
   private channelService = inject(ChannelService);
   private draftService = inject(MessageDraftService);
 
   protected newMessage = signal('');
-  protected currentChannel = computed(() => this.channelService.currentChannel());
+  protected currentChannel = computed(() => this.navService.currentChannelId());
   protected placeholderMessage = computed(
     () => `Message ${this.channelService.currentChannelName()}`,
   );
 
-  private sync = effect(() => {
-    const channel = this.currentChannel();
-    if (!channel) return;
+  constructor() {
+    effect(() => {
+      const channel = this.currentChannel();
+      if (!channel) return;
 
-    const draftSignal = this.draftService.getDraftSignal(channel);
-    this.newMessage.set(draftSignal());
-  });
+      const draftSignal = this.draftService.getDraftSignal(channel);
+      this.newMessage.set(draftSignal());
+    });
+  }
 
   protected onInputChange(message: string) {
     this.newMessage.set(message);
