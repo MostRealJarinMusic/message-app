@@ -17,16 +17,18 @@ export class LoggerService {
 
   log(loggedBy: LoggerType, message: string, ...optional: any[]) {
     if (!this.disabledLoggers.includes(loggedBy))
-      console.log(`[${loggedBy}]: ${message}`, ...optional);
+      console.log(`%c[${loggedBy}]: ${message}`, 'color: lightblue;', ...optional);
   }
 
   warn(loggedBy: LoggerType, message: string, ...optional: any[]) {
-    if (!this.disabledLoggers.includes(loggedBy))
-      console.warn(`[${loggedBy}]: ${message}`, ...optional);
+    if (!this.disabledLoggers.includes(loggedBy)) {
+      console.warn(`%c[${loggedBy}]: ${message}`, 'color: orange;', ...optional);
+    }
   }
 
   error(loggedBy: LoggerType, message: string, ...optional: any[]) {
-    if (!this.disabledLoggers.includes(loggedBy))
-      console.error(`[${loggedBy}]: ${message}`, ...optional);
+    if (!this.disabledLoggers.includes(loggedBy)) {
+      console.error(`%c[${loggedBy}]: ${message}`, 'color: red;', ...optional);
+    }
   }
 }
