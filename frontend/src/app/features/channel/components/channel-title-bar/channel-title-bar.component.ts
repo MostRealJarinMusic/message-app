@@ -15,20 +15,29 @@ import { NavigationService } from 'src/app/core/services/navigation/navigation.s
 export class ChannelTitleBarComponent {
   private channelService = inject(ChannelService);
   private navService = inject(NavigationService);
-  protected channelName: string | undefined;
-  protected channelTopic: string | undefined;
+  protected channelName: string = '';
+  protected channelTopic: string = '';
 
   constructor() {
     effect(() => {
       const channelId = this.navService.currentChannelId();
 
-      if (channelId !== null && channelId !== undefined) {
-        this.channelName = this.channelService.getChannelById(channelId)?.name;
-        this.channelTopic = this.channelService.getChannelById(channelId)?.topic;
-      } //else {
-      //   this.channelName = undefined;
-      //   this.channelTopic = undefined;
-      // }
+      if (!channelId) {
+        this.channelName = '';
+        this.channelTopic = '';
+        return;
+      }
+
+      const channel = this.channelService.getChannelById(channelId);
+
+      if (!channel) {
+        this.channelName = '';
+        this.channelTopic = '';
+        return;
+      }
+
+      this.channelName = channel.name;
+      this.channelTopic = channel.topic ?? '';
     });
   }
 }
