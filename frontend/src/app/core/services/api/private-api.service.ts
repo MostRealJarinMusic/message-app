@@ -75,6 +75,10 @@ export class PrivateApiService extends BaseApiService {
   getServerUsers(serverId: string) {
     return this.authorisedFetch<User[]>((_) => this.get<User[]>(`servers/${serverId}/users`));
   }
+
+  getAllUsers() {
+    return this.authorisedFetch<User[]>((_) => this.get<User[]>(`users`));
+  }
   //#endregion
 
   //#region Channel CRUD

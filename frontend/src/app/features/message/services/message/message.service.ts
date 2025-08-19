@@ -11,7 +11,6 @@ import { NavigationService } from 'src/app/core/services/navigation/navigation.s
 })
 export class MessageService {
   private wsService = inject(SocketService);
-  private channelService = inject(ChannelService);
   private navService = inject(NavigationService);
   private apiService = inject(PrivateApiService);
   private logger = inject(LoggerService);
@@ -19,6 +18,8 @@ export class MessageService {
   readonly messages = signal<Message[]>([]);
 
   constructor() {
+    this.logger.init(LoggerType.SERVICE_MESSAGE);
+
     this.initWebSocket();
 
     //Load message history

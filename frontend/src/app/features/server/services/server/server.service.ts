@@ -19,6 +19,8 @@ export class ServerService {
   readonly servers = signal<Server[]>([]);
 
   constructor() {
+    this.logger.init(LoggerType.SERVICE_SERVER);
+
     this.initWebSocket();
 
     effect(() => {
@@ -30,7 +32,7 @@ export class ServerService {
     });
   }
 
-  private loadServers() {
+  loadServers() {
     this.logger.log(LoggerType.SERVICE_SERVER, 'Loading servers');
 
     this.apiService.getServers().subscribe({

@@ -38,6 +38,10 @@ export class NavigationService {
     activeChildId: 'direct-messages', //Default
   });
 
+  constructor() {
+    this.logger.init(LoggerType.SERVICE_NAVIGATION);
+  }
+
   readonly activePath = computed(() => {
     const path: NavigationNode[] = [];
     let current: NavigationNode = this.root();

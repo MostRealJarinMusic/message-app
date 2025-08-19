@@ -15,6 +15,11 @@ export class LoggerService {
   //   LoggerType.SERVICE_SOCKET,
   // ];
 
+  init(loggedBy: LoggerType) {
+    if (!this.disabledLoggers.includes(loggedBy))
+      console.log(`%c[${loggedBy}]: INIT`, 'color: white;');
+  }
+
   log(loggedBy: LoggerType, message: string, ...optional: any[]) {
     if (!this.disabledLoggers.includes(loggedBy))
       console.log(`%c[${loggedBy}]: ${message}`, 'color: lightblue;', ...optional);

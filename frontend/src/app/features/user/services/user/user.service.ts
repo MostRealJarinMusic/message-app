@@ -1,6 +1,6 @@
 import { effect, inject, Injectable, signal } from '@angular/core';
 import { LoggerType, User } from '@common/types';
-import { catchError, Observable, of, tap } from 'rxjs';
+import { catchError, firstValueFrom, Observable, of, tap } from 'rxjs';
 import { PrivateApiService } from '../../../../core/services/api/private-api.service';
 import { ServerService } from 'src/app/features/server/services/server/server.service';
 import { LoggerService } from 'src/app/core/services/logger/logger.service';
@@ -20,29 +20,41 @@ export class UserService {
   readonly usernameMap = new Map<string, string>();
 
   constructor() {
+    this.logger.init(LoggerType.SERVICE_USER);
+
+    this.loadUsers();
+
     effect(() => {
       const currentServer = this.navService.currentServerId();
       if (currentServer) {
         this.loadServerUsers(currentServer);
       } else {
-        this.serverUsers.set(null);
+        //this.serverUsers.set(null);
       }
     });
   }
 
-  fetchCurrentUser(): Observable<User | null> {
-    return this.apiService.getCurrentUser().pipe(
-      tap((user) => {
-        this.currentUser.set(user);
-      }),
-      catchError((err) => {
-        this.logger.error(LoggerType.SERVICE_USER, 'Failed to fetch current user:', err);
-        this.currentUser.set(null);
-        return of(null);
-      }),
+  // loadCurrentUser() {
+  //   return this.apiService.getCurrentUser().subscribe({
+  //     next: this.currentUser.set,
+  //     error: (err) => {
+  //       this.logger.error(LoggerType.SERVICE_USER, 'Failed to fetch current user:', err);
+  //       this.currentUser.set(null);
+  //     },
+  //   });
+  // }
+
+  loadCurrentUser(): Promise<User> {
+    return firstValueFrom(
+      this.apiService.getCurrentUser().pipe(
+        tap((user) => this.currentUser.set(user)),
+        catchError((err) => {
+          this.currentUser.set(null);
+          throw err;
+        }),
+      ),
     );
   }
-
   clearUser(): void {
     this.currentUser.set(null);
   }
@@ -55,8 +67,22 @@ export class UserService {
     return this.userCache.get(userId) || undefined;
   }
 
-  public loadServerUsers(serverId: string): void {
+  private loadServerUsers(serverId: string): void {
     this.apiService.getServerUsers(serverId).subscribe({
+      next: (users) => {
+        users.forEach((user) => this.userCache.set(user.id, user));
+        this.serverUsers.set(users);
+
+        this.logger.log(LoggerType.SERVICE_USER, '', users);
+      },
+      error: (err) => {
+        this.logger.error(LoggerType.SERVICE_USER, 'Error loading server users', err);
+      },
+    });
+  }
+
+  private loadUsers(): void {
+    this.apiService.getAllUsers().subscribe({
       next: (users) => {
         users.forEach((user) => this.userCache.set(user.id, user));
         this.serverUsers.set(users);

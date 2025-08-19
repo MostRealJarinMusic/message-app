@@ -3,6 +3,7 @@ import { Message } from '@common/types';
 import { MessageService } from 'src/app/features/message/services/message/message.service';
 import { MessageComponent } from '../message/message.component';
 import { SessionService } from 'src/app/core/services/session/session.service';
+import { UserService } from 'src/app/features/user/services/user/user.service';
 
 @Component({
   selector: 'app-message-list',
@@ -12,7 +13,7 @@ import { SessionService } from 'src/app/core/services/session/session.service';
 })
 export class MessageListComponent {
   private messageService = inject(MessageService);
-  private sessionService = inject(SessionService);
+  private userService = inject(UserService);
 
   @ViewChild('container', { read: ViewContainerRef, static: true })
   container!: ViewContainerRef;
@@ -31,8 +32,7 @@ export class MessageListComponent {
     for (const message of messages) {
       const componentReference = this.container.createComponent(MessageComponent);
       componentReference.instance.message = message;
-      componentReference.instance.isMine =
-        message.authorId === this.sessionService.currentUser()?.id;
+      componentReference.instance.isMine = message.authorId === this.userService.currentUser()?.id;
     }
 
     setTimeout(() => this.scrollToBottom(), 0);

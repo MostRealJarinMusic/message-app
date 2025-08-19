@@ -18,6 +18,10 @@ export class SocketService {
   private heartBeatInterval?: ReturnType<typeof setInterval>;
   private readonly heartbeatRate = 30000;
 
+  constructor() {
+    this.logger.init(LoggerType.SERVICE_SOCKET);
+  }
+
   connect(token: string | null): void {
     if (this.socket && (this.isConnected || this.socket.readyState < WebSocket.CLOSING)) {
       return;

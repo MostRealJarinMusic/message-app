@@ -15,6 +15,7 @@ import { FriendsTitleBarComponent } from 'src/app/features/friend/components/fri
 import { DMsListComponent } from 'src/app/features/dms/components/dms-list/dms-list.component';
 import { FriendsListComponent } from 'src/app/features/friend/components/friends-list/friends-list.component';
 import { ChannelService } from 'src/app/features/channel/services/channel/channel.service';
+import { UserService } from 'src/app/features/user/services/user/user.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -36,16 +37,14 @@ import { ChannelService } from 'src/app/features/channel/services/channel/channe
   styleUrl: './dashboard.component.scss',
 })
 export class DashboardComponent {
-  private serverService = inject(ServerService);
-  private friendService = inject(FriendService);
-  protected channelService = inject(ChannelService);
   protected navService = inject(NavigationService);
+  protected serverService = inject(ServerService);
+  protected userService = inject(UserService);
 
   constructor() {
     //Load servers
-    // this.serverService.loadServers();
-
+    //this.serverService.loadServers();
     //Load friends
-    this.friendService.loadFriends();
+    //this.friendService.loadFriends();
   }
 }

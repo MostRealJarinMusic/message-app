@@ -1,7 +1,8 @@
 import { effect, inject, Injectable } from '@angular/core';
 import { SocketService } from '../socket/socket.service';
-import { SessionService } from '../session/session.service';
 import { AuthTokenService } from '../authtoken/auth-token.service';
+import { LoggerService } from '../logger/logger.service';
+import { LoggerType } from '@common/types';
 
 @Injectable({
   providedIn: 'root',
@@ -9,8 +10,11 @@ import { AuthTokenService } from '../authtoken/auth-token.service';
 export class SocketManagerService {
   private socketService = inject(SocketService);
   private tokenService = inject(AuthTokenService);
+  private logger = inject(LoggerService);
 
   constructor() {
+    this.logger.init(LoggerType.SERVICE_SOCKET_MANAGER);
+
     effect(() => {
       const token = this.tokenService.getToken();
 
