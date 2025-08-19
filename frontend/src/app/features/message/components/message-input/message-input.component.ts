@@ -23,9 +23,17 @@ export class MessageInputComponent {
 
   protected newMessage = signal('');
   protected currentChannel = computed(() => this.navService.currentChannelId());
-  protected placeholderMessage = computed(
-    () => `Message ${this.channelService.currentChannelName()}`,
-  );
+  protected placeholderMessage = computed(() => {
+    const channelId = this.navService.currentChannelId();
+
+    if (!channelId) return '';
+
+    const channel = this.channelService.getChannelById(channelId);
+
+    if (!channel) return '';
+
+    return `Message ${channel.name}`;
+  });
 
   constructor() {
     effect(() => {

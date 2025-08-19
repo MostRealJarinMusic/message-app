@@ -72,8 +72,6 @@ export class UserService {
       next: (users) => {
         users.forEach((user) => this.userCache.set(user.id, user));
         this.serverUsers.set(users);
-
-        this.logger.log(LoggerType.SERVICE_USER, '', users);
       },
       error: (err) => {
         this.logger.error(LoggerType.SERVICE_USER, 'Error loading server users', err);
@@ -87,7 +85,7 @@ export class UserService {
         users.forEach((user) => this.userCache.set(user.id, user));
         this.serverUsers.set(users);
 
-        this.logger.log(LoggerType.SERVICE_USER, '', users);
+        //this.logger.log(LoggerType.SERVICE_USER, '', users);
       },
       error: (err) => {
         this.logger.error(LoggerType.SERVICE_USER, 'Error loading server users', err);

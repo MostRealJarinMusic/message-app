@@ -45,10 +45,6 @@ export class ServerService {
             return { id: s.id };
           }),
         );
-
-        // if (!this.navService.currentServerId() && servers.length > 0) {
-        //   this.navService.navigate(servers[0].id);
-        // }
       },
       error: (err) => this.logger.error(LoggerType.SERVICE_SERVER, 'Failed to load servers', err),
     });

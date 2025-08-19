@@ -24,7 +24,6 @@ export class FriendService {
       const currentUser = this.userService.currentUser();
 
       if (currentUser) {
-        console.log(currentUser);
         this.logger.log(LoggerType.SERVICE_FRIEND, 'Loading friends');
         this.loadFriends();
       }
@@ -39,12 +38,8 @@ export class FriendService {
   }
 
   private loadFriends() {
-    this.logger.log(LoggerType.SERVICE_FRIEND, 'Loading friends');
-
     this.apiService.getFriends().subscribe({
       next: (friendIds) => {
-        console.log(friendIds);
-
         this.friends.set(friendIds);
       },
     });

@@ -62,18 +62,33 @@ export class NavigationService {
       return this.activePath().some((n) => n.id === id);
     });
 
+  private getDefaultChannel(server: NavigationNode): NavigationNode | null {
+    if (!server.children || server.children.length === 0) return null;
+    return server.children[0];
+  }
+
   navigate(targetId: string) {
     const path = this.findPath(this.root(), targetId);
 
     if (!path) throw new Error(`Node ${targetId} not found or has no parent`);
 
-    const fullPath = this.getFullPath(path);
+    let fullPath = this.getFullPath(path);
+
+    // if (serverNode && !this.currentChannelId()) {
+    //   const defaultChannel = this.getDefaultChannel(serverNode);
+    //   if (defaultChannel) {
+    //     if (!fullPath.includes(defaultChannel)) {
+    //       fullPath = [...fullPath, defaultChannel];
+    //     }
+    //   }
+    // }
+
+    // console.log(fullPath);
 
     this.root.update((root) => {
       let node = root;
       for (const step of fullPath) {
         node.activeChildId = step.id;
-        console.log(node);
         const child = node.children?.find((c) => c.id === step.id);
         if (child) node = child;
       }
@@ -81,22 +96,11 @@ export class NavigationService {
     });
 
     const serverNode = fullPath.find((n) => this.getChildren('servers').some((s) => s.id === n.id));
-    const lastNode = fullPath[fullPath.length - 1];
-    //const channelNode = path.length > 1 ? path[path.length - 1] : null;
+    const channelNode = fullPath[fullPath.length - 1];
 
-    // if (serverNode) {
-    //   this.currentServerId.set(serverNode.id);
-    //   // this.currentChannelId.set(
-    //   //   channelNode && channelNode.id !== serverNode.id ? channelNode.id : null,
-    //   // );
-    //   this.currentChannelId.set(serverNode.activeChildId ? serverNode.activeChildId : null);
-    // } else {
-    //   this.currentServerId.set(null);
-    //   this.currentChannelId.set(null);
-    // }
     if (serverNode) {
       this.currentServerId.set(serverNode.id);
-      this.currentChannelId.set(lastNode.id !== serverNode.id ? lastNode.id : null);
+      this.currentChannelId.set(channelNode.id !== serverNode.id ? channelNode.id : null);
     } else {
       this.currentServerId.set(null);
       this.currentChannelId.set(null);
@@ -110,6 +114,7 @@ export class NavigationService {
 
     this.logger.log(LoggerType.SERVICE_NAVIGATION, 'Current server ID:', this.currentServerId());
     this.logger.log(LoggerType.SERVICE_NAVIGATION, 'Current channel ID:', this.currentChannelId());
+    console.log(this.root());
   }
 
   private findNode(current: NavigationNode, targetId: string): NavigationNode | null {
