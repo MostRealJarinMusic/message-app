@@ -15,13 +15,8 @@ export class SessionService {
   private socketManagerService = inject(SocketManagerService);
   private logger = inject(LoggerService);
 
-  readonly currentUser = this.userService.currentUser;
-
   constructor() {
     this.logger.init(LoggerType.SERVICE_SESSION);
-
-    // const savedToken = this.tokenService.getSavedToken();
-    // if (savedToken) this.resumeSession(savedToken);
   }
 
   async startSession(token: string): Promise<void> {
@@ -30,7 +25,6 @@ export class SessionService {
     this.tokenService.setToken(token);
     this.socketManagerService.initialiseSocket(token);
     try {
-      //await firstValueFrom(this.userService.fetchCurrentUser());
       await this.userService.loadCurrentUser();
 
       this.logger.log(LoggerType.SERVICE_SESSION, 'Loading current user');
@@ -43,7 +37,9 @@ export class SessionService {
   endSession(): void {
     this.tokenService.clearToken();
     this.socketManagerService.terminateSocket();
-    this.currentUser.set(null);
+    //this.currentUser.set(null);
+
+    //Tell user service to set current user to null
   }
 
   async attemptResumeSession(): Promise<void> {
@@ -55,7 +51,6 @@ export class SessionService {
     this.socketManagerService.initialiseSocket(savedToken);
 
     try {
-      //await firstValueFrom(this.userService.fetchCurrentUser());
       await this.userService.loadCurrentUser();
       this.logger.log(LoggerType.SERVICE_SESSION, 'Loading current user');
     } catch {

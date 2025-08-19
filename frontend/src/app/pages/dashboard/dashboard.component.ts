@@ -38,13 +38,6 @@ import { UserService } from 'src/app/features/user/services/user/user.service';
 })
 export class DashboardComponent {
   protected navService = inject(NavigationService);
-  protected serverService = inject(ServerService);
-  protected userService = inject(UserService);
 
-  constructor() {
-    //Load servers
-    //this.serverService.loadServers();
-    //Load friends
-    //this.friendService.loadFriends();
-  }
+  constructor() {}
 }

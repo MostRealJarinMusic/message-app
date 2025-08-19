@@ -3,8 +3,6 @@
 @let directChatViewActive = navService.isActive('direct-message-chat');
 @let directMessagesViewActive = navService.isActive('direct-messages');
 
-<p>{{ userService.currentUser()?.username }}</p>
-
 <div class="grid h-screen bg-surface-900 grid-cols-layout grid-rows-layout">
   <app-server-list class="row-span-3 p-2 overflow-y-auto"></app-server-list>
 
