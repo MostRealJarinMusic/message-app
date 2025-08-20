@@ -9,7 +9,7 @@ import { ChannelService } from 'src/app/features/channel/services/channel/channe
 
 @Component({
   selector: 'app-dms-list',
-  imports: [ButtonModule, ContextMenu, DividerModule, CommonModule],
+  imports: [ButtonModule, DividerModule, CommonModule],
   providers: [DialogService],
   templateUrl: './dms-list.component.html',
   styleUrl: './dms-list.component.scss',
