@@ -1,5 +1,5 @@
 <div class="flex flex-col items-center w-full h-full p-4 px-4 gap-y-4">
-  @if (!navService.isActive('add-friend')()) {
+  @if (!navService.isActive('add-friend')) {
     <p-iconfield class="w-full">
       <p-inputicon styleClass="pi pi-search" />
       <input
@@ -10,7 +10,7 @@
     </p-iconfield>
   }
 
-  @if (navService.isActive('all')()) {
+  @if (navService.isActive('all')) {
     <div class="flex flex-col w-full gap-y-4">
       <h1 class="self-start text-sm text-muted-color-emphasis">
         All friends - {{ friends().length }}
@@ -29,7 +29,7 @@
         </li>
       }
     </div>
-  } @else if (navService.isActive('online')()) {
+  } @else if (navService.isActive('online')) {
     <div class="flex flex-col w-full gap-y-4">
       <h1 class="self-start text-sm text-muted-color-emphasis">
         Online - {{ onlineFriends().length }}
@@ -49,7 +49,7 @@
         </li>
       }
     </div>
-  } @else if (navService.isActive('incoming')()) {
+  } @else if (navService.isActive('incoming')) {
     <div class="self-start items-start w-full space-y-4">
       <h1 class="text-sm text-muted-color-emphasis">Received - {{ incomingRequests().length }}</h1>
 
@@ -81,7 +81,7 @@
         </li>
       }
     </div>
-  } @else if (navService.isActive('outgoing')()) {
+  } @else if (navService.isActive('outgoing')) {
     <div class="self-start items-start w-full space-y-4">
       <h1 class="text-sm text-muted-color-emphasis">Pending - {{ outgoingRequests().length }}</h1>
 
@@ -104,7 +104,7 @@
         </li>
       }
     </div>
-  } @else if (navService.isActive('add-friend')()) {
+  } @else if (navService.isActive('add-friend')) {
     <div class="self-start w-full flex flex-col items-start space-y-2">
       <h1 class="text-md font-semibold text-muted-color-emphasis">Add Friend</h1>
       <p class="text-sm text-muted-color-emphasis">You can add friends with their usernames.</p>

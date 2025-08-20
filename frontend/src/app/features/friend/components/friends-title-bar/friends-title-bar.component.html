@@ -6,9 +6,9 @@
       #channelItem
       [ngClass]="{
         'px-3 py-1 h-full list-none rounded-border transition-colors duration-200 cursor-pointer': true,
-        'text-color-emphasis bg-surface-700': navService.isActive('online')(),
+        'text-color-emphasis bg-surface-700': navService.isActive('online'),
         'text-muted-color hover:bg-surface-700 hover:text-muted-color-emphasis':
-          !navService.isActive('online')(),
+          !navService.isActive('online'),
       }"
       (click)="navService.navigate('online')">
       <div>Online</div>
@@ -21,9 +21,9 @@
       #channelItem
       [ngClass]="{
         'px-3 py-1 h-full list-none rounded-border transition-colors duration-200 cursor-pointer': true,
-        'text-color-emphasis bg-surface-700': navService.isActive('all')(),
+        'text-color-emphasis bg-surface-700': navService.isActive('all'),
         'text-muted-color hover:bg-surface-700 hover:text-muted-color-emphasis':
-          !navService.isActive('all')(),
+          !navService.isActive('all'),
       }"
       (click)="navService.navigate('all')">
       <div>All</div>
@@ -33,9 +33,9 @@
       #channelItem
       [ngClass]="{
         'px-3 py-1 h-full list-none rounded-border transition-colors duration-200 cursor-pointer': true,
-        'text-color-emphasis bg-surface-700': navService.isActive('incoming')(),
+        'text-color-emphasis bg-surface-700': navService.isActive('incoming'),
         'text-muted-color hover:bg-surface-700 hover:text-muted-color-emphasis':
-          !navService.isActive('incoming')(),
+          !navService.isActive('incoming'),
       }"
       (click)="navService.navigate('incoming')">
       <div>Incoming</div>
@@ -45,9 +45,9 @@
       #channelItem
       [ngClass]="{
         'px-3 py-1 h-full list-none rounded-border transition-colors duration-200 cursor-pointer': true,
-        'text-color-emphasis bg-surface-700': navService.isActive('outgoing')(),
+        'text-color-emphasis bg-surface-700': navService.isActive('outgoing'),
         'text-muted-color hover:bg-surface-700 hover:text-muted-color-emphasis':
-          !navService.isActive('outgoing')(),
+          !navService.isActive('outgoing'),
       }"
       (click)="navService.navigate('outgoing')">
       <div>Outgoing</div>
@@ -58,9 +58,9 @@
       #channelItem
       [ngClass]="{
         'px-3 py-1 h-full list-none rounded-border transition-colors duration-200 cursor-pointer': true,
-        'text-color-emphasis bg-primary-700': navService.isActive('add-friend')(),
+        'text-color-emphasis bg-primary-700': navService.isActive('add-friend'),
         'text-color bg-primary-500 hover:bg-primary-600 hover:text-color-emphasis':
-          !navService.isActive('add-friend')(),
+          !navService.isActive('add-friend'),
       }"
       (click)="navService.navigate('add-friend')">
       <div>Add Friend</div>

@@ -9,9 +9,9 @@
     <li
       [ngClass]="{
         'py-2 px-3 w-full list-none rounded-border transition-colors duration-200 cursor-pointer': true,
-        'text-color-emphasis bg-emphasis': server.id === currentServerId(),
+        'text-color-emphasis bg-emphasis': server.id === navService.serverId(),
         'text-muted-color hover:bg-emphasis hover:text-muted-color-emphasis':
-          server.id !== currentServerId(),
+          server.id !== navService.serverId(),
       }"
       (click)="navService.navigate(server.id)"
       (contextmenu)="showContextMenu($event, server)">

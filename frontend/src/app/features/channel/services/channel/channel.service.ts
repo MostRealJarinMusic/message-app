@@ -5,6 +5,7 @@ import { SocketService } from 'src/app/core/services/socket/socket.service';
 import { PrivateApiService } from 'src/app/core/services/api/private-api.service';
 import { LoggerService } from 'src/app/core/services/logger/logger.service';
 import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
+import { channel } from 'node:diagnostics_channel';
 
 @Injectable({
   providedIn: 'root',
@@ -40,7 +41,7 @@ export class ChannelService {
 
     //Load channels
     effect(() => {
-      const currentServer = this.navService.currentServerId();
+      const currentServer = this.navService.serverId();
       const currentCategories = this.categoryService.channelCategories();
 
       if (currentServer && currentCategories) {
@@ -59,16 +60,19 @@ export class ChannelService {
       next: (channels) => {
         this.channels.set(channels);
 
-        this.navService.setChildren(
-          serverId,
-          this.channels().map((c) => {
-            return { id: c.id };
-          }),
+        // this.navService.setChildren(
+        //   serverId,
+        //   this.channels().map((c) => {
+        //     return { id: c.id };
+        //   }),
+        // );
+        channels.forEach((channel) =>
+          this.navService.addChannel(serverId, { id: channel.id, name: channel.name }),
         );
 
-        if (!this.navService.currentChannelId() && channels.length > 0) {
-          this.navService.navigate(channels[0].id);
-        }
+        // if (!this.navService.channelId() && channels.length > 0) {
+        //   this.navService.navigate(channels[0].id);
+        // }
       },
       error: (err) => this.logger.error(LoggerType.SERVICE_CHANNEL, 'Failed to load channels', err),
     });
@@ -80,7 +84,7 @@ export class ChannelService {
       categoryId: categoryId,
     };
 
-    this.apiService.createChannel(this.navService.currentServerId()!, newChannelData).subscribe({
+    this.apiService.createChannel(this.navService.serverId()!, newChannelData).subscribe({
       next: (channel) => {
         this.logger.log(LoggerType.SERVICE_CHANNEL, 'Successfuly channel creation');
       },
@@ -115,33 +119,25 @@ export class ChannelService {
   private initWebSocket(): void {
     //Listeners for channel creation, edits and deletes
     this.wsService.on(WSEventType.CHANNEL_CREATE).subscribe((channel) => {
-      if (channel.serverId === this.navService.currentServerId()) {
+      if (channel.serverId === this.navService.serverId()) {
         this.channels.update((current) => [...current!, channel]);
       }
 
-      this.navService.addChildren(channel.serverId, [{ id: channel.id }]);
+      this.navService.addChannel(channel.serverId, { id: channel.id, name: channel.name });
     });
 
     //Deletes
     this.wsService.on(WSEventType.CHANNEL_DELETE).subscribe((channel) => {
-      if (channel.serverId === this.navService.currentServerId()) {
+      if (channel.serverId === this.navService.serverId()) {
         this.channels.update((current) => current!.filter((c) => c.id !== channel.id));
       }
 
-      this.navService.deleteChild(channel.serverId, channel.id);
-
-      // if (channel.id === this.currentChannel()) {
-      //   if (this.channels().length > 0) {
-      //     this.selectChannel(this.channels()[0].id);
-      //   } else {
-      //     this.selectChannel(null);
-      //   }
-      // }
+      this.navService.removeChannel(channel.id);
     });
 
     //Edits
     this.wsService.on(WSEventType.CHANNEL_UPDATE).subscribe((channel) => {
-      if (channel.serverId === this.navService.currentServerId()) {
+      if (channel.serverId === this.navService.serverId()) {
         this.channels.update((currentChannels) =>
           currentChannels!.map((c) => (c.id === channel.id ? { ...c, ...channel } : c)),
         );

@@ -3,6 +3,8 @@
 @let directChatViewActive = navService.isActive('direct-message-chat');
 @let directMessagesViewActive = navService.isActive('direct-messages');
 
+<p>{{ navService.activePath() }}</p>
+
 <div class="grid h-screen bg-surface-900 grid-cols-layout grid-rows-layout">
   <app-server-list class="row-span-3 p-2 overflow-y-auto"></app-server-list>
 
@@ -16,29 +18,29 @@
     styleClass="!my-0"></p-divider>
 
   <div class="col-start-3 row-start-3 m-2">
-    @if (serversViewActive()) {
+    @if (serversViewActive) {
       <app-channel-list class="overflow-y-auto"></app-channel-list>
-    } @else if (directMessagesViewActive()) {
+    } @else if (directMessagesViewActive) {
       <app-dms-list class="overflow-hidden"></app-dms-list>
     }
   </div>
 
   <div class="col-span-3 col-start-4 row-start-1 bg-surface-800">
-    @if (serversViewActive() || directChatViewActive()) {
+    @if (serversViewActive || directChatViewActive) {
       <app-channel-title-bar />
-    } @else if (navService.isActive('friends')()) {
+    } @else if (navService.isActive('friends')) {
       <app-friends-title-bar />
     }
   </div>
 
-  @if (friendsViewActive()) {
+  @if (friendsViewActive) {
     <div class="bg-surface-800 col-start-4 col-span-3 row-start-3">
       <app-friends-list />
     </div>
   } @else {
     <div class="col-start-4 row-start-3 bg-surface-800">
       <div class="w-full h-full grid grid-rows-[1fr_auto] overflow-hidden">
-        @if (navService.currentChannelId()) {
+        @if (navService.channelId()) {
           <app-message-list class="flex-1 overflow-hidden"></app-message-list>
           <app-message-input class="pb-4 px-4"></app-message-input>
         } @else {

@@ -258,8 +258,31 @@ export enum NavigationView {
 
 export interface NavigationNode {
   id: string;
-  activeChildId?: string;
+  type:
+    | "root"
+    | "page"
+    | "server"
+    | "channel"
+    | "dm_section"
+    | "dm_channel"
+    | "friend_section";
+  label?: string;
+  metadata?: Record<string, any>;
   children?: NavigationNode[];
+  activeChildId?: string;
+}
+
+export interface NavigationState {
+  activeNodeId: string;
+  serverId: string | null;
+  channelId: string | null;
+  dmId: string | null;
+}
+
+export interface NavigationEvent {
+  type: "navigate" | "server_select" | "channel_select" | "dm_select";
+  nodeId: string;
+  metadata?: any;
 }
 
 //#endregion

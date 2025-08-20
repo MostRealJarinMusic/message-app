@@ -59,7 +59,6 @@ export class ServerListComponent implements OnInit, OnDestroy {
 
   //Current values tracked
   protected servers = this.serverService.servers;
-  protected currentServerId = this.navService.currentServerId;
   protected contextMenuServer: Server | null = null;
 
   ngOnInit(): void {

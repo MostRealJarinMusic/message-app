@@ -15,7 +15,7 @@ export class ServerTitleBarComponent {
 
   constructor() {
     effect(() => {
-      const serverId = this.navService.currentServerId();
+      const serverId = this.navService.serverId();
       if (serverId !== null && serverId !== undefined) {
         this.serverName = this.serverService.getServerById(serverId)?.name;
       } else {

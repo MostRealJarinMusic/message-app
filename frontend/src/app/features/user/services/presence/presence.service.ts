@@ -21,7 +21,7 @@ export class PresenceService {
     this.initWebSocket();
 
     effect(() => {
-      const currentServer = this.navService.currentServerId();
+      const currentServer = this.navService.serverId();
       if (currentServer) {
         this.loadServerUserPresences(currentServer);
       }

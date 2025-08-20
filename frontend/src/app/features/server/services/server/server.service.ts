@@ -39,11 +39,15 @@ export class ServerService {
       next: (servers) => {
         this.servers.set(servers);
 
-        this.navService.setChildren(
-          'servers',
-          this.servers().map((s) => {
-            return { id: s.id };
-          }),
+        // this.navService.setChildren(
+        //   'servers',
+        //   this.servers().map((s) => {
+        //     return { id: s.id };
+        //   }),
+        // );
+
+        servers.forEach((server) =>
+          this.navService.addServer({ id: server.id, name: server.name }),
         );
       },
       error: (err) => this.logger.error(LoggerType.SERVICE_SERVER, 'Failed to load servers', err),
@@ -61,7 +65,7 @@ export class ServerService {
     this.wsService.on(WSEventType.SERVER_CREATE).subscribe((server) => {
       this.servers.update((current) => [...current, server]);
 
-      this.navService.addChildren('servers', [{ id: server.id }]);
+      this.navService.addServer({ id: server.id, name: server.name });
       this.navService.navigate(server.id);
     });
 
@@ -69,7 +73,7 @@ export class ServerService {
     this.wsService.on(WSEventType.SERVER_DELETE).subscribe((server) => {
       this.servers.update((current) => current.filter((s) => s.id !== server.id));
 
-      this.navService.deleteChild('servers', server.id);
+      this.navService.removeServer(server.id);
     });
 
     this.wsService.on(WSEventType.SERVER_UPDATE).subscribe((server) => {
