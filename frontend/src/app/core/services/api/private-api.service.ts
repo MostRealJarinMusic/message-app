@@ -82,7 +82,7 @@ export class PrivateApiService extends BaseApiService {
   //#endregion
 
   //#region Channel CRUD
-  getChannels(serverId: string): Observable<Channel[]> {
+  getServerChannels(serverId: string): Observable<Channel[]> {
     return this.authorisedFetch<Channel[]>((_) =>
       this.get<Channel[]>(`servers/${serverId}/channels`),
     );

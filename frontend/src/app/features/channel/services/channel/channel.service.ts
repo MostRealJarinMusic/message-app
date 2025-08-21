@@ -46,37 +46,31 @@ export class ChannelService {
 
       if (currentServer && currentCategories) {
         this.logger.log(LoggerType.SERVICE_CHANNEL, 'Loading channels');
+
         this.loadServerChannels(currentServer);
       } else {
-        this.logger.log(LoggerType.SERVICE_CHANNEL, 'No server');
-        //this.currentChannel.set(null);
+        this.logger.log(LoggerType.SERVICE_CHANNEL, 'No server - loading DMs');
+
+        this.loadDMChannels();
+
         this.channels.set([]);
       }
     });
   }
 
   private loadServerChannels(serverId: string) {
-    this.apiService.getChannels(serverId).subscribe({
+    this.apiService.getServerChannels(serverId).subscribe({
       next: (channels) => {
         this.channels.set(channels);
-
-        // this.navService.setChildren(
-        //   serverId,
-        //   this.channels().map((c) => {
-        //     return { id: c.id };
-        //   }),
-        // );
         channels.forEach((channel) =>
           this.navService.addChannel(serverId, { id: channel.id, name: channel.name }),
         );
-
-        // if (!this.navService.channelId() && channels.length > 0) {
-        //   this.navService.navigate(channels[0].id);
-        // }
       },
       error: (err) => this.logger.error(LoggerType.SERVICE_CHANNEL, 'Failed to load channels', err),
     });
   }
+
+  private loadDMChannels() {}
 
   public createChannel(channelName: string, categoryId: string | null) {
     const newChannelData: ChannelCreate = {

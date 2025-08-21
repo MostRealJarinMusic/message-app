@@ -185,6 +185,11 @@ export class FriendRequestHandler {
             { id: senderId },
             receiverId
           );
+
+          //Create the channel and direct message entry
+
+          //Notification for channel creation
+
           break;
         case FriendRequestStatus.REJECTED:
           //Update sent - just break here
