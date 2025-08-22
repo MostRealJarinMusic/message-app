@@ -107,7 +107,6 @@ export class ServerHandler {
       await ChannelRepo.createChannel(newChannel);
 
       //Notify all users of a channel creation
-      //wsManager.broadcastToAll(WSEventType.CHANNEL_CREATE, newChannel);
       //Eventually, move to only server users
       const serverUserIds = (await UserRepo.getAllUsers()).map((u) => u.id);
       wsManager.broadcastToGroup(
