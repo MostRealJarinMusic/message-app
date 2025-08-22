@@ -18,9 +18,4 @@ export function registerRoutes(app: Application, wsManager: WebSocketManager) {
   app.use("/api/private/messages", messageRoutes(wsManager));
   app.use("/api/private/friend-requests", friendRequestRoutes(wsManager));
   app.use("/api/private/friends", friendRoutes(wsManager));
-
-  //Fallback - unsupported routes
-  // app.use("*", (_, res) => {
-  //   res.status(404).json({ error: "Route not found" });
-  // });
 }
