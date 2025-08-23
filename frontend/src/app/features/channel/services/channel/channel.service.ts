@@ -1,12 +1,9 @@
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { Channel, ChannelCreate, ChannelUpdate, LoggerType, WSEventType } from '@common/types';
-import { ChannelCategoryService } from 'src/app/features/category/services/channel-category/channel-category.service';
 import { SocketService } from 'src/app/core/services/socket/socket.service';
 import { PrivateApiService } from 'src/app/core/services/api/private-api.service';
 import { LoggerService } from 'src/app/core/services/logger/logger.service';
 import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
-import { channel } from 'node:diagnostics_channel';
-import { NgTemplateOutlet } from '@angular/common';
 
 @Injectable({
   providedIn: 'root',
@@ -66,9 +63,7 @@ export class ChannelService {
     this.apiService.getServerChannels(serverId).subscribe({
       next: (channels) => {
         this.channels.set(channels);
-        channels.forEach((channel) =>
-          this.navService.addChannel(serverId, { id: channel.id, name: channel.name }),
-        );
+        this.navService.addChannels(serverId, channels);
       },
       error: (err) => this.logger.error(LoggerType.SERVICE_CHANNEL, 'Failed to load channels', err),
     });
@@ -121,7 +116,7 @@ export class ChannelService {
         this.channels.update((current) => [...current!, channel]);
       }
 
-      this.navService.addChannel(channel.serverId, { id: channel.id, name: channel.name });
+      this.navService.addChannels(channel.serverId, [channel]);
     });
 
     //Deletes

@@ -1,5 +1,12 @@
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
-import { LoggerType, NavigationNode, NavigationState, NavigationView, Server } from '@common/types';
+import {
+  Channel,
+  LoggerType,
+  NavigationNode,
+  NavigationState,
+  NavigationView,
+  Server,
+} from '@common/types';
 import { LoggerService } from '../logger/logger.service';
 import { NavigationTreeService } from '../navigation-tree/navigation-tree.service';
 import { NavigationStateService } from '../navigation-state/navigation-state.service';
@@ -415,6 +422,7 @@ export class NavigationService {
     });
 
     this.logger.log(LoggerType.SERVICE_NAVIGATION, 'Navigated', this.activePath());
+    console.log(this.root());
   }
 
   private addChildren(parentId: string, children: NavigationNode[]) {
@@ -457,6 +465,13 @@ export class NavigationService {
     return parent?.children ?? [];
   }
 
+  private getChildIndex(parentId: string, childId: string) {
+    const parent = this.findNode(this.root(), parentId);
+    if (!parent) throw new Error(`Parent ${parentId} not found`);
+
+    return parent.children?.findIndex((c) => c.id === childId) ?? -1;
+  }
+
   private findNode(root: NavigationNode, id: string): NavigationNode | null {
     if (root.id === id) return root;
     for (const child of root.children ?? []) {
@@ -484,6 +499,17 @@ export class NavigationService {
     return children[Math.min(deletedIndex, children.length - 1)];
   }
 
+  private clearActiveId(nodeId: string) {
+    this.root.update((root) => {
+      const node = this.findNode(root, nodeId);
+      if (!node) throw new Error(`Node ${nodeId} not found`);
+
+      node.activeChildId = undefined;
+
+      return { ...root };
+    });
+  }
+
   private deriveState(activePath: NavigationNode[]) {
     let serverId: string | null = null;
     let channelId: string | null = null;
@@ -498,13 +524,6 @@ export class NavigationService {
     this.activeServerId.set(serverId);
     this.activeChannelId.set(channelId);
     this.activeDMId.set(dmId);
-
-    // return {
-    //   activeNodeId: active.id,
-    //   serverId,
-    //   channelId,
-    //   dmId,
-    // };
   }
 
   addServers(servers: Server[]): void {
@@ -524,76 +543,79 @@ export class NavigationService {
 
   removeServer(serverId: string): void {
     const wasActive = this.activeServerId() === serverId;
-    //this.treeService.removeNode(serverId);
+    const serverIndex = this.getChildIndex('servers', serverId);
+
     this.deleteChild('servers', serverId);
 
     if (wasActive) {
-      this.handleServerDeletion(serverId);
+      this.handleServerDeletion(serverIndex);
     }
 
     this.logger.log(LoggerType.SERVICE_NAVIGATION, 'Removed server:', serverId);
   }
 
-  addChannel(serverId: string, channel: { id: string; name: string }): void {
-    const channelNode: NavigationNode = {
-      id: channel.id,
-      type: 'channel',
-      label: channel.name,
-    };
+  addChannels(serverId: string, channels: Channel[]): void {
+    const channelNodes: NavigationNode[] = channels.map((channel) => {
+      return {
+        id: channel.id,
+        type: 'channel',
+        label: channel.name,
+      };
+    });
 
     //this.treeService.addNode(serverId, channelNode);
-    this.addChildren(serverId, [channelNode]);
+    this.addChildren(serverId, channelNodes);
 
-    this.logger.log(
-      LoggerType.SERVICE_NAVIGATION,
-      'Added channel:',
-      channel.id,
-      'to server:',
-      serverId,
-    );
+    // this.logger.log(
+    //   LoggerType.SERVICE_NAVIGATION,
+    //   'Added channel:',
+    //   channel.id,
+    //   'to server:',
+    //   serverId,
+    // );
 
     //console.log(this.treeService.nodes());
   }
 
   removeChannel(parentServerId: string, channelId: string): void {
     const wasActive = this.activeChannelId() === channelId;
-    const currentServerId = this.activeServerId();
+    const serverId = this.activeServerId();
+    const channelIndex = this.getChildIndex(parentServerId, channelId);
 
     this.deleteChild(parentServerId, channelId);
 
-    if (wasActive && currentServerId) {
-      this.handleChannelDeletion(currentServerId, channelId);
+    if (wasActive && serverId) {
+      this.handleChannelDeletion(serverId, channelIndex);
     }
 
     this.logger.log(LoggerType.SERVICE_NAVIGATION, 'Removed channel:', channelId);
   }
 
-  private handleServerDeletion(deletedServerId: string): void {
+  private handleServerDeletion(deletedServerIndex: number): void {
     const servers = this.getChildren('servers');
 
     if (servers.length === 0) {
-      // Fallback to DMs
+      this.clearActiveId('servers');
       this.navigate('direct_messages');
-      //Clear 'servers' node active child Id
-    } else {
-      // Navigate to first available server
-      const firstServer = servers[0];
-      const channels = this.getChildren(firstServer.id);
-      const targetId = channels.length > 0 ? channels[0].id : firstServer.id;
-      this.navigate(targetId);
+      return;
     }
+
+    const neighbour = this.pickNeighbour(servers, deletedServerIndex);
+    if (!neighbour) throw new Error(`Unable to choose neighbour server for navigation`);
+    this.navigate(neighbour.id);
   }
 
-  private handleChannelDeletion(serverId: string, deletedChannelId: string): void {
+  private handleChannelDeletion(serverId: string, deletedChannelIndex: number): void {
     const channels = this.getChildren(serverId);
 
     if (channels.length === 0) {
-      //Clear
-
+      this.clearActiveId(serverId);
       this.navigate(serverId);
-    } else {
-      // Navigate to first available channel
-      this.navigate(channels[0].id);
+      return;
     }
+
+    const neighbour = this.pickNeighbour(channels, deletedChannelIndex);
+    if (!neighbour) throw new Error(`Unable to choose neighbour server for navigation`);
+    this.navigate(neighbour.id);
   }
 }
