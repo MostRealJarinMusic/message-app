@@ -24,7 +24,7 @@ export class MessageService {
 
     //Load message history
     effect(() => {
-      const currentChannel = this.navService.channelId();
+      const currentChannel = this.navService.activeChannelId();
       if (currentChannel) {
         this.logger.log(LoggerType.SERVICE_MESSAGE, 'Loading message history');
         this.loadMessageHistory(currentChannel);
@@ -40,7 +40,7 @@ export class MessageService {
 
     //Should use HTTP
     //Temporary message response code
-    this.apiService.sendMessage(this.navService.channelId()!, content).subscribe({
+    this.apiService.sendMessage(this.navService.activeChannelId()!, content).subscribe({
       next: (message) => {},
       error: (err) => {
         //Response to any errors - optimistic UI
@@ -58,7 +58,7 @@ export class MessageService {
   private initWebSocket(): void {
     //Listeners for sent messages, edits and deletes
     this.wsService.on(WSEventType.RECEIVE).subscribe((message) => {
-      if (message.channelId === this.navService.channelId()) {
+      if (message.channelId === this.navService.activeChannelId()) {
         this.messages.update((current) => [...current, message]);
       }
     });
@@ -66,7 +66,7 @@ export class MessageService {
     //Deletes
     this.wsService.on(WSEventType.DELETED).subscribe((message) => {
       //Delete the message from the loaded channel if it exists in the history
-      if (message.channelId === this.navService.channelId()) {
+      if (message.channelId === this.navService.activeChannelId()) {
         this.messages.update((current) => current.filter((m) => m.id !== message.id));
       }
     });
@@ -74,7 +74,7 @@ export class MessageService {
     //Edits
     this.wsService.on(WSEventType.EDITED).subscribe((message) => {
       //Edit message from the loaded channel if it exists in the history
-      if (message.channelId === this.navService.channelId()) {
+      if (message.channelId === this.navService.activeChannelId()) {
         this.messages.update((currentMessages) =>
           currentMessages.map((m) =>
             m.id === message.id ? { ...m, content: message.content } : m,

@@ -20,7 +20,7 @@ export class ChannelTitleBarComponent {
 
   constructor() {
     effect(() => {
-      const channelId = this.navService.channelId();
+      const channelId = this.navService.activeChannelId();
 
       if (!channelId) {
         this.channelName = '';

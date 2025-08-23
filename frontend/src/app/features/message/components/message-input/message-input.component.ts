@@ -22,9 +22,9 @@ export class MessageInputComponent {
   private draftService = inject(MessageDraftService);
 
   protected newMessage = signal('');
-  protected currentChannel = computed(() => this.navService.channelId());
+  protected currentChannel = computed(() => this.navService.activeChannelId());
   protected placeholderMessage = computed(() => {
-    const channelId = this.navService.channelId();
+    const channelId = this.navService.activeChannelId();
 
     if (!channelId) return '';
 

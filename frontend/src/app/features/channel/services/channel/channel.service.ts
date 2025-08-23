@@ -6,6 +6,7 @@ import { PrivateApiService } from 'src/app/core/services/api/private-api.service
 import { LoggerService } from 'src/app/core/services/logger/logger.service';
 import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
 import { channel } from 'node:diagnostics_channel';
+import { NgTemplateOutlet } from '@angular/common';
 
 @Injectable({
   providedIn: 'root',
@@ -13,7 +14,6 @@ import { channel } from 'node:diagnostics_channel';
 export class ChannelService {
   private apiService = inject(PrivateApiService);
   private wsService = inject(SocketService);
-  private categoryService = inject(ChannelCategoryService);
   private navService = inject(NavigationService);
   private logger = inject(LoggerService);
 
@@ -34,6 +34,8 @@ export class ChannelService {
     return map;
   });
 
+  private lastServerId: string | null = null;
+
   constructor() {
     this.logger.init(LoggerType.SERVICE_CHANNEL);
 
@@ -41,10 +43,12 @@ export class ChannelService {
 
     //Load channels
     effect(() => {
-      const currentServer = this.navService.serverId();
-      const currentCategories = this.categoryService.channelCategories();
+      const currentServer = this.navService.activeServerId();
 
-      if (currentServer && currentCategories) {
+      if (currentServer === this.lastServerId) return;
+      this.lastServerId = currentServer;
+
+      if (currentServer) {
         this.logger.log(LoggerType.SERVICE_CHANNEL, 'Loading channels');
 
         this.loadServerChannels(currentServer);
@@ -78,7 +82,7 @@ export class ChannelService {
       categoryId: categoryId,
     };
 
-    this.apiService.createChannel(this.navService.serverId()!, newChannelData).subscribe({
+    this.apiService.createChannel(this.navService.activeServerId()!, newChannelData).subscribe({
       next: (channel) => {
         this.logger.log(LoggerType.SERVICE_CHANNEL, 'Successfuly channel creation');
       },
@@ -113,7 +117,7 @@ export class ChannelService {
   private initWebSocket(): void {
     //Listeners for channel creation, edits and deletes
     this.wsService.on(WSEventType.CHANNEL_CREATE).subscribe((channel) => {
-      if (channel.serverId === this.navService.serverId()) {
+      if (channel.serverId === this.navService.activeServerId()) {
         this.channels.update((current) => [...current!, channel]);
       }
 
@@ -122,16 +126,16 @@ export class ChannelService {
 
     //Deletes
     this.wsService.on(WSEventType.CHANNEL_DELETE).subscribe((channel) => {
-      if (channel.serverId === this.navService.serverId()) {
+      if (channel.serverId === this.navService.activeServerId()) {
         this.channels.update((current) => current!.filter((c) => c.id !== channel.id));
       }
 
-      this.navService.removeChannel(channel.id);
+      this.navService.removeChannel(channel.serverId, channel.id);
     });
 
     //Edits
     this.wsService.on(WSEventType.CHANNEL_UPDATE).subscribe((channel) => {
-      if (channel.serverId === this.navService.serverId()) {
+      if (channel.serverId === this.navService.activeServerId()) {
         this.channels.update((currentChannels) =>
           currentChannels!.map((c) => (c.id === channel.id ? { ...c, ...channel } : c)),
         );

@@ -1,5 +1,5 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
-import { LoggerType, NavigationNode, NavigationView, Server } from '@common/types';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import { LoggerType, NavigationNode, NavigationState, NavigationView, Server } from '@common/types';
 import { LoggerService } from '../logger/logger.service';
 import { NavigationTreeService } from '../navigation-tree/navigation-tree.service';
 import { NavigationStateService } from '../navigation-state/navigation-state.service';
@@ -9,7 +9,7 @@ import { NavigationActionsService } from '../navigation-actions/navigation-actio
   providedIn: 'root',
 })
 export class NavigationService {
-  private logger = inject(LoggerService);
+  //private logger = inject(LoggerService);
 
   // readonly root = signal<NavigationNode>({
   //   id: 'root',
@@ -301,37 +301,299 @@ export class NavigationService {
   //   }
   // }
 
-  private treeService = inject(NavigationTreeService);
-  private stateService = inject(NavigationStateService);
-  private actionsService = inject(NavigationActionsService);
+  //Attempt 2:
 
-  readonly rootNode = this.treeService.rootNode;
-  readonly activeNodeId = this.stateService.activeNodeId;
-  readonly serverId = this.stateService.serverId;
-  readonly channelId = this.stateService.channelId;
-  readonly dmId = this.stateService.dmId;
-  readonly activePath = computed(() => this.stateService.getActivePath());
+  // private treeService = inject(NavigationTreeService);
+  // private stateService = inject(NavigationStateService);
+  // private actionsService = inject(NavigationActionsService);
 
-  // Tree operations
-  getNode = (id: string) => this.treeService.getNode(id);
-  getChildren = (parentId: string) => this.treeService.getChildren(parentId);
+  // readonly rootNode = this.treeService.rootNode;
+  // readonly activeNodeId = this.stateService.activeNodeId;
+  // readonly serverId = this.stateService.serverId;
+  // readonly channelId = this.stateService.channelId;
+  // readonly dmId = this.stateService.dmId;
+  // readonly activePath = computed(() => this.stateService.getActivePath());
 
-  // Navigation
-  navigate = (nodeId: string) => this.stateService.navigate(nodeId);
-  isActive = (nodeId: string) => this.stateService.isActive(nodeId);
+  // // Tree operations
+  // getNode = (id: string) => this.treeService.getNode(id);
+  // getChildren = (parentId: string) => this.treeService.getChildren(parentId);
 
-  // Server/Channel management
-  addServer = (server: { id: string; name: string; channels?: any[] }) =>
-    this.actionsService.addServer(server);
+  // // Navigation
+  // navigate = (nodeId: string) => this.stateService.navigate(nodeId);
+  // isActive = (nodeId: string) => this.stateService.isActive(nodeId);
 
-  removeServer = (serverId: string) => this.actionsService.removeServer(serverId);
+  // // Server/Channel management
+  // addServer = (server: { id: string; name: string; channels?: any[] }) =>
+  //   this.actionsService.addServer(server);
 
-  addChannel = (serverId: string, channel: { id: string; name: string }) =>
-    this.actionsService.addChannel(serverId, channel);
+  // removeServer = (serverId: string) => this.actionsService.removeServer(serverId);
 
-  removeChannel = (channelId: string) => this.actionsService.removeChannel(channelId);
+  // addChannel = (serverId: string, channel: { id: string; name: string }) =>
+  //   this.actionsService.addChannel(serverId, channel);
 
-  // Utility methods
-  findServers = () => this.getChildren('servers');
-  findChannels = (serverId: string) => this.getChildren(serverId);
+  // removeChannel = (channelId: string) => this.actionsService.removeChannel(channelId);
+
+  // // Utility methods
+  // findServers = () => this.getChildren('servers');
+  // findChannels = (serverId: string) => this.getChildren(serverId);
+
+  //Attempt 3:
+  private logger = inject(LoggerService);
+
+  readonly root = signal<NavigationNode>({
+    id: 'root',
+    type: 'root',
+    activeChildId: 'direct_messages',
+    children: [
+      { id: 'servers', type: 'page', children: [] },
+      {
+        id: 'direct_messages',
+        type: 'page',
+        activeChildId: 'friends',
+        children: [
+          {
+            id: 'friends',
+            type: 'dm_section',
+            activeChildId: 'online',
+            children: [
+              { id: 'all', type: 'friend_section' },
+              { id: 'online', type: 'friend_section' },
+              { id: 'incoming', type: 'friend_section' },
+              { id: 'outgoing', type: 'friend_section' },
+              { id: 'add-friend', type: 'friend_section' },
+            ],
+          },
+          { id: 'direct_message_channels', type: 'dm_section', children: [] },
+        ],
+      },
+    ],
+  });
+
+  readonly activePath = computed(() => {
+    const path: NavigationNode[] = [];
+    let current = this.root();
+    while (current.activeChildId) {
+      const child = current.children?.find((c) => c.id === current.activeChildId);
+      if (!child) break;
+      path.push(child);
+      current = child;
+    }
+    return path;
+  });
+
+  readonly activePathIds = computed(() => {
+    return this.activePath().map((n) => n.id);
+  });
+
+  //readonly state = computed<NavigationState>(() => this.deriveState(this.activePath()));
+  readonly activeServerId = signal<string | null>(null);
+  readonly activeChannelId = signal<string | null>(null);
+  readonly activeDMId = signal<string | null>(null);
+
+  constructor() {
+    effect(() => {
+      this.deriveState(this.activePath());
+    });
+  }
+
+  isActive = (nodeId: string) =>
+    this.activePath()
+      .map((n) => n.id)
+      .includes(nodeId);
+
+  navigate(targetId: string) {
+    const path = this.findPath(this.root(), targetId);
+    if (!path) throw new Error(`Node ${targetId} not found`);
+
+    this.root.update((root) => {
+      let node = root;
+      for (const step of path) {
+        node.activeChildId = step.id;
+        node = node.children?.find((c) => c.id === step.id) ?? node;
+      }
+      return { ...root };
+    });
+
+    this.logger.log(LoggerType.SERVICE_NAVIGATION, 'Navigated', this.activePath());
+  }
+
+  private addChildren(parentId: string, children: NavigationNode[]) {
+    this.root.update((root) => {
+      const parent = this.findNode(root, parentId);
+      if (!parent) throw new Error(`Parent ${parentId} not found`);
+
+      const existing = new Map<string, NavigationNode>(
+        (parent.children ?? []).map((c) => [c.id, c]),
+      );
+
+      for (const newChild of children) {
+        if (!existing.has(newChild.id)) existing.set(newChild.id, newChild);
+      }
+
+      parent.children = Array.from(existing.values()); //[...(parent.children ?? []), ...children];
+      return { ...root };
+    });
+  }
+
+  private deleteChild(parentId: string, childId: string) {
+    this.root.update((root) => {
+      const parent = this.findNode(root, parentId);
+      if (!parent) throw new Error(`Parent ${parentId} not found`);
+
+      //const index = parent.children?.findIndex((c) => c.id === childId) ?? -1;
+      parent.children = parent.children?.filter((c) => c.id !== childId);
+
+      // // neighbour fallback - should be handled elsewhere
+      // if (this.state().activeNodeId === childId) {
+      //   const neighbour = this.pickNeighbour(parent.children ?? [], index);
+      //   this.navigate(neighbour ? neighbour.id : parent.id);
+      // }
+      return { ...root };
+    });
+  }
+
+  private getChildren(parentId: string): NavigationNode[] {
+    const parent = this.findNode(this.root(), parentId);
+    return parent?.children ?? [];
+  }
+
+  private findNode(root: NavigationNode, id: string): NavigationNode | null {
+    if (root.id === id) return root;
+    for (const child of root.children ?? []) {
+      const found = this.findNode(child, id);
+      if (found) return found;
+    }
+    return null;
+  }
+
+  private findPath(
+    root: NavigationNode,
+    targetId: string,
+    path: NavigationNode[] = [],
+  ): NavigationNode[] | null {
+    if (root.id === targetId) return [...path, root];
+    for (const child of root.children ?? []) {
+      const found = this.findPath(child, targetId, [...path, root]);
+      if (found) return found;
+    }
+    return null;
+  }
+
+  private pickNeighbour(children: NavigationNode[], deletedIndex: number) {
+    if (!children.length) return undefined;
+    return children[Math.min(deletedIndex, children.length - 1)];
+  }
+
+  private deriveState(activePath: NavigationNode[]) {
+    let serverId: string | null = null;
+    let channelId: string | null = null;
+    let dmId: string | null = null;
+
+    for (const node of activePath) {
+      if (node.type === 'server') serverId = node.id;
+      if (node.type === 'channel') channelId = node.id;
+      if (node.type === 'dm_channel') dmId = node.id;
+    }
+
+    this.activeServerId.set(serverId);
+    this.activeChannelId.set(channelId);
+    this.activeDMId.set(dmId);
+
+    // return {
+    //   activeNodeId: active.id,
+    //   serverId,
+    //   channelId,
+    //   dmId,
+    // };
+  }
+
+  addServers(servers: Server[]): void {
+    const serverNodes: NavigationNode[] = servers.map((server) => {
+      return {
+        id: server.id,
+        type: 'server',
+        label: server.name,
+      };
+    });
+
+    //this.treeService.addNode('servers', serverNode);
+    this.addChildren('servers', serverNodes);
+
+    //this.logger.log(LoggerType.SERVICE_NAVIGATION, 'Added server:', server.id);
+  }
+
+  removeServer(serverId: string): void {
+    const wasActive = this.activeServerId() === serverId;
+    //this.treeService.removeNode(serverId);
+    this.deleteChild('servers', serverId);
+
+    if (wasActive) {
+      this.handleServerDeletion(serverId);
+    }
+
+    this.logger.log(LoggerType.SERVICE_NAVIGATION, 'Removed server:', serverId);
+  }
+
+  addChannel(serverId: string, channel: { id: string; name: string }): void {
+    const channelNode: NavigationNode = {
+      id: channel.id,
+      type: 'channel',
+      label: channel.name,
+    };
+
+    //this.treeService.addNode(serverId, channelNode);
+    this.addChildren(serverId, [channelNode]);
+
+    this.logger.log(
+      LoggerType.SERVICE_NAVIGATION,
+      'Added channel:',
+      channel.id,
+      'to server:',
+      serverId,
+    );
+
+    //console.log(this.treeService.nodes());
+  }
+
+  removeChannel(parentServerId: string, channelId: string): void {
+    const wasActive = this.activeChannelId() === channelId;
+    const currentServerId = this.activeServerId();
+
+    this.deleteChild(parentServerId, channelId);
+
+    if (wasActive && currentServerId) {
+      this.handleChannelDeletion(currentServerId, channelId);
+    }
+
+    this.logger.log(LoggerType.SERVICE_NAVIGATION, 'Removed channel:', channelId);
+  }
+
+  private handleServerDeletion(deletedServerId: string): void {
+    const servers = this.getChildren('servers');
+
+    if (servers.length === 0) {
+      // Fallback to DMs
+      this.navigate('direct_messages');
+      //Clear 'servers' node active child Id
+    } else {
+      // Navigate to first available server
+      const firstServer = servers[0];
+      const channels = this.getChildren(firstServer.id);
+      const targetId = channels.length > 0 ? channels[0].id : firstServer.id;
+      this.navigate(targetId);
+    }
+  }
+
+  private handleChannelDeletion(serverId: string, deletedChannelId: string): void {
+    const channels = this.getChildren(serverId);
+
+    if (channels.length === 0) {
+      //Clear
+
+      this.navigate(serverId);
+    } else {
+      // Navigate to first available channel
+      this.navigate(channels[0].id);
+    }
+  }
 }

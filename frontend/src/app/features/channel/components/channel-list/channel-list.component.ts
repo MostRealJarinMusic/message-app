@@ -88,7 +88,7 @@ export class ChannelListComponent implements OnDestroy, OnInit {
   //Current values tracked
   protected categories = this.categoryService.channelCategories;
   protected groupedChannels = this.channelService.groupedChannels;
-  protected currentChannel = this.navService.channelId;
+  protected currentChannel = this.navService.activeChannelId();
   protected contextMenuChannel: Channel | null = null;
   protected contextMenuCategory: ChannelCategory | null = null;
 

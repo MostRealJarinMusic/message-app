@@ -25,7 +25,7 @@ export class UserService {
     this.loadUsers();
 
     effect(() => {
-      const currentServer = this.navService.serverId();
+      const currentServer = this.navService.activeChannelId();
       if (currentServer) {
         this.loadServerUsers(currentServer);
       } else {

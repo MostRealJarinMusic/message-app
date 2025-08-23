@@ -4,7 +4,7 @@
       @for (channel of groupedChannels().get(null) ?? []; track channel.id) {
         <app-channel-button
           [channel]="channel"
-          [isSelected]="channel.id === currentChannel()"
+          [isSelected]="channel.id === navService.activeChannelId()"
           (select)="navService.navigate($event)"
           (openContextMenu)="showChannelContextMenu($event, channel)" />
       }
@@ -18,7 +18,7 @@
       @for (channel of groupedChannels().get(category.id) ?? []; track channel.id) {
         <app-channel-button
           [channel]="channel"
-          [isSelected]="channel.id === currentChannel()"
+          [isSelected]="channel.id === navService.activeChannelId()"
           (select)="navService.navigate($event)"
           (openContextMenu)="showChannelContextMenu($event, channel)" />
       }

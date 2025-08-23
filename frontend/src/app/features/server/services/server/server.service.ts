@@ -46,9 +46,10 @@ export class ServerService {
         //   }),
         // );
 
-        servers.forEach((server) =>
-          this.navService.addServer({ id: server.id, name: server.name }),
-        );
+        // servers.forEach((server) =>
+        //   this.navService.addServer({ id: server.id, name: server.name }),
+        // );
+        this.navService.addServers(servers);
       },
       error: (err) => this.logger.error(LoggerType.SERVICE_SERVER, 'Failed to load servers', err),
     });
@@ -65,7 +66,8 @@ export class ServerService {
     this.wsService.on(WSEventType.SERVER_CREATE).subscribe((server) => {
       this.servers.update((current) => [...current, server]);
 
-      this.navService.addServer({ id: server.id, name: server.name });
+      //this.navService.addServer({ id: server.id, name: server.name });
+      this.navService.addServers([server]);
       this.navService.navigate(server.id);
     });
 

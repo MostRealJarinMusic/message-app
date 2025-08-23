@@ -29,7 +29,7 @@ export class ChannelCategoryService {
 
     //Load categories
     effect(() => {
-      const currentServer = this.navService.serverId();
+      const currentServer = this.navService.activeServerId();
       if (currentServer) {
         this.logger.log(LoggerType.SERVICE_CATEGORY, 'Loading channel categories');
         this.channelCategories.set(null);
@@ -61,21 +61,21 @@ export class ChannelCategoryService {
   private initWebSocket(): void {
     //Listeners for category creation, edits and deletes
     this.wsService.on(WSEventType.CATEGORY_CREATE).subscribe((category) => {
-      if (category.serverId === this.navService.serverId()) {
+      if (category.serverId === this.navService.activeServerId()) {
         this.channelCategories.update((current) => [...current!, category]);
       }
     });
 
     //Deletes - if a category gets deleted, the server structure needs to be reloaded
     this.wsService.on(WSEventType.CATEGORY_DELETE).subscribe((category) => {
-      if (category.serverId === this.navService.serverId()) {
+      if (category.serverId === this.navService.activeServerId()) {
         this.channelCategories.update((current) => current!.filter((c) => c.id !== category.id));
       }
     });
 
     //Edits
     this.wsService.on(WSEventType.CATEGORY_UPDATE).subscribe((category) => {
-      if (category.serverId === this.navService.serverId()) {
+      if (category.serverId === this.navService.activeServerId()) {
         this.channelCategories.update((currentCategories) =>
           currentCategories!.map((c) => (c.id === category.id ? { ...c, ...category } : c)),
         );
