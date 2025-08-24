@@ -69,6 +69,10 @@ export class NavigationService {
     effect(() => {
       this.deriveState(this.activePath());
     });
+
+    effect(() => {
+      console.log('Active Channel ID:', this.activeChannelId());
+    });
   }
 
   isActive = (nodeId: string) =>
@@ -80,34 +84,14 @@ export class NavigationService {
     const path = this.findPath(this.root(), targetId);
     if (!path) throw new Error(`Node ${targetId} not found`);
 
-    console.log('Path:', path);
+    path.filter((n) => n.id !== 'root');
+    // console.log('Path:', path);
 
     this.root.update((root) => {
       let node = root;
       for (const step of path) {
-        //node.activeChildId = step.id;
-
-        // console.log(node);
-        // console.log(
-        //   !node.activeChildId &&
-        //     node.children &&
-        //     node.children.length > 0 &&
-        //     node.type === 'server',
-        // );
-
-        // if (
-        //   !node.activeChildId &&
-        //   node.children &&
-        //   node.children.length > 0 &&
-        //   node.type === 'server'
-        // ) {
-        //   node.activeChildId = node.children[0].id;
-        //   console.log('Got here');
-        // } else {
-        //   node.activeChildId = step.id;
-        //   console.log('Lol');
-        // }
-
+        node.activeChildId = step.id;
+        // console.log('Node', node);
         node = node.children?.find((c) => c.id === step.id) ?? node;
       }
       return { ...root };
@@ -180,10 +164,6 @@ export class NavigationService {
     return null;
   }
 
-  private extendPath(root: NavigationNode, path: NavigationNode[]) {
-    //Get the last node - if there is a node and there is
-  }
-
   private pickNeighbour(children: NavigationNode[], deletedIndex: number) {
     if (!children.length) return undefined;
     return children[Math.min(deletedIndex, children.length - 1)];
@@ -251,6 +231,12 @@ export class NavigationService {
     });
 
     this.addChildren(serverId, channelNodes);
+
+    if (serverId !== this.activeServerId()) return;
+    if (this.activeChannelId()) return;
+    if (channelNodes.length <= 0) return;
+
+    this.navigate(channelNodes[0].id);
   }
 
   removeChannel(parentServerId: string, channelId: string): void {
