@@ -1,12 +1,5 @@
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
-import {
-  Channel,
-  LoggerType,
-  NavigationNode,
-  NavigationState,
-  NavigationView,
-  Server,
-} from '@common/types';
+import { Channel, LoggerType, NavigationNode, Server } from '@common/types';
 import { LoggerService } from '../logger/logger.service';
 
 @Injectable({
@@ -70,9 +63,9 @@ export class NavigationService {
       this.deriveState(this.activePath());
     });
 
-    effect(() => {
-      console.log('Active Channel ID:', this.activeChannelId());
-    });
+    // effect(() => {
+    //   console.log('Active Channel ID:', this.activeChannelId());
+    // });
   }
 
   isActive = (nodeId: string) =>
@@ -98,7 +91,7 @@ export class NavigationService {
     });
 
     this.logger.log(LoggerType.SERVICE_NAVIGATION, 'Navigated', this.activePath());
-    console.log(this.root());
+    //console.log(this.root());
   }
 
   private addChildren(parentId: string, children: NavigationNode[]) {
