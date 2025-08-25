@@ -75,7 +75,10 @@ export class ChannelService {
       next: (channels) => {
         //Set them
         console.log(channels);
+        this.channels.set(channels);
+
         //Add DM channels
+        this.navService.addDMChannels(channels);
       },
       error: (err) =>
         this.logger.error(LoggerType.SERVICE_CHANNEL, 'Failed to load DM channels', err),
@@ -124,7 +127,7 @@ export class ChannelService {
     //Listeners for channel creation, edits and deletes
     this.wsService.on(WSEventType.CHANNEL_CREATE).subscribe((channel) => {
       if (channel.serverId === this.navService.activeServerId()) {
-        this.channels.update((current) => [...current!, channel]);
+        this.channels.update((current) => [...current, channel]);
       }
 
       this.navService.addChannels(channel.serverId!, [channel]);
@@ -145,6 +148,16 @@ export class ChannelService {
         this.channels.update((currentChannels) =>
           currentChannels!.map((c) => (c.id === channel.id ? { ...c, ...channel } : c)),
         );
+      }
+    });
+
+    //DM channel creation
+    this.wsService.on(WSEventType.DM_CHANNEL_CREATE).subscribe((channel) => {
+      if (!this.navService.activeServerId()) {
+        //We are inside the direct messages tab
+        this.channels.update((current) => [...current, channel]);
+
+        this.navService.addDMChannels([channel]);
       }
     });
   }

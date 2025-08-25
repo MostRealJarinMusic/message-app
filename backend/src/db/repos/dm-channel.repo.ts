@@ -7,10 +7,12 @@ export class DMChannelRepo {
 
     return new Promise<Channel[]>((resolve, reject) => {
       db.all(
-        `SELECT * FROM direct_messages 
+        `
+        SELECT * FROM direct_messages 
         INNER JOIN channels
         ON direct_messages.channelId = channels.id
-        WHERE direct_messages.userId1 = ? OR direct_messages.userId2 = ?`,
+        WHERE direct_messages.userId1 = ? OR direct_messages.userId2 = ?
+        `,
         [userId, userId],
         (err, rows) => {
           if (err) {
@@ -24,8 +26,6 @@ export class DMChannelRepo {
             name: row.name,
             participants: [row.userId1, row.userId2],
           }));
-
-          console.log(allChannels);
 
           resolve(allChannels);
         }
