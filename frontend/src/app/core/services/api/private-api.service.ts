@@ -195,6 +195,12 @@ export class PrivateApiService extends BaseApiService {
   getFriends(): Observable<string[]> {
     return this.authorisedFetch<string[]>((_) => this.get<string[]>(`friends`));
   }
+  //#endregion
+
+  //#region DMs
+  getDMChannels(): Observable<Channel[]> {
+    return this.authorisedFetch((_) => this.get<Channel[]>('direct-messages/channels'));
+  }
 
   //#endregion
 }

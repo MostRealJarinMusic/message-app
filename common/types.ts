@@ -59,6 +59,7 @@ export interface Channel {
   createdBy?: string;
   editedAt?: string;
   categoryId?: string | null;
+  participants?: string[];
 }
 
 export interface ChannelCreate {

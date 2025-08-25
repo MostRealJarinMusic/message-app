@@ -6,7 +6,7 @@ export class DirectMessageHandler {
   static async getChannels(req: SignedRequest, res: Response) {
     try {
       const userId = req.signature.id;
-      const dmChannels = DMChannelRepo.getDMChannels(userId);
+      const dmChannels = await DMChannelRepo.getDMChannels(userId);
 
       res.json(dmChannels);
     } catch (err) {

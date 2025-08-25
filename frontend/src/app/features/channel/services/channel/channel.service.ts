@@ -70,7 +70,17 @@ export class ChannelService {
     });
   }
 
-  private loadDMChannels() {}
+  private loadDMChannels() {
+    this.apiService.getDMChannels().subscribe({
+      next: (channels) => {
+        //Set them
+        console.log(channels);
+        //Add DM channels
+      },
+      error: (err) =>
+        this.logger.error(LoggerType.SERVICE_CHANNEL, 'Failed to load DM channels', err),
+    });
+  }
 
   public createChannel(channelName: string, categoryId: string | null) {
     const newChannelData: ChannelCreate = {

@@ -24,8 +24,6 @@ export class ServerHandler {
 
       const servers = await ServerRepo.getServers();
 
-      console.log("Getting all servers");
-
       res.json(servers);
     } catch (err) {
       console.error("Error getting servers", err);

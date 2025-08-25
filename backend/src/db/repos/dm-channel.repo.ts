@@ -22,7 +22,10 @@ export class DMChannelRepo {
             id: row.id,
             type: row.type,
             name: row.name,
+            participants: [row.userId1, row.userId2],
           }));
+
+          console.log(allChannels);
 
           resolve(allChannels);
         }
