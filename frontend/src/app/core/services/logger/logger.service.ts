@@ -5,15 +5,15 @@ import { LoggerType } from '@common/types';
   providedIn: 'root',
 })
 export class LoggerService {
-  private disabledLoggers: LoggerType[] = [
-    LoggerType.SERVICE_SERVER,
-    LoggerType.SERVICE_CHANNEL,
-    LoggerType.SERVICE_CATEGORY,
-    LoggerType.SERVICE_MESSAGE,
-    LoggerType.SERVICE_USER,
-    LoggerType.SERVICE_PRESENCE,
-    LoggerType.SERVICE_SOCKET,
-  ];
+  private disabledLoggers: LoggerType[] = [];
+  //   LoggerType.SERVICE_SERVER,
+  //   LoggerType.SERVICE_CHANNEL,
+  //   LoggerType.SERVICE_CATEGORY,
+  //   LoggerType.SERVICE_MESSAGE,
+  //   LoggerType.SERVICE_USER,
+  //   LoggerType.SERVICE_PRESENCE,
+  //   LoggerType.SERVICE_SOCKET,
+  // ];
 
   init(loggedBy: LoggerType) {
     if (!this.disabledLoggers.includes(loggedBy))

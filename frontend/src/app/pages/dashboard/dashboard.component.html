@@ -3,8 +3,6 @@
 @let directChatViewActive = navService.isActive('direct_message_channels');
 @let directMessagesViewActive = navService.isActive('direct_messages');
 
-<p>{{ navService.activePathIds() }}</p>
-
 <div class="grid h-screen bg-surface-900 grid-cols-layout grid-rows-layout">
   <app-server-list class="row-span-3 p-2 overflow-y-auto"></app-server-list>
 
@@ -38,14 +36,15 @@
       <app-friends-list />
     </div>
   } @else {
-    <div class="col-start-4 row-start-3 bg-surface-800">
-      <div class="w-full h-full grid grid-rows-[1fr_auto] overflow-hidden">
-        @if (navService.activeChannelId()) {
-          <app-message-list class="flex-1 overflow-hidden"></app-message-list>
-          <app-message-input class="pb-4 px-4"></app-message-input>
+    <div class="col-start-4 row-start-3 bg-surface-800 overflow-hidden">
+      <div class="w-full h-full grid grid-rows-[1fr_auto]">
+        <app-message-list class="flex-1 overflow-hidden"></app-message-list>
+        <app-message-input class="pb-4 px-4"></app-message-input>
+
+        <!-- @if (navService.activeChannelId()) {
         } @else {
           <p>No channel</p>
-        }
+        } -->
       </div>
     </div>
     <p-divider class="col-start-5 row-start-3 !mx-0" layout="vertical" />
