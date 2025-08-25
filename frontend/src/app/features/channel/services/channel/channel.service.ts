@@ -117,7 +117,7 @@ export class ChannelService {
         this.channels.update((current) => [...current!, channel]);
       }
 
-      this.navService.addChannels(channel.serverId, [channel]);
+      this.navService.addChannels(channel.serverId!, [channel]);
     });
 
     //Deletes
@@ -126,7 +126,7 @@ export class ChannelService {
         this.channels.update((current) => current!.filter((c) => c.id !== channel.id));
       }
 
-      this.navService.removeChannel(channel.serverId, channel.id);
+      this.navService.removeChannel(channel.serverId!, channel.id);
     });
 
     //Edits

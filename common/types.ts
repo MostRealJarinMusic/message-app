@@ -51,7 +51,7 @@ export enum ChannelType {
 
 export interface Channel {
   id: string;
-  serverId: string;
+  serverId?: string;
   name: string;
   type: ChannelType;
   topic?: string;
@@ -161,6 +161,8 @@ export enum WSEventType {
 
   FRIEND_ADD = "friend:add",
 
+  DM_CHANNEL_CREATE = "dm:channel:create",
+
   PING = "ping",
   PONG = "pong",
 }
@@ -184,6 +186,7 @@ export type WSEventPayload = {
   [WSEventType.FRIEND_REQUEST_UPDATE]: FriendRequest;
   [WSEventType.FRIEND_REQUEST_DELETE]: FriendRequest;
   [WSEventType.FRIEND_ADD]: { id: string };
+  [WSEventType.DM_CHANNEL_CREATE]: Channel;
   [WSEventType.PING]: { timestamp: number };
   [WSEventType.PONG]: { timestamp: number };
 };

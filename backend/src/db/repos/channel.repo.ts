@@ -124,4 +124,8 @@ export class ChannelRepo {
       );
     });
   }
+
+  static async addChannelParticipant(channelId: string, userId: string) {}
+
+  static async getChannelParticipants(channelId: string) {}
 }
