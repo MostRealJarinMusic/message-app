@@ -31,6 +31,8 @@ export class ChannelService {
     return map;
   });
 
+  readonly dmChannels = signal<Channel[]>([]);
+
   private channelCache: Map<string, Channel[]> = new Map(); //Prevents misses while the channel is getting fetched - waterfall issue
   private lastServerId: string | null = null;
 
@@ -54,8 +56,6 @@ export class ChannelService {
         this.logger.log(LoggerType.SERVICE_CHANNEL, 'No server - loading DMs');
 
         this.loadDMChannels();
-
-        this.channels.set([]);
       }
     });
   }

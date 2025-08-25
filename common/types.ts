@@ -187,8 +187,8 @@ export type WSEventPayload = {
   [WSEventType.FRIEND_REQUEST_DELETE]: FriendRequest;
   [WSEventType.FRIEND_ADD]: { id: string };
   [WSEventType.DM_CHANNEL_CREATE]: Channel;
-  [WSEventType.PING]: { timestamp: number };
-  [WSEventType.PONG]: { timestamp: number };
+  [WSEventType.PING]: { timestamp: Timestamp };
+  [WSEventType.PONG]: { timestamp: Timestamp };
 };
 
 //#endregion
@@ -253,12 +253,16 @@ export interface FriendRequestUpdate {
 
 //#endregion
 
-//#region Navigation types
-export enum NavigationView {
-  SERVERS = "view:servers",
-  DMS = "view:dms",
-}
+// //#region DM channels
+// export interface DMChannel {
+//   channelId: string;
+//   userId1: string;
+//   userId2: string;
+// }
 
+//#endregion
+
+//#region Navigation types
 export interface NavigationNode {
   id: string;
   type:
@@ -273,19 +277,6 @@ export interface NavigationNode {
   metadata?: Record<string, any>;
   children?: NavigationNode[];
   activeChildId?: string;
-}
-
-export interface NavigationState {
-  activeNodeId: string;
-  serverId: string | null;
-  channelId: string | null;
-  dmId: string | null;
-}
-
-export interface NavigationEvent {
-  type: "navigate" | "server_select" | "channel_select" | "dm_select";
-  nodeId: string;
-  metadata?: any;
 }
 
 //#endregion

@@ -1,8 +1,34 @@
-import { Channel, FriendRequest } from "@common/types";
+import { Channel, FriendRequest } from "../../../../common/types";
 import { getDB } from "../db";
 
 export class DMChannelRepo {
-  static async getDMChannels(userId: string) {}
+  static async getDMChannels(userId: string) {
+    const db = await getDB();
+
+    return new Promise<Channel[]>((resolve, reject) => {
+      db.all(
+        `SELECT * FROM direct_messages 
+        INNER JOIN channels
+        ON direct_messages.channelId = channels.id
+        WHERE direct_messages.userId1 = ? OR direct_messages.userId2 = ?`,
+        [userId, userId],
+        (err, rows) => {
+          if (err) {
+            console.log("Error retrieving DM channels:", err);
+            return reject(err);
+          }
+
+          const allChannels: Channel[] = rows.map((row: any) => ({
+            id: row.id,
+            type: row.type,
+            name: row.name,
+          }));
+
+          resolve(allChannels);
+        }
+      );
+    });
+  }
 
   static async createDMChannel(
     channel: Channel,
