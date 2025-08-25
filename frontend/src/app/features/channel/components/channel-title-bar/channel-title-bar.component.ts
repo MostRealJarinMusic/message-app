@@ -21,23 +21,37 @@ export class ChannelTitleBarComponent {
   constructor() {
     effect(() => {
       const channelId = this.navService.activeChannelId();
+      const dmId = this.navService.activeDMId();
 
-      if (!channelId) {
+      if (!channelId && !dmId) {
         this.channelName = '';
         this.channelTopic = '';
         return;
       }
 
-      const channel = this.channelService.getChannelById(channelId);
+      if (channelId) {
+        const channel = this.channelService.getChannelById(channelId);
 
-      if (!channel) {
-        this.channelName = '';
+        if (!channel) {
+          this.channelName = '';
+          this.channelTopic = '';
+          return;
+        }
+
+        this.channelName = channel.name;
+        this.channelTopic = channel.topic ?? '';
+      } else if (dmId) {
+        const dmChannel = this.channelService.getChannelById(dmId);
+
+        if (!dmChannel) {
+          this.channelName = '';
+          this.channelTopic = '';
+          return;
+        }
+
+        this.channelName = dmChannel.name;
         this.channelTopic = '';
-        return;
       }
-
-      this.channelName = channel.name;
-      this.channelTopic = channel.topic ?? '';
     });
   }
 }

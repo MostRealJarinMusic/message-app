@@ -12,4 +12,11 @@
   </li>
 
   <p-divider layout="horizontal" styleClass="!my-0 !py-3"></p-divider>
+
+  @for (channel of channelService.channels(); track channel.id) {
+    <app-channel-button
+      [channel]="channel"
+      [isSelected]="channel.id === navService.activeDMId()"
+      (select)="navService.navigate($event)" />
+  }
 </div>

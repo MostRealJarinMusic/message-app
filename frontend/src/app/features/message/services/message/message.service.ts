@@ -24,7 +24,7 @@ export class MessageService {
 
     //Load message history
     effect(() => {
-      const currentChannel = this.navService.activeChannelId();
+      const currentChannel = this.navService.activeChannelId() || this.navService.activeDMId();
       if (currentChannel) {
         this.logger.log(LoggerType.SERVICE_MESSAGE, 'Loading message history');
         this.loadMessageHistory(currentChannel);
@@ -40,7 +40,9 @@ export class MessageService {
 
     //Should use HTTP
     //Temporary message response code
-    this.apiService.sendMessage(this.navService.activeChannelId()!, content).subscribe({
+    const targetChannel = this.navService.activeChannelId() || this.navService.activeDMId();
+
+    this.apiService.sendMessage(targetChannel!, content).subscribe({
       next: (message) => {},
       error: (err) => {
         //Response to any errors - optimistic UI
@@ -48,7 +50,7 @@ export class MessageService {
     });
   }
 
-  public loadMessageHistory(channelId: string): void {
+  private loadMessageHistory(channelId: string): void {
     this.apiService.getMessageHistory(channelId).subscribe({
       next: (messages) => this.messages.set(messages),
       error: (err) => this.logger.error(LoggerType.SERVICE_MESSAGE, 'Failed to load history', err),
