@@ -45,8 +45,8 @@ export class ChannelService {
     effect(() => {
       const currentServer = this.navService.activeServerId();
 
-      if (currentServer === this.lastServerId) return;
-      this.lastServerId = currentServer;
+      // if (currentServer === this.lastServerId && this.navService.isActive('servers')) return;
+      // this.lastServerId = currentServer;
 
       if (currentServer) {
         this.logger.log(LoggerType.SERVICE_CHANNEL, 'Loading channels');
@@ -74,7 +74,6 @@ export class ChannelService {
     this.apiService.getDMChannels().subscribe({
       next: (channels) => {
         //Set them
-        console.log(channels);
         this.channels.set(channels);
 
         //Add DM channels

@@ -40,9 +40,9 @@ export class MessageService {
 
     //Should use HTTP
     //Temporary message response code
-    const targetChannel = this.navService.activeChannelId() || this.navService.activeDMId();
+    const activeChannelId = this.navService.activeChannelId() || this.navService.activeDMId();
 
-    this.apiService.sendMessage(targetChannel!, content).subscribe({
+    this.apiService.sendMessage(activeChannelId!, content).subscribe({
       next: (message) => {},
       error: (err) => {
         //Response to any errors - optimistic UI
@@ -60,7 +60,9 @@ export class MessageService {
   private initWebSocket(): void {
     //Listeners for sent messages, edits and deletes
     this.wsService.on(WSEventType.RECEIVE).subscribe((message) => {
-      if (message.channelId === this.navService.activeChannelId()) {
+      const activeChannelId = this.navService.activeChannelId() || this.navService.activeDMId();
+
+      if (message.channelId === activeChannelId) {
         this.messages.update((current) => [...current, message]);
       }
     });
@@ -68,7 +70,9 @@ export class MessageService {
     //Deletes
     this.wsService.on(WSEventType.DELETED).subscribe((message) => {
       //Delete the message from the loaded channel if it exists in the history
-      if (message.channelId === this.navService.activeChannelId()) {
+      const activeChannelId = this.navService.activeChannelId() || this.navService.activeDMId();
+
+      if (message.channelId === activeChannelId) {
         this.messages.update((current) => current.filter((m) => m.id !== message.id));
       }
     });
@@ -76,7 +80,9 @@ export class MessageService {
     //Edits
     this.wsService.on(WSEventType.EDITED).subscribe((message) => {
       //Edit message from the loaded channel if it exists in the history
-      if (message.channelId === this.navService.activeChannelId()) {
+      const activeChannelId = this.navService.activeChannelId() || this.navService.activeDMId();
+
+      if (message.channelId === activeChannelId) {
         this.messages.update((currentMessages) =>
           currentMessages.map((m) =>
             m.id === message.id ? { ...m, content: message.content } : m,
