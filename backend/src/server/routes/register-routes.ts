@@ -15,9 +15,9 @@ export function registerRoutes(app: Application, wsManager: WebSocketManager) {
   app.use("/api/private/channels", channelRoutes(wsManager));
   app.use("/api/private/categories", categoryRoutes(wsManager));
   app.use("/api/private/servers", serverRoutes(wsManager));
-  app.use("/api/private/users", userRoutes);
+  app.use("/api/private/users", userRoutes(wsManager));
   app.use("/api/private/messages", messageRoutes(wsManager));
   app.use("/api/private/friend-requests", friendRequestRoutes(wsManager));
-  app.use("/api/private/friends", friendRoutes(wsManager));
-  app.use("/api/private/direct-messages", directMessageRoutes(wsManager));
+  //app.use("/api/private/friends", friendRoutes(wsManager));
+  //app.use("/api/private/direct-messages", directMessageRoutes(wsManager));
 }
