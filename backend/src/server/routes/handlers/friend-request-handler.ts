@@ -167,7 +167,7 @@ export class FriendRequestHandler {
       //Sender and receiver notification that request is updated - frontend will deal with UI update
       wsManager.broadcastToGroup(
         WSEventType.FRIEND_REQUEST_UPDATE,
-        friendRequest,
+        updatedFriendRequest,
         [senderId, receiverId]
       );
 
