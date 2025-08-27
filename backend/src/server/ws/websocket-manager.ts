@@ -82,6 +82,7 @@ export class WebSocketManager {
 
     this.presenceStore.set(userId, status);
 
+    //Temporary - should only broadcast to friends, users in the same servers
     this.broadcastToAll("presence:update" as WSEventType, {
       userId: userId,
       status: status,
@@ -145,6 +146,8 @@ export class WebSocketManager {
     payload: WSEventPayload[T],
     targets: WebSocket[]
   ) {
+    if (!targets) return;
+
     const message = this.packageMessage(event, payload);
     targets.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {

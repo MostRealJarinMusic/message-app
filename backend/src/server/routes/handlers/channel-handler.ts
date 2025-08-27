@@ -2,6 +2,7 @@ import { Request, Response, Router } from "express";
 import { MessageRepo } from "../../../db/repos/message.repo";
 import {
   Channel,
+  ChannelType,
   ChannelUpdate,
   Message,
   WSEventType,
@@ -10,6 +11,7 @@ import { ulid } from "ulid";
 import { WebSocketManager } from "../../ws/websocket-manager";
 import { ChannelRepo } from "../../../db/repos/channel.repo";
 import { SignedRequest } from "../../../types/types";
+import { ServerMemberRepo } from "src/db/repos/server-member.repo";
 
 export class ChannelHandler {
   static async deleteChannel(
@@ -21,14 +23,26 @@ export class ChannelHandler {
       const channelId = req.params.channelId;
       const channel = await ChannelRepo.getChannel(channelId);
 
-      if (channel) {
-        await ChannelRepo.deleteChannel(channelId);
-      } else {
+      if (!channel) {
         res.status(404).json({ error: "Channel doesn't exist" });
         return;
       }
 
-      wsManager.broadcastToAll(WSEventType.CHANNEL_DELETE, channel);
+      if (channel.type === ChannelType.DM || !channel.serverId) {
+        res.status(403).json({ error: "Attemtped to delete DM channel" });
+        return;
+      }
+
+      const memberIds = await ServerMemberRepo.getServerMemberIds(
+        channel.serverId
+      );
+      await ChannelRepo.deleteChannel(channelId);
+
+      wsManager.broadcastToGroup(
+        WSEventType.CHANNEL_DELETE,
+        channel,
+        memberIds
+      );
 
       res.status(204).send();
     } catch (err) {

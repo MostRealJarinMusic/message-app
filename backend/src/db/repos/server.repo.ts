@@ -2,7 +2,7 @@ import { Server } from "@common/types";
 import { getDB } from "../db";
 
 export class ServerRepo {
-  static async getServers() {
+  static async getAllServers() {
     const db = await getDB();
 
     return new Promise<Server[]>((resolve, reject) => {
@@ -19,6 +19,35 @@ export class ServerRepo {
 
         resolve(allServers);
       });
+    });
+  }
+
+  static async getServers(userId: string) {
+    const db = await getDB();
+
+    return new Promise<Server[]>((resolve, reject) => {
+      db.all(
+        `
+        SELECT * FROM server_members
+        INNER JOIN servers
+        ON servers.id = server_members.serverId
+        WHERE server_members.userId = ?
+        `,
+        [userId],
+        (err, rows) => {
+          if (err) {
+            console.log("Error retrieving servers:", err);
+            return reject(err);
+          }
+
+          const allServers: Server[] = rows.map((row: any) => ({
+            id: row.id,
+            name: row.name,
+          }));
+
+          resolve(allServers);
+        }
+      );
     });
   }
 

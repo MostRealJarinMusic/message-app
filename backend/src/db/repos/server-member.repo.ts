@@ -1,13 +1,17 @@
-import { ServerMember } from "@common/types";
+import { ServerMember, User } from "@common/types";
 import { getDB } from "../db";
 
-export class ServerMmeberRepo {
+export class ServerMemberRepo {
   static async getServerMembers(serverId: string) {
     const db = await getDB();
 
-    return new Promise<ServerMember[]>((resolve, reject) => {
+    return new Promise<User[]>((resolve, reject) => {
       db.all(
-        `SELECT * FROM server_members WHERE serverId = ?`,
+        `
+        SELECT * FROM server_members 
+        INNER JOIN users
+        ON users.id = server_members.userId
+        WHERE serverId = ?`,
         [serverId],
         (err, rows) => {
           if (err) {
@@ -15,12 +19,38 @@ export class ServerMmeberRepo {
             return reject(err);
           }
 
-          const allMembers: ServerMember[] = rows.map((row: any) => ({
-            userId: row.userId,
-            serverId: row.serverId,
+          const allMembers: User[] = rows.map((row: any) => ({
+            id: row.id,
+            username: row.username,
+            email: row.email,
           }));
 
           resolve(allMembers);
+        }
+      );
+    });
+  }
+
+  static async getServerMemberIds(serverId: string) {
+    const db = await getDB();
+
+    return new Promise<string[]>((resolve, reject) => {
+      db.all(
+        `
+        SELECT * FROM server_members 
+        INNER JOIN users
+        ON users.id = server_members.userId
+        WHERE serverId = ?`,
+        [serverId],
+        (err, rows) => {
+          if (err) {
+            console.log("Error retrieving server members:", err);
+            return reject(err);
+          }
+
+          const allMemberIds: string[] = rows.map((row: any) => row.id);
+
+          resolve(allMemberIds);
         }
       );
     });

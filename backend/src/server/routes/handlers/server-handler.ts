@@ -16,16 +16,14 @@ import {
 import { ulid } from "ulid";
 import { ChannelCategoryRepo } from "../../../db/repos/category.repo";
 import { SignedRequest } from "../../../types/types";
-import { ServerMmeberRepo } from "../../../db/repos/server-member.repo";
+import { ServerMemberRepo } from "../../../db/repos/server-member.repo";
 
 export class ServerHandler {
   //Temporarily fetches all servers
   static async getAllServers(req: Request, res: Response) {
     try {
-      //const userId = (req as any).signature.id;
-      //For now, we will assume that all users have access to all servers from login
-
-      const servers = await ServerRepo.getServers();
+      const userId = (req as any).signature.id;
+      const servers = await ServerRepo.getServers(userId);
 
       res.json(servers);
     } catch (err) {
@@ -38,11 +36,9 @@ export class ServerHandler {
   static async getServerUsers(req: Request, res: Response) {
     try {
       const serverId = req.params.serverId;
+      const members = await ServerMemberRepo.getServerMembers(serverId);
 
-      //Here, you get the users for a server
-      const users = await UserRepo.getAllUsers();
-
-      res.json(users);
+      res.json(members);
     } catch (err) {
       res.status(500).json({ error: "Failed to load users" });
     }
@@ -56,12 +52,8 @@ export class ServerHandler {
   ) {
     try {
       const serverId = req.params.serverId;
-
-      //Here, you would get the user IDs for a server
-      const users = await UserRepo.getAllUsers();
-      const userIds = users.map((u) => u.id);
-
-      const presences = wsManager.getPresenceSnapshot(userIds);
+      const memberIds = await ServerMemberRepo.getServerMemberIds(serverId);
+      const presences = wsManager.getPresenceSnapshot(memberIds);
 
       res.json(presences);
     } catch (err) {
@@ -107,13 +99,11 @@ export class ServerHandler {
 
       await ChannelRepo.createChannel(newChannel);
 
-      //Notify all users of a channel creation
-      //Eventually, move to only server users
-      const serverUserIds = (await UserRepo.getAllUsers()).map((u) => u.id);
+      const memberIds = await ServerMemberRepo.getServerMemberIds(serverId);
       wsManager.broadcastToGroup(
         WSEventType.CHANNEL_CREATE,
         newChannel,
-        serverUserIds
+        memberIds
       );
 
       res.status(201).json(newChannel);
@@ -157,7 +147,12 @@ export class ServerHandler {
 
       await ChannelCategoryRepo.createCategory(newCategory);
 
-      wsManager.broadcastToAll(WSEventType.CATEGORY_CREATE, newCategory);
+      const memberIds = await ServerMemberRepo.getServerMemberIds(serverId);
+      wsManager.broadcastToGroup(
+        WSEventType.CATEGORY_CREATE,
+        newCategory,
+        memberIds
+      );
 
       res.status(201).json(newCategory);
     } catch (err) {
@@ -178,6 +173,9 @@ export class ServerHandler {
         res.status(400).json({ error: "Server data required" });
         return;
       }
+
+      //Add server member
+      const creatorId = req.signature.id;
 
       const newServer: Server = {
         id: ulid(),
@@ -202,24 +200,24 @@ export class ServerHandler {
         serverId: newServer.id,
         name: "General",
         categoryId: newCategory.id,
+        createdBy: creatorId,
       };
       await ChannelRepo.createChannel(newChannel);
 
-      //Add server member
       const member: ServerMember = {
-        userId: req.signature.id,
+        userId: creatorId,
         serverId: newServer.id,
       };
 
-      await ServerMmeberRepo.addServerMember(member);
+      await ServerMemberRepo.addServerMember(member);
 
-      //Notify all users of server creation - temporarily
-      //In reality - only notify the person who created the server
       // With public servers, we may have to notify people
-
-      //For now notify everyone
-
-      wsManager.broadcastToAll(WSEventType.SERVER_CREATE, newServer);
+      //Broadcast to creator
+      wsManager.broadcastToUser(
+        WSEventType.SERVER_CREATE,
+        newServer,
+        creatorId
+      );
 
       res.status(201).json(newServer);
     } catch (err) {
@@ -237,14 +235,16 @@ export class ServerHandler {
       const serverId = req.params.serverId;
       const server = await ServerRepo.getServer(serverId);
 
-      if (server) {
-        await ServerRepo.deleteServer(serverId);
-      } else {
+      if (!server) {
         res.status(404).json({ error: "Server doesn't exist" });
         return;
       }
 
-      wsManager.broadcastToAll(WSEventType.SERVER_DELETE, server);
+      const memberIds = await ServerMemberRepo.getServerMemberIds(serverId);
+
+      await ServerRepo.deleteServer(serverId);
+
+      wsManager.broadcastToGroup(WSEventType.SERVER_DELETE, server, memberIds);
 
       res.status(204).send();
     } catch (err) {
@@ -263,21 +263,26 @@ export class ServerHandler {
       const serverUpdate = req.body.serverUpdate as ServerUpdate;
       const server = await ServerRepo.getServer(serverId);
 
-      if (server) {
-        const proposedServer = {
-          ...server,
-          ...serverUpdate,
-        } as Server;
-
-        await ServerRepo.editServer(proposedServer);
-
-        const updatedServer = await ServerRepo.getServer(serverId);
-
-        wsManager.broadcastToAll(WSEventType.SERVER_UPDATE, updatedServer);
-        res.status(204).send();
-      } else {
+      if (!server) {
         res.status(404).json({ error: "Server doesn't exist" });
+        return;
       }
+
+      const proposedServer = {
+        ...server,
+        ...serverUpdate,
+      } as Server;
+
+      await ServerRepo.editServer(proposedServer);
+      const updatedServer = await ServerRepo.getServer(serverId);
+
+      const memberIds = await ServerMemberRepo.getServerMemberIds(serverId);
+      wsManager.broadcastToGroup(
+        WSEventType.SERVER_UPDATE,
+        updatedServer,
+        memberIds
+      );
+      res.status(204).send();
     } catch (err) {
       res.status(500).json({ error: "Failed to edit server" });
     }
