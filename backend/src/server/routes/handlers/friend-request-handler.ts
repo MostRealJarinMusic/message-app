@@ -1,4 +1,6 @@
 import {
+  Channel,
+  ChannelType,
   FriendRequest,
   FriendRequestCreate,
   FriendRequestStatus,
@@ -12,6 +14,8 @@ import { WebSocketManager } from "../../ws/websocket-manager";
 import { SignedRequest } from "../../../types/types";
 import { ulid } from "ulid";
 import { UserRepo } from "../../../db/repos/user.repo";
+import { ChannelRepo } from "../../../db/repos/channel.repo";
+import { DMChannelRepo } from "../../../db/repos/dm-channel.repo";
 
 export class FriendRequestHandler {
   static async sendFriendRequest(
@@ -163,7 +167,7 @@ export class FriendRequestHandler {
       //Sender and receiver notification that request is updated - frontend will deal with UI update
       wsManager.broadcastToGroup(
         WSEventType.FRIEND_REQUEST_UPDATE,
-        friendRequest,
+        updatedFriendRequest,
         [senderId, receiverId]
       );
 
@@ -187,8 +191,22 @@ export class FriendRequestHandler {
           );
 
           //Create the channel and direct message entry
+          const channel: Channel = {
+            id: ulid(),
+            type: ChannelType.DM,
+            name: "DM",
+          };
+
+          await ChannelRepo.createChannel(channel);
+          await DMChannelRepo.createDMChannel(channel, friendRequest);
+
+          //Add channel participants
 
           //Notification for channel creation
+          wsManager.broadcastToGroup(WSEventType.DM_CHANNEL_CREATE, channel, [
+            senderId,
+            receiverId,
+          ]);
 
           break;
         case FriendRequestStatus.REJECTED:
@@ -242,191 +260,4 @@ export class FriendRequestHandler {
       res.status(500).json({ error: "Failed to delete friend request" });
     }
   }
-
-  /*
-  static async acceptRequest(
-    req: SignedRequest,
-    res: Response,
-    wsManager: WebSocketManager
-  ) {
-    //If you are accepting a friend request, the HTTP request came from the receiver
-    //Therefore, the param id should be the sender's ID
-    try {
-      const receiverId = req.signature.id;
-      const senderId = req.params.senderId;
-
-      if (receiverId === senderId) {
-        res.status(400).json({ error: "Cannot friend yourself" });
-        return;
-      }
-
-      //Check if user exists
-      const senderExists = await UserRepo.userExists(senderId);
-      if (!senderExists) {
-        res.status(404).json({ error: "Sender no longer exists" });
-        return;
-      }
-
-      //Check if request exists
-      const friendRequest = await FriendRequestRepo.getFriendRequest(
-        senderId,
-        receiverId
-      );
-      if (!friendRequest) {
-        res.status(404).json({ error: "Friend request no longer exists" });
-        return;
-      }
-
-      //Delete friend request and add friendship
-      await FriendRequestRepo.deleteFriendRequest(senderId, receiverId);
-      await FriendRepo.addFriend(senderId, receiverId);
-
-      //WebSocket messages
-      //Sender notification that request is accepted
-      wsManager.broadcastToUser(
-        WSEventType.FRIEND_REQUEST_ACCEPTED,
-        friendRequest,
-        senderId
-      );
-
-      //Sender notification for new friend
-      wsManager.broadcastToUser(
-        WSEventType.FRIEND_ADD,
-        { id: receiverId },
-        senderId
-      );
-
-      //Receiver notification that request is accepted
-      wsManager.broadcastToUser(
-        WSEventType.FRIEND_REQUEST_ACCEPT,
-        friendRequest,
-        receiverId
-      );
-
-      //Receiver notification for new friend
-      wsManager.broadcastToUser(
-        WSEventType.FRIEND_ADD,
-        { id: senderId },
-        receiverId
-      );
-
-      //JSON response
-      res.json(friendRequest);
-    } catch (err) {
-      res.status(500).json({ error: "Failed to accept friend request" });
-    }
-  }
-
-  static async rejectRequest(
-    req: SignedRequest,
-    res: Response,
-    wsManager: WebSocketManager
-  ) {
-    try {
-      const receiverId = req.signature.id;
-      const senderId = req.params.senderId;
-
-      if (receiverId === senderId) {
-        res.status(400).json({ error: "Cannot friend yourself" });
-        return;
-      }
-
-      //Check if user exists
-      const senderExists = await UserRepo.userExists(senderId);
-      if (!senderExists) {
-        res.status(404).json({ error: "Sender no longer exists" });
-        return;
-      }
-
-      //Check if request exists
-      const friendRequest = await FriendRequestRepo.getFriendRequest(
-        senderId,
-        receiverId
-      );
-      if (!friendRequest) {
-        res.status(404).json({ error: "Friend request no longer exists" });
-        return;
-      }
-
-      //Delete friend request
-      await FriendRequestRepo.deleteFriendRequest(senderId, receiverId);
-
-      //WebSocket messages
-      //Sender notification that request is rejected
-      wsManager.broadcastToUser(
-        WSEventType.FRIEND_REQUEST_REJECTED,
-        friendRequest,
-        senderId
-      );
-
-      //Receiver notification that request is rejected
-      wsManager.broadcastToUser(
-        WSEventType.FRIEND_REQUEST_REJECT,
-        friendRequest,
-        receiverId
-      );
-
-      //JSON response
-      res.json(friendRequest);
-    } catch (err) {
-      res.status(500).json({ error: "Failed to reject friend request" });
-    }
-  }
-
-  static async cancelRequest(
-    req: SignedRequest,
-    res: Response,
-    wsManager: WebSocketManager
-  ) {
-    try {
-      const senderId = req.signature.id;
-      const receiverId = req.params.receiverId;
-
-      if (receiverId === senderId) {
-        res.status(400).json({ error: "Cannot friend yourself" });
-        return;
-      }
-
-      //Check if user exists
-      const receiverExists = await UserRepo.userExists(receiverId);
-      if (!receiverExists) {
-        res.status(404).json({ error: "Sender no longer exists" });
-        return;
-      }
-
-      //Check if request exists
-      const friendRequest = await FriendRequestRepo.getFriendRequest(
-        senderId,
-        receiverId
-      );
-      if (!friendRequest) {
-        res.status(404).json({ error: "Friend request no longer exists" });
-        return;
-      }
-
-      //Delete friend request
-      await FriendRequestRepo.deleteFriendRequest(senderId, receiverId);
-
-      //WebSocket messages
-      //Sender notification that request is cancelled
-      wsManager.broadcastToUser(
-        WSEventType.FRIEND_REQUEST_CANCEL,
-        friendRequest,
-        senderId
-      );
-
-      //Receiver notification that request is cancelled
-      wsManager.broadcastToUser(
-        WSEventType.FRIEND_REQUEST_CANCELLED,
-        friendRequest,
-        receiverId
-      );
-
-      //JSON response
-      res.json(friendRequest);
-    } catch (err) {
-      res.status(500).json({ error: "Failed to cancel friend request" });
-    }
-  }
-    */
 }

@@ -43,8 +43,8 @@ export class ChannelService {
     effect(() => {
       const currentServer = this.navService.activeServerId();
 
-      if (currentServer === this.lastServerId) return;
-      this.lastServerId = currentServer;
+      // if (currentServer === this.lastServerId && this.navService.isActive('servers')) return;
+      // this.lastServerId = currentServer;
 
       if (currentServer) {
         this.logger.log(LoggerType.SERVICE_CHANNEL, 'Loading channels');
@@ -54,8 +54,6 @@ export class ChannelService {
         this.logger.log(LoggerType.SERVICE_CHANNEL, 'No server - loading DMs');
 
         this.loadDMChannels();
-
-        this.channels.set([]);
       }
     });
   }
@@ -70,7 +68,19 @@ export class ChannelService {
     });
   }
 
-  private loadDMChannels() {}
+  private loadDMChannels() {
+    this.apiService.getDMChannels().subscribe({
+      next: (channels) => {
+        //Set them
+        this.channels.set(channels);
+
+        //Add DM channels
+        this.navService.addDMChannels(channels);
+      },
+      error: (err) =>
+        this.logger.error(LoggerType.SERVICE_CHANNEL, 'Failed to load DM channels', err),
+    });
+  }
 
   public createChannel(channelName: string, categoryId: string | null) {
     const newChannelData: ChannelCreate = {
@@ -114,10 +124,10 @@ export class ChannelService {
     //Listeners for channel creation, edits and deletes
     this.wsService.on(WSEventType.CHANNEL_CREATE).subscribe((channel) => {
       if (channel.serverId === this.navService.activeServerId()) {
-        this.channels.update((current) => [...current!, channel]);
+        this.channels.update((current) => [...current, channel]);
       }
 
-      this.navService.addChannels(channel.serverId, [channel]);
+      this.navService.addChannels(channel.serverId!, [channel]);
     });
 
     //Deletes
@@ -126,7 +136,7 @@ export class ChannelService {
         this.channels.update((current) => current!.filter((c) => c.id !== channel.id));
       }
 
-      this.navService.removeChannel(channel.serverId, channel.id);
+      this.navService.removeChannel(channel.serverId!, channel.id);
     });
 
     //Edits
@@ -135,6 +145,16 @@ export class ChannelService {
         this.channels.update((currentChannels) =>
           currentChannels!.map((c) => (c.id === channel.id ? { ...c, ...channel } : c)),
         );
+      }
+    });
+
+    //DM channel creation
+    this.wsService.on(WSEventType.DM_CHANNEL_CREATE).subscribe((channel) => {
+      if (!this.navService.activeServerId()) {
+        //We are inside the direct messages tab
+        this.channels.update((current) => [...current, channel]);
+
+        this.navService.addDMChannels([channel]);
       }
     });
   }

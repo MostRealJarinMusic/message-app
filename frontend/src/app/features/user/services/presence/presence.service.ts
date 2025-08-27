@@ -20,6 +20,9 @@ export class PresenceService {
   constructor() {
     this.initWebSocket();
 
+    //Temporary
+    this.loadUserPresences();
+
     effect(() => {
       const currentServer = this.navService.activeServerId();
       if (currentServer) {
@@ -53,6 +56,22 @@ export class PresenceService {
     this.logger.log(LoggerType.SERVICE_PRESENCE, 'Attempting to load server presences');
     this.apiService.getServerUserPresences(serverId).subscribe({
       next: (presences) => {
+        presences.forEach((update) => this.handlePresenceUpdate(update));
+      },
+      error: (err) => {
+        this.logger.error(
+          LoggerType.SERVICE_PRESENCE,
+          'Error with initial server presence payload',
+          err,
+        );
+      },
+    });
+  }
+
+  private loadUserPresences() {
+    this.apiService.getUserPresences().subscribe({
+      next: (presences) => {
+        console.log(presences);
         presences.forEach((update) => this.handlePresenceUpdate(update));
       },
       error: (err) => {

@@ -24,7 +24,7 @@ export class MessageService {
 
     //Load message history
     effect(() => {
-      const currentChannel = this.navService.activeChannelId();
+      const currentChannel = this.navService.activeChannelId() || this.navService.activeDMId();
       if (currentChannel) {
         this.logger.log(LoggerType.SERVICE_MESSAGE, 'Loading message history');
         this.loadMessageHistory(currentChannel);
@@ -40,7 +40,9 @@ export class MessageService {
 
     //Should use HTTP
     //Temporary message response code
-    this.apiService.sendMessage(this.navService.activeChannelId()!, content).subscribe({
+    const activeChannelId = this.navService.activeChannelId() || this.navService.activeDMId();
+
+    this.apiService.sendMessage(activeChannelId!, content).subscribe({
       next: (message) => {},
       error: (err) => {
         //Response to any errors - optimistic UI
@@ -48,7 +50,7 @@ export class MessageService {
     });
   }
 
-  public loadMessageHistory(channelId: string): void {
+  private loadMessageHistory(channelId: string): void {
     this.apiService.getMessageHistory(channelId).subscribe({
       next: (messages) => this.messages.set(messages),
       error: (err) => this.logger.error(LoggerType.SERVICE_MESSAGE, 'Failed to load history', err),
@@ -58,7 +60,9 @@ export class MessageService {
   private initWebSocket(): void {
     //Listeners for sent messages, edits and deletes
     this.wsService.on(WSEventType.RECEIVE).subscribe((message) => {
-      if (message.channelId === this.navService.activeChannelId()) {
+      const activeChannelId = this.navService.activeChannelId() || this.navService.activeDMId();
+
+      if (message.channelId === activeChannelId) {
         this.messages.update((current) => [...current, message]);
       }
     });
@@ -66,7 +70,9 @@ export class MessageService {
     //Deletes
     this.wsService.on(WSEventType.DELETED).subscribe((message) => {
       //Delete the message from the loaded channel if it exists in the history
-      if (message.channelId === this.navService.activeChannelId()) {
+      const activeChannelId = this.navService.activeChannelId() || this.navService.activeDMId();
+
+      if (message.channelId === activeChannelId) {
         this.messages.update((current) => current.filter((m) => m.id !== message.id));
       }
     });
@@ -74,7 +80,9 @@ export class MessageService {
     //Edits
     this.wsService.on(WSEventType.EDITED).subscribe((message) => {
       //Edit message from the loaded channel if it exists in the history
-      if (message.channelId === this.navService.activeChannelId()) {
+      const activeChannelId = this.navService.activeChannelId() || this.navService.activeDMId();
+
+      if (message.channelId === activeChannelId) {
         this.messages.update((currentMessages) =>
           currentMessages.map((m) =>
             m.id === message.id ? { ...m, content: message.content } : m,

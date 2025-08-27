@@ -55,6 +55,7 @@ export class UserService {
       ),
     );
   }
+
   clearUser(): void {
     this.currentUser.set(null);
   }

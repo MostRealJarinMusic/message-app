@@ -215,6 +215,8 @@ export class NavigationService {
   }
 
   addChannels(serverId: string, channels: Channel[]): void {
+    if (channels.length <= 0) return;
+
     const channelNodes: NavigationNode[] = channels.map((channel) => {
       return {
         id: channel.id,
@@ -225,11 +227,24 @@ export class NavigationService {
 
     this.addChildren(serverId, channelNodes);
 
+    // Attempt to navigate to channel if no channel selected for the current server
     if (serverId !== this.activeServerId()) return;
     if (this.activeChannelId()) return;
-    if (channelNodes.length <= 0) return;
 
     this.navigate(channelNodes[0].id);
+  }
+
+  addDMChannels(channels: Channel[]): void {
+    if (channels.length <= 0) return;
+    const channelNodes: NavigationNode[] = channels.map((channel) => {
+      return {
+        id: channel.id,
+        type: 'dm_channel',
+        label: channel.name,
+      };
+    });
+
+    this.addChildren('direct_message_channels', channelNodes);
   }
 
   removeChannel(parentServerId: string, channelId: string): void {

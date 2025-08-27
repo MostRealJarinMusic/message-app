@@ -76,6 +76,7 @@ export class PrivateApiService extends BaseApiService {
     return this.authorisedFetch<User[]>((_) => this.get<User[]>(`servers/${serverId}/users`));
   }
 
+  //Temporary route
   getAllUsers() {
     return this.authorisedFetch<User[]>((_) => this.get<User[]>(`users`));
   }
@@ -159,6 +160,10 @@ export class PrivateApiService extends BaseApiService {
     );
   }
 
+  getUserPresences(): Observable<PresenceUpdate[]> {
+    return this.authorisedFetch((_) => this.get<PresenceUpdate[]>(`users/presences`));
+  }
+
   //#endregion
 
   //#region Friend Requests CRUD
@@ -193,7 +198,13 @@ export class PrivateApiService extends BaseApiService {
 
   //#region Friends
   getFriends(): Observable<string[]> {
-    return this.authorisedFetch<string[]>((_) => this.get<string[]>(`friends`));
+    return this.authorisedFetch<string[]>((_) => this.get<string[]>(`users/me/friends`));
+  }
+  //#endregion
+
+  //#region DMs
+  getDMChannels(): Observable<Channel[]> {
+    return this.authorisedFetch((_) => this.get<Channel[]>('users/me/dms'));
   }
 
   //#endregion

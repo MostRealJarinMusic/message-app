@@ -8,6 +8,7 @@ import { MessageService } from 'src/app/features/message/services/message/messag
 import { TextareaModule } from 'primeng/textarea';
 import { ChannelService } from 'src/app/features/channel/services/channel/channel.service';
 import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
+import { UserService } from 'src/app/features/user/services/user/user.service';
 
 @Component({
   selector: 'app-message-input',
@@ -19,20 +20,36 @@ export class MessageInputComponent {
   private messageService = inject(MessageService);
   private navService = inject(NavigationService);
   private channelService = inject(ChannelService);
+  private userService = inject(UserService);
   private draftService = inject(MessageDraftService);
 
   protected newMessage = signal('');
-  protected currentChannel = computed(() => this.navService.activeChannelId());
+  protected currentChannel = computed(
+    () => this.navService.activeChannelId() || this.navService.activeDMId(),
+  );
   protected placeholderMessage = computed(() => {
     const channelId = this.navService.activeChannelId();
+    const dmId = this.navService.activeDMId();
 
-    if (!channelId) return '';
+    if (!channelId && !dmId) return '';
 
-    const channel = this.channelService.getChannelById(channelId);
+    if (channelId) {
+      const channel = this.channelService.getChannelById(channelId);
+      if (!channel) return '';
 
-    if (!channel) return '';
+      return `Message ${channel.name}`;
+    } else if (dmId) {
+      const dmChannel = this.channelService.getChannelById(dmId);
+      if (!dmChannel) return '';
 
-    return `Message ${channel.name}`;
+      if (!dmChannel.participants || dmChannel.participants.length !== 2) return '';
+      if (dmChannel.participants[0] === this.userService.currentUser()!.id) {
+        return `Message ${this.userService.getUsername(dmChannel.participants[1])}`;
+      }
+      return `Message ${this.userService.getUsername(dmChannel.participants[0])}`;
+    }
+
+    return '';
   });
 
   constructor() {
