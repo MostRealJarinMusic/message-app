@@ -9,11 +9,14 @@ import {
   ChannelType,
   Server,
   ServerCreate,
+  ServerMember,
   ServerUpdate,
   WSEventType,
 } from "../../../../../common/types";
 import { ulid } from "ulid";
 import { ChannelCategoryRepo } from "../../../db/repos/category.repo";
+import { SignedRequest } from "../../../types/types";
+import { ServerMmeberRepo } from "../../../db/repos/server-member.repo";
 
 export class ServerHandler {
   //Temporarily fetches all servers
@@ -164,7 +167,7 @@ export class ServerHandler {
 
   //Creating a server
   static async createServer(
-    req: Request,
+    req: SignedRequest,
     res: Response,
     wsManager: WebSocketManager
   ) {
@@ -201,6 +204,14 @@ export class ServerHandler {
         categoryId: newCategory.id,
       };
       await ChannelRepo.createChannel(newChannel);
+
+      //Add server member
+      const member: ServerMember = {
+        userId: req.signature.id,
+        serverId: newServer.id,
+      };
+
+      await ServerMmeberRepo.addServerMember(member);
 
       //Notify all users of server creation - temporarily
       //In reality - only notify the person who created the server

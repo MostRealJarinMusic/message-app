@@ -2,6 +2,7 @@ import { Request, Response, Router } from "express";
 import { authMiddleware } from "../../middleware/auth-middleware";
 import { WebSocketManager } from "../ws/websocket-manager";
 import { ServerHandler } from "./handlers/server-handler";
+import { SignedRequest } from "../../types/types";
 
 export default function serverRoutes(wsManager: WebSocketManager): Router {
   const serverRoutes = Router();
@@ -72,7 +73,7 @@ export default function serverRoutes(wsManager: WebSocketManager): Router {
   //#region Server CRUD
   //Creating a server
   serverRoutes.post("", authMiddleware, async (req: Request, res: Response) => {
-    ServerHandler.createServer(req, res, wsManager);
+    ServerHandler.createServer(req as SignedRequest, res, wsManager);
   });
 
   //Deleting a server
