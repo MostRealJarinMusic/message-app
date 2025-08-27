@@ -11,7 +11,7 @@ import { ulid } from "ulid";
 import { WebSocketManager } from "../../ws/websocket-manager";
 import { ChannelRepo } from "../../../db/repos/channel.repo";
 import { SignedRequest } from "../../../types/types";
-import { ServerMemberRepo } from "src/db/repos/server-member.repo";
+import { ServerMemberRepo } from "../../../db/repos/server-member.repo";
 
 export class ChannelHandler {
   static async deleteChannel(

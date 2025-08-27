@@ -2,7 +2,7 @@ import { ChannelCategory, WSEventType } from "../../../../../common/types";
 import { Request, Response } from "express";
 import { ChannelCategoryRepo } from "../../../db/repos/category.repo";
 import { WebSocketManager } from "../../ws/websocket-manager";
-import { ServerMemberRepo } from "src/db/repos/server-member.repo";
+import { ServerMemberRepo } from "../../../db/repos/server-member.repo";
 
 export class CategoryHandler {
   static async deleteCategory(

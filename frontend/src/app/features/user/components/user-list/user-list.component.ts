@@ -28,7 +28,7 @@ export class UserListComponent {
     if (!serverId && !dmId) return [];
 
     if (serverId) {
-      const users = this.serverUsers();
+      const users = this.userService.serverUsers();
 
       if (!users) {
         return [];

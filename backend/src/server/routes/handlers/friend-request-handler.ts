@@ -195,12 +195,11 @@ export class FriendRequestHandler {
             id: ulid(),
             type: ChannelType.DM,
             name: "DM",
+            participants: [senderId, receiverId],
           };
 
           await ChannelRepo.createChannel(channel);
           await DMChannelRepo.createDMChannel(channel, friendRequest);
-
-          //Add channel participants
 
           //Notification for channel creation
           wsManager.broadcastToGroup(WSEventType.DM_CHANNEL_CREATE, channel, [
