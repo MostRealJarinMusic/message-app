@@ -5,6 +5,8 @@ import { IconField } from 'primeng/iconfield';
 import { InputTextModule } from 'primeng/inputtext';
 import { ChannelService } from '../../services/channel/channel.service';
 import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
+import { ChannelType } from '@common/types';
+import { UserService } from 'src/app/features/user/services/user/user.service';
 
 @Component({
   selector: 'app-channel-title-bar',
@@ -15,6 +17,7 @@ import { NavigationService } from 'src/app/core/services/navigation/navigation.s
 export class ChannelTitleBarComponent {
   private channelService = inject(ChannelService);
   private navService = inject(NavigationService);
+  private userService = inject(UserService);
   protected channelName: string = '';
   protected channelTopic: string = '';
 
@@ -43,13 +46,20 @@ export class ChannelTitleBarComponent {
       } else if (dmId) {
         const dmChannel = this.channelService.getChannelById(dmId);
 
-        if (!dmChannel) {
+        if (!dmChannel || dmChannel.type !== ChannelType.DM) {
           this.channelName = '';
           this.channelTopic = '';
           return;
         }
 
-        this.channelName = dmChannel.name;
+        if (!dmChannel.participants || dmChannel.participants.length !== 2) return;
+
+        if (dmChannel.participants[0] === this.userService.currentUser()!.id) {
+          this.channelName = `${this.userService.getUsername(dmChannel.participants[1])}`;
+        } else {
+          this.channelName = `${this.userService.getUsername(dmChannel.participants[0])}`;
+        }
+
         this.channelTopic = '';
       }
     });

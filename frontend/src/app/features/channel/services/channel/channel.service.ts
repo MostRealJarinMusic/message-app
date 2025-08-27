@@ -31,8 +31,6 @@ export class ChannelService {
     return map;
   });
 
-  readonly dmChannels = signal<Channel[]>([]);
-
   private channelCache: Map<string, Channel[]> = new Map(); //Prevents misses while the channel is getting fetched - waterfall issue
   private lastServerId: string | null = null;
 
