@@ -122,11 +122,10 @@ export interface ServerMember {
 
 export interface ServerInvite {
   id: string;
-  serverId: string;
+  serverId: string | null;
   link: string;
   createdAt: string;
   expiresOn: string;
-  valid: boolean;
 }
 //#endregion
 
@@ -251,15 +250,6 @@ export interface FriendRequestUpdate {
   id: string;
   status: FriendRequestStatus;
 }
-
-//#endregion
-
-// //#region DM channels
-// export interface DMChannel {
-//   channelId: string;
-//   userId1: string;
-//   userId2: string;
-// }
 
 //#endregion
 
