@@ -12,6 +12,7 @@ import { WebSocketManager } from "../../ws/websocket-manager";
 import { ChannelRepo } from "../../../db/repos/channel.repo";
 import { SignedRequest } from "../../../types/types";
 import { ServerMemberRepo } from "../../../db/repos/server-member.repo";
+import { DMChannelRepo } from "../../../db/repos/dm-channel.repo";
 
 export class ChannelHandler {
   static async deleteChannel(
@@ -57,8 +58,15 @@ export class ChannelHandler {
   ) {
     try {
       const channelId = req.params.channelId;
-      const authorId = req.signature!.id;
+      const authorId = req.signature.id;
       const content = req.body.content;
+
+      const channel = await ChannelRepo.getChannel(channelId);
+
+      if (!channel) {
+        res.status(404).json({ error: "Channel not found" });
+        return;
+      }
 
       if (!content) {
         res.status(400).json({ error: "Message content required" });
@@ -75,8 +83,18 @@ export class ChannelHandler {
 
       await MessageRepo.createMessage(message);
 
-      //Broadcast to all users for now - only broadcast to server members, DM members, group members
-      wsManager.broadcastToAll(WSEventType.RECEIVE, message);
+      //Target IDs for the channel
+      let targetIds: string[] = [];
+
+      if (channel.type === ChannelType.TEXT && channel.serverId) {
+        //we are on a server - assume that all channels are public
+        targetIds = await ServerMemberRepo.getServerMemberIds(channel.serverId);
+      } else if (channel.type === ChannelType.DM) {
+        //We are on a DM
+        targetIds = await DMChannelRepo.getDMChannelParticipantIds(channel.id);
+      }
+
+      wsManager.broadcastToGroup(WSEventType.RECEIVE, message, targetIds);
 
       res.status(201).json(message);
     } catch (err) {
@@ -105,17 +123,31 @@ export class ChannelHandler {
       const channelUpdate = req.body.channelUpdate as ChannelUpdate;
       const channel = await ChannelRepo.getChannel(channelId);
 
-      if (channel) {
-        const proposedChannel = { ...channel, ...channelUpdate } as Channel;
-        await ChannelRepo.editChannel(proposedChannel);
-        const updatedChannel = await ChannelRepo.getChannel(channelId);
-
-        //Broadcast to users
-        wsManager.broadcastToAll(WSEventType.CHANNEL_UPDATE, updatedChannel);
-        res.status(204).send();
-      } else {
+      if (!channel) {
         res.status(404).json({ error: "Channel doesn't exist" });
+        return;
       }
+
+      if (channel.type === ChannelType.DM || !channel.serverId) {
+        res.status(403).json({ error: "Attemtped to edit DM channel" });
+        return;
+      }
+
+      const proposedChannel = { ...channel, ...channelUpdate } as Channel;
+      await ChannelRepo.editChannel(proposedChannel);
+      const updatedChannel = await ChannelRepo.getChannel(channelId);
+
+      const memberIds = await ServerMemberRepo.getServerMemberIds(
+        channel.serverId
+      );
+
+      //Broadcast to users
+      wsManager.broadcastToGroup(
+        WSEventType.CHANNEL_UPDATE,
+        updatedChannel,
+        memberIds
+      );
+      res.status(204).send();
     } catch (err) {
       res.status(500).json({ error: "Failed to edit channel" });
     }

@@ -33,6 +33,28 @@ export class DMChannelRepo {
     });
   }
 
+  static async getDMChannelParticipantIds(channelId: string) {
+    const db = await getDB();
+
+    return new Promise<string[]>((resolve, reject) => {
+      db.get(
+        `SELECT * FROM direct_messages WHERE channelId = ?`,
+        [channelId],
+        (err, row: any) => {
+          if (err) return reject(err);
+          if (!row)
+            return reject(
+              new Error(`DM Channel with ID${channelId} not found`)
+            );
+
+          const participants: string[] = [row.userId1, row.userId2];
+
+          resolve(participants);
+        }
+      );
+    });
+  }
+
   static async createDMChannel(
     channel: Channel,
     friendRequest: FriendRequest

@@ -79,6 +79,8 @@ export class MessageService {
 
     //Edits
     this.wsService.on(WSEventType.EDITED).subscribe((message) => {
+      console.log('Received edit');
+
       //Edit message from the loaded channel if it exists in the history
       const activeChannelId = this.navService.activeChannelId() || this.navService.activeDMId();
 
