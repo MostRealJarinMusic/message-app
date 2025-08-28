@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { ServerRepo } from "../../../db/repos/server.repo";
-import { UserRepo } from "../../../db/repos/user.repo";
 import { WebSocketManager } from "../../ws/websocket-manager";
 import { ChannelRepo } from "../../../db/repos/channel.repo";
 import {
@@ -19,7 +18,7 @@ import { SignedRequest } from "../../../types/types";
 import { ServerMemberRepo } from "../../../db/repos/server-member.repo";
 
 export class ServerHandler {
-  //Temporarily fetches all servers
+  //Gets all servers that the user is a member of
   static async getAllServers(req: Request, res: Response) {
     try {
       const userId = (req as any).signature.id;
@@ -174,7 +173,6 @@ export class ServerHandler {
         return;
       }
 
-      //Add server member
       const creatorId = req.signature.id;
 
       const newServer: Server = {
@@ -204,11 +202,11 @@ export class ServerHandler {
       };
       await ChannelRepo.createChannel(newChannel);
 
+      //Add server member
       const member: ServerMember = {
         userId: creatorId,
         serverId: newServer.id,
       };
-
       await ServerMemberRepo.addServerMember(member);
 
       // With public servers, we may have to notify people
