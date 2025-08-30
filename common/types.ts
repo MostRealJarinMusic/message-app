@@ -127,6 +127,11 @@ export interface ServerInvite {
   createdAt: string;
   expiresOn: string;
 }
+
+export interface ServerInviteCreate {
+  serverId: string;
+  expiresOn?: string;
+}
 //#endregion
 
 //#region WebSocket types
@@ -151,6 +156,8 @@ export enum WSEventType {
   SERVER_CREATE = "server:create",
   SERVER_UPDATE = "server:update",
   SERVER_DELETE = "server:delete",
+
+  SERVER_MEMBER_ADD = "server:member:add",
 
   PRESENCE = "presence:update",
 
@@ -180,6 +187,7 @@ export type WSEventPayload = {
   [WSEventType.SERVER_CREATE]: Server;
   [WSEventType.SERVER_UPDATE]: Server;
   [WSEventType.SERVER_DELETE]: Server;
+  [WSEventType.SERVER_MEMBER_ADD]: ServerMember;
   [WSEventType.PRESENCE]: PresenceUpdate;
   [WSEventType.FRIEND_REQUEST_SENT]: FriendRequest;
   [WSEventType.FRIEND_REQUEST_RECEIVE]: FriendRequest;

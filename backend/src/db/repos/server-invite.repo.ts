@@ -50,7 +50,7 @@ export class ServerInviteRepo {
     });
   }
 
-  static async getServerInvite(inviteId: string) {
+  static async getServerInvite(inviteId: string): Promise<ServerInvite> {
     const db = await getDB();
 
     return new Promise((resolve, reject) => {
