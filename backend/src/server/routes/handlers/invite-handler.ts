@@ -11,7 +11,7 @@ import { v4 as uuid } from "uuid";
 import { ServerInviteRepo } from "../../../db/repos/server-invite.repo";
 import { ServerMemberRepo } from "../../../db/repos/server-member.repo";
 import { WebSocketManager } from "../../../server/ws/websocket-manager";
-import { ServerRepo } from "src/db/repos/server.repo";
+import { ServerRepo } from "../../../db/repos/server.repo";
 
 export class InviteHandler {
   //Create invite
