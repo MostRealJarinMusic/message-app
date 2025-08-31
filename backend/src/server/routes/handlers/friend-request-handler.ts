@@ -16,247 +16,175 @@ import { ulid } from "ulid";
 import { UserRepo } from "../../../db/repos/user.repo";
 import { ChannelRepo } from "../../../db/repos/channel.repo";
 import { DMChannelRepo } from "../../../db/repos/dm-channel.repo";
+import {
+  BadRequestError,
+  ConflictError,
+  NotFoundError,
+} from "../../../errors/errors";
 
 export class FriendRequestHandler {
   static async sendFriendRequest(
-    req: SignedRequest,
-    res: Response,
+    senderId: string,
+    data: FriendRequestCreate,
     wsManager: WebSocketManager
   ) {
-    try {
-      const userId = req.signature!.id;
-      const newRequestData = req.body as FriendRequestCreate;
+    if (!data) throw new BadRequestError("Friend request data required");
 
-      if (!newRequestData) {
-        res.status(400).json({ error: "Friend request data required" });
-        return;
-      }
+    const targetUser = await UserRepo.getUserByUsername(data.targetUsername);
 
-      const targetUser = await UserRepo.getUserByUsername(
-        newRequestData.targetUsername
+    if (!targetUser)
+      throw new NotFoundError(
+        `User with username ${data.targetUsername} doesn't exist`
       );
 
-      if (!targetUser) {
-        res.status(404).json({
-          error: `User with username ${newRequestData.targetUsername} doesn't exist`,
-        });
-        return;
-      }
+    if (targetUser.id === senderId)
+      throw new BadRequestError("Cannot friend yourself");
 
-      if (targetUser.id === userId) {
-        res.status(404).json({ error: "Cannot friend yourself" });
-        return;
-      }
+    const existingRequest = await FriendRequestRepo.requestExistsByUserIds(
+      senderId,
+      targetUser.id
+    );
 
-      const existingRequest = await FriendRequestRepo.requestExistsByUserIds(
-        userId,
-        targetUser.id
-      );
+    if (existingRequest)
+      throw new ConflictError("Friend request already exists");
 
-      if (existingRequest) {
-        res.status(409).json({ error: "Friend request already exists" });
-        return;
-      }
+    const friendRequest: FriendRequest = {
+      id: ulid(),
+      senderId,
+      receiverId: targetUser.id,
+      status: FriendRequestStatus.PENDING,
+      createdAt: new Date().toISOString(),
+    };
 
-      const friendRequest: FriendRequest = {
-        id: ulid(),
-        senderId: userId,
-        receiverId: targetUser.id,
-        status: FriendRequestStatus.PENDING,
-        createdAt: new Date().toISOString(),
-      };
+    await FriendRequestRepo.createRequest(friendRequest);
 
-      await FriendRequestRepo.createRequest(friendRequest);
+    // //Notify sender
+    wsManager.broadcastToUser(
+      WSEventType.FRIEND_REQUEST_SENT,
+      friendRequest,
+      friendRequest.senderId
+    );
 
-      // //Notify sender
-      wsManager.broadcastToUser(
-        WSEventType.FRIEND_REQUEST_SENT,
-        friendRequest,
-        friendRequest.senderId
-      );
+    //Notify requested user
+    wsManager.broadcastToUser(
+      WSEventType.FRIEND_REQUEST_RECEIVE,
+      friendRequest,
+      friendRequest.receiverId
+    );
 
-      //Notify requested user
-      wsManager.broadcastToUser(
-        WSEventType.FRIEND_REQUEST_RECEIVE,
-        friendRequest,
-        friendRequest.receiverId
-      );
-
-      res.status(201).json(friendRequest);
-    } catch (err) {
-      res.status(500).json({ error: "Failed to create friend request" });
-    }
+    return friendRequest;
   }
 
-  static async getIncomingFriendRequests(req: SignedRequest, res: Response) {
-    try {
-      const userId = req.signature!.id;
-
-      const allRequests = await FriendRequestRepo.getFriendRequestsForUser(
-        userId
-      );
-      const incomingRequests = allRequests.filter(
-        (i) =>
-          i.receiverId === userId && i.status === FriendRequestStatus.PENDING
-      );
-
-      res.json(incomingRequests);
-    } catch (err) {
-      res
-        .status(500)
-        .json({ error: "Failed to fetch incoming friend requests" });
-    }
+  static async getIncomingFriendRequests(userId: string) {
+    const allRequests = await FriendRequestRepo.getFriendRequestsForUser(
+      userId
+    );
+    return allRequests.filter(
+      (i) => i.receiverId === userId && i.status === FriendRequestStatus.PENDING
+    );
   }
 
-  static async getOutgoingFriendRequests(req: SignedRequest, res: Response) {
-    try {
-      const userId = req.signature!.id;
-
-      const allRequests = await FriendRequestRepo.getFriendRequestsForUser(
-        userId
-      );
-      const outgoingRequests = allRequests.filter(
-        (o) => o.senderId === userId && o.status === FriendRequestStatus.PENDING
-      );
-
-      res.json(outgoingRequests);
-    } catch (err) {
-      res
-        .status(500)
-        .json({ error: "Failed to fetch outgoing friend requests" });
-    }
+  static async getOutgoingFriendRequests(userId: string) {
+    const allRequests = await FriendRequestRepo.getFriendRequestsForUser(
+      userId
+    );
+    return allRequests.filter(
+      (o) => o.senderId === userId && o.status === FriendRequestStatus.PENDING
+    );
   }
 
   static async updateFriendRequest(
-    req: SignedRequest,
-    res: Response,
+    receiverId: string,
+    update: FriendRequestUpdate,
     wsManager: WebSocketManager
   ) {
     //Accepting or rejecting friend requests
-    try {
-      const receiverId = req.signature!.id;
-      const requestId = req.params.requestId;
-      const friendRequestUpdate = req.body as FriendRequestUpdate;
+    const friendRequest = await FriendRequestRepo.getFriendRequestById(
+      update.id
+    );
 
-      if (requestId !== friendRequestUpdate.id) {
-        res.status(400).json({ error: "Request IDs do not match update" });
-        return;
-      }
+    if (!friendRequest) throw new NotFoundError("Friend request doesn't exist");
 
-      const friendRequest = await FriendRequestRepo.getFriendRequestById(
-        requestId
-      );
-      const senderId = friendRequest.senderId;
+    if (friendRequest.senderId === receiverId)
+      throw new BadRequestError("Cannot friend yourself");
 
-      if (!friendRequest) {
-        res.status(400).json({ error: "Friend request doesn't exist" });
-        return;
-      }
+    //Mark friend request with action
+    await FriendRequestRepo.updateFriendRequestStatus(update);
+    const updated = await FriendRequestRepo.getFriendRequestById(update.id);
 
-      if (senderId === receiverId) {
-        res.status(400).json({ error: "Cannot friend yourself" });
-        return;
-      }
+    //Sender and receiver notification that request is updated - frontend will deal with UI update
+    wsManager.broadcastToGroup(WSEventType.FRIEND_REQUEST_UPDATE, updated, [
+      friendRequest.senderId,
+      receiverId,
+    ]);
 
-      //Mark friend request with action
-      await FriendRequestRepo.updateFriendRequestStatus(friendRequestUpdate);
-      const updatedFriendRequest = await FriendRequestRepo.getFriendRequestById(
-        requestId
-      );
+    switch (updated.status) {
+      case FriendRequestStatus.ACCEPTED:
+        //Add friend
+        await FriendRepo.addFriend(friendRequest.senderId, receiverId);
 
-      //Sender and receiver notification that request is updated - frontend will deal with UI update
-      wsManager.broadcastToGroup(
-        WSEventType.FRIEND_REQUEST_UPDATE,
-        updatedFriendRequest,
-        [senderId, receiverId]
-      );
+        //Sender notification for new friend
+        wsManager.broadcastToUser(
+          WSEventType.FRIEND_ADD,
+          { id: receiverId },
+          friendRequest.senderId
+        );
 
-      switch (updatedFriendRequest.status) {
-        case FriendRequestStatus.ACCEPTED:
-          //Add friend
-          await FriendRepo.addFriend(senderId, receiverId);
+        //Receiver notification for new friend
+        wsManager.broadcastToUser(
+          WSEventType.FRIEND_ADD,
+          { id: friendRequest.senderId },
+          receiverId
+        );
 
-          //Sender notification for new friend
-          wsManager.broadcastToUser(
-            WSEventType.FRIEND_ADD,
-            { id: receiverId },
-            senderId
-          );
+        //Create the channel and direct message entry
+        const channel: Channel = {
+          id: ulid(),
+          type: ChannelType.DM,
+          name: "DM",
+          participants: [friendRequest.senderId, receiverId],
+        };
 
-          //Receiver notification for new friend
-          wsManager.broadcastToUser(
-            WSEventType.FRIEND_ADD,
-            { id: senderId },
-            receiverId
-          );
+        await ChannelRepo.createChannel(channel);
+        await DMChannelRepo.createDMChannel(channel, friendRequest);
 
-          //Create the channel and direct message entry
-          const channel: Channel = {
-            id: ulid(),
-            type: ChannelType.DM,
-            name: "DM",
-            participants: [senderId, receiverId],
-          };
+        //Notification for channel creation
+        wsManager.broadcastToGroup(WSEventType.DM_CHANNEL_CREATE, channel, [
+          friendRequest.senderId,
+          receiverId,
+        ]);
 
-          await ChannelRepo.createChannel(channel);
-          await DMChannelRepo.createDMChannel(channel, friendRequest);
-
-          //Notification for channel creation
-          wsManager.broadcastToGroup(WSEventType.DM_CHANNEL_CREATE, channel, [
-            senderId,
-            receiverId,
-          ]);
-
-          break;
-        case FriendRequestStatus.REJECTED:
-          //Update sent - just break here
-          break;
-        default:
-          break;
-      }
-
-      res.status(204).send();
-    } catch (err) {
-      res.status(500).json({ error: "Failed to update friend request" });
+        break;
+      case FriendRequestStatus.REJECTED:
+        //Update sent - just break here
+        break;
+      default:
+        break;
     }
   }
 
   static async deleteFriendRequest(
-    req: SignedRequest,
-    res: Response,
+    userId: string,
+    requestId: string,
     wsManager: WebSocketManager
   ) {
-    try {
-      const userId = req.signature!.id;
-      const requestId = req.params.requestId;
-      const friendRequest = await FriendRequestRepo.getFriendRequestById(
-        requestId
+    const friendRequest = await FriendRequestRepo.getFriendRequestById(
+      requestId
+    );
+
+    if (!friendRequest) throw new NotFoundError("Request doesn't exist");
+
+    if (friendRequest.senderId !== userId)
+      throw new BadRequestError(
+        "Incorrect permissions to delete friend request"
       );
 
-      if (!friendRequest) {
-        res.status(404).json({ error: "Request doesn't exist" });
-        return;
-      }
+    await FriendRequestRepo.deleteFriendRequest(requestId);
 
-      if (friendRequest.senderId !== userId) {
-        res
-          .status(400)
-          .json({ error: "Incorrect permissions to delete friend request" });
-        return;
-      }
-
-      await FriendRequestRepo.deleteFriendRequest(requestId);
-
-      wsManager.broadcastToGroup(
-        WSEventType.FRIEND_REQUEST_DELETE,
-        friendRequest,
-        [friendRequest.senderId, friendRequest.receiverId]
-      );
-
-      res.status(204).send();
-    } catch (err) {
-      console.log(err);
-      res.status(500).json({ error: "Failed to delete friend request" });
-    }
+    wsManager.broadcastToGroup(
+      WSEventType.FRIEND_REQUEST_DELETE,
+      friendRequest,
+      [friendRequest.senderId, friendRequest.receiverId]
+    );
   }
 }
