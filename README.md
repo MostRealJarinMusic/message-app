@@ -1,4 +1,4 @@
-# Encrypted Messaging App
+# Messaging App
 
 _A simple Discord-like messaging app_ \
 Intended as a side project / exercise in learning the following technologies:
