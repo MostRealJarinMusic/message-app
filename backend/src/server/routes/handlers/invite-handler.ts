@@ -24,6 +24,8 @@ export class InviteHandler {
         return;
       }
 
+      //Check permissions
+
       const createdAt = new Date();
 
       const invite: ServerInvite = {
@@ -114,7 +116,24 @@ export class InviteHandler {
   }
 
   //Revoke invite
-  static async revokeInvite(req: SignedRequest, res: Response) {}
+  static async revokeInvite(req: SignedRequest, res: Response) {
+    try {
+      const inviteId = req.params.inviteId;
+      const invite = await ServerInviteRepo.getServerInvite(inviteId);
+
+      if (!invite || !invite.serverId) {
+        res.status(404).json({ error: "Invite doesn't exist" });
+        return;
+      }
+
+      //Check permissions here
+
+      await ServerInviteRepo.deleteServerInvite(inviteId);
+      res.status(204).send();
+    } catch (err) {
+      res.status(500).json({ error: "Failed to delete invite" });
+    }
+  }
 
   //Get server invites
   static async getServerInvites(req: SignedRequest, res: Response) {

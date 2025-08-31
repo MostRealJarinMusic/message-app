@@ -9,6 +9,7 @@ import categoryRoutes from "./category-routes";
 import friendRequestRoutes from "./friend-request-routes";
 import friendRoutes from "./friend-routes";
 import directMessageRoutes from "./direct-message-routes";
+import inviteRoutes from "./invite-routes";
 
 export function registerRoutes(app: Application, wsManager: WebSocketManager) {
   app.use("/api/public/auth", authRoutes);
@@ -18,6 +19,7 @@ export function registerRoutes(app: Application, wsManager: WebSocketManager) {
   app.use("/api/private/users", userRoutes(wsManager));
   app.use("/api/private/messages", messageRoutes(wsManager));
   app.use("/api/private/friend-requests", friendRequestRoutes(wsManager));
+  app.use("/api/private/invites", inviteRoutes(wsManager));
   //app.use("/api/private/friends", friendRoutes(wsManager));
   //app.use("/api/private/direct-messages", directMessageRoutes(wsManager));
 }

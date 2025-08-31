@@ -74,4 +74,19 @@ export class ServerInviteRepo {
       );
     });
   }
+
+  static async deleteServerInvite(inviteId: string): Promise<void> {
+    const db = await getDB();
+
+    return new Promise<void>((resolve, reject) => {
+      db.run(
+        `DELETE FROM server_invites WHERE id = ?`,
+        [inviteId],
+        function (err) {
+          if (err) return reject(err);
+          resolve();
+        }
+      );
+    });
+  }
 }

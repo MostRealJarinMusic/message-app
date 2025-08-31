@@ -1,4 +1,3 @@
-//import { Request, Response } from "express-serve-static-core";
 import { UserRepo } from "../../../db/repos/user.repo";
 import jwt from "jsonwebtoken";
 import { config } from "../../../config";
