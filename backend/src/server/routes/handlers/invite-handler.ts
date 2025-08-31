@@ -5,7 +5,7 @@ import {
   ServerInviteCreate,
   ServerMember,
   WSEventType,
-} from "@common/types";
+} from "../../../../../common/types";
 import { ulid } from "ulid";
 import { v4 as uuid } from "uuid";
 import { ServerInviteRepo } from "../../../db/repos/server-invite.repo";
