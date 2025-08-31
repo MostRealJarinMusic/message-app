@@ -173,7 +173,7 @@ export class ServerHandler {
         return;
       }
 
-      const creatorId = req.signature.id;
+      const creatorId = req.signature!.id;
 
       const newServer: Server = {
         id: ulid(),

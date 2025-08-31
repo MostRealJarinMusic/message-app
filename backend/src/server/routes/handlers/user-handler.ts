@@ -7,7 +7,7 @@ import { WebSocketManager } from "src/server/ws/websocket-manager";
 export class UserHandler {
   static async getMe(req: SignedRequest, res: Response) {
     try {
-      const userId = req.signature.id;
+      const userId = req.signature!.id;
       const user = await UserRepo.getUserById(userId);
 
       if (!user) {
@@ -22,7 +22,7 @@ export class UserHandler {
 
   static async getDMChannels(req: SignedRequest, res: Response) {
     try {
-      const userId = req.signature.id;
+      const userId = req.signature!.id;
       const dmChannels = await DMChannelRepo.getDMChannels(userId);
 
       res.json(dmChannels);

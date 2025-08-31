@@ -5,7 +5,7 @@ import { SignedRequest } from "../../../types/types";
 export class FriendHandler {
   static async getFriends(req: SignedRequest, res: Response) {
     try {
-      const userId = req.signature.id;
+      const userId = req.signature!.id;
 
       const allFriendIds = await FriendRepo.getFriends(userId);
 

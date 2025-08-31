@@ -79,7 +79,7 @@ export class InviteHandler {
       //Check if it is expired
 
       //Check if already part of server
-      const userId = req.signature.id;
+      const userId = req.signature!.id;
 
       const existingMember = await ServerMemberRepo.getServerMember(
         invite.serverId,

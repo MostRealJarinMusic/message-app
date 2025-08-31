@@ -24,7 +24,7 @@ export class FriendRequestHandler {
     wsManager: WebSocketManager
   ) {
     try {
-      const userId = req.signature.id;
+      const userId = req.signature!.id;
       const newRequestData = req.body as FriendRequestCreate;
 
       if (!newRequestData) {
@@ -90,7 +90,7 @@ export class FriendRequestHandler {
 
   static async getIncomingFriendRequests(req: SignedRequest, res: Response) {
     try {
-      const userId = req.signature.id;
+      const userId = req.signature!.id;
 
       const allRequests = await FriendRequestRepo.getFriendRequestsForUser(
         userId
@@ -110,7 +110,7 @@ export class FriendRequestHandler {
 
   static async getOutgoingFriendRequests(req: SignedRequest, res: Response) {
     try {
-      const userId = req.signature.id;
+      const userId = req.signature!.id;
 
       const allRequests = await FriendRequestRepo.getFriendRequestsForUser(
         userId
@@ -134,7 +134,7 @@ export class FriendRequestHandler {
   ) {
     //Accepting or rejecting friend requests
     try {
-      const receiverId = req.signature.id;
+      const receiverId = req.signature!.id;
       const requestId = req.params.requestId;
       const friendRequestUpdate = req.body as FriendRequestUpdate;
 
@@ -227,7 +227,7 @@ export class FriendRequestHandler {
     wsManager: WebSocketManager
   ) {
     try {
-      const userId = req.signature.id;
+      const userId = req.signature!.id;
       const requestId = req.params.requestId;
       const friendRequest = await FriendRequestRepo.getFriendRequestById(
         requestId

@@ -10,9 +10,20 @@ import { WebSocketManager } from "../ws/websocket-manager";
 export default function userRoutes(wsManager: WebSocketManager): Router {
   const userRoutes = Router();
 
-  userRoutes.get("/me/dms", authMiddleware, (req: Request, res: Response) => {
-    DirectMessageHandler.getChannels(req as SignedRequest, res);
-  });
+  userRoutes.get(
+    "/me/dms",
+    authMiddleware,
+    async (req: SignedRequest, res: Response) => {
+      try {
+        const userId = req.signature!.id;
+        const dmChannels = await DirectMessageHandler.getChannels(userId);
+
+        res.json(dmChannels);
+      } catch (err) {
+        res.status(401).json({ message: (err as Error).message });
+      }
+    }
+  );
 
   userRoutes.get(
     "/me/friends",

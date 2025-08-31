@@ -58,7 +58,7 @@ export class ChannelHandler {
   ) {
     try {
       const channelId = req.params.channelId;
-      const authorId = req.signature.id;
+      const authorId = req.signature!.id;
       const content = req.body.content;
 
       const channel = await ChannelRepo.getChannel(channelId);
