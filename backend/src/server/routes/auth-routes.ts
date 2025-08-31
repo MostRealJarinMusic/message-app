@@ -1,24 +1,23 @@
 import { Request, Response } from "express";
 import { AuthHandler } from "./handlers/auth-handler";
 import { Router } from "express";
+import { asyncHandler } from "../../utils/async-wrapper";
 
 const authRoutes = Router();
 
-authRoutes.post("/login", async (req: Request, res: Response) => {
-  try {
+authRoutes.post(
+  "/login",
+  asyncHandler(async (req, res) => {
     const result = await AuthHandler.login(req.body);
     res.json(result);
-  } catch (err) {
-    res.status(401).json({ message: (err as Error).message });
-  }
-});
-authRoutes.post("/register", async (req: Request, res: Response) => {
-  try {
+  })
+);
+authRoutes.post(
+  "/register",
+  asyncHandler(async (req, res) => {
     const result = await AuthHandler.register(req.body);
     res.json(result);
-  } catch (err) {
-    res.status(401).json({ message: (err as Error).message });
-  }
-});
+  })
+);
 
 export default authRoutes;

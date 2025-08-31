@@ -6,6 +6,7 @@ import { SignedRequest } from "../../types/types";
 import { DirectMessageHandler } from "./handlers/direct-message-handler";
 import { FriendHandler } from "./handlers/friend-handler";
 import { WebSocketManager } from "../ws/websocket-manager";
+import { asyncHandler } from "../../utils/async-wrapper";
 
 export default function userRoutes(wsManager: WebSocketManager): Router {
   const userRoutes = Router();
@@ -13,16 +14,12 @@ export default function userRoutes(wsManager: WebSocketManager): Router {
   userRoutes.get(
     "/me/dms",
     authMiddleware,
-    async (req: SignedRequest, res: Response) => {
-      try {
-        const userId = req.signature!.id;
-        const dmChannels = await DirectMessageHandler.getChannels(userId);
+    asyncHandler(async (req: SignedRequest, res: Response) => {
+      const userId = req.signature!.id;
+      const dmChannels = await DirectMessageHandler.getChannels(userId);
 
-        res.json(dmChannels);
-      } catch (err) {
-        res.status(401).json({ message: (err as Error).message });
-      }
-    }
+      res.json(dmChannels);
+    })
   );
 
   userRoutes.get(

@@ -20,17 +20,6 @@ export class UserHandler {
     }
   }
 
-  static async getDMChannels(req: SignedRequest, res: Response) {
-    try {
-      const userId = req.signature!.id;
-      const dmChannels = await DMChannelRepo.getDMChannels(userId);
-
-      res.json(dmChannels);
-    } catch (err) {
-      res.status(500).json({ error: "Failed to fetch DM channels" });
-    }
-  }
-
   static async getAllUsers(req: Request, res: Response) {
     try {
       const users = await UserRepo.getAllUsers();
