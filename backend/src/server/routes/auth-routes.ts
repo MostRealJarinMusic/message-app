@@ -4,11 +4,21 @@ import { Router } from "express";
 
 const authRoutes = Router();
 
-authRoutes.post("/login", (req: Request, res: Response) =>
-  AuthHandler.login(req, res)
-);
-authRoutes.post("/register", (req: Request, res: Response) =>
-  AuthHandler.register(req, res)
-);
+authRoutes.post("/login", async (req: Request, res: Response) => {
+  try {
+    const result = await AuthHandler.login(req.body);
+    res.json(result);
+  } catch (err) {
+    res.status(401).json({ message: (err as Error).message });
+  }
+});
+authRoutes.post("/register", async (req: Request, res: Response) => {
+  try {
+    const result = await AuthHandler.register(req.body);
+    res.json(result);
+  } catch (err) {
+    res.status(401).json({ message: (err as Error).message });
+  }
+});
 
 export default authRoutes;

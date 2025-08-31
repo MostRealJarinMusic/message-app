@@ -1,34 +1,34 @@
 import { UserRepo } from "../../../db/repos/user.repo";
 import jwt from "jsonwebtoken";
 import { config } from "../../../config";
-import { Request, Response } from "express-serve-static-core";
+import {
+  AuthPayload,
+  LoginCredentials,
+  RegisterPayload,
+} from "../../../../../common/types";
 
 export class AuthHandler {
-  static async login(req: Request, res: Response) {
-    const user = await UserRepo.loginUser(req.body);
-    if (!user) {
-      res.status(401).json({ error: "Invalid credentials" });
-      return;
-    }
+  static async login(credentials: LoginCredentials): Promise<AuthPayload> {
+    const user = await UserRepo.loginUser(credentials);
+    if (!user) throw new Error("Invalid credentials");
 
     const token = jwt.sign(
       { id: user.id, username: user.username },
       config.jwtSecret
     );
-    res.json({ token, user });
+
+    return { token, user };
   }
 
-  static async register(req: Request, res: Response) {
-    const user = await UserRepo.registerUser(req.body);
-    if (!user) {
-      res.status(400).json({ error: "Registration failed" });
-      return;
-    }
+  static async register(credentials: RegisterPayload): Promise<AuthPayload> {
+    const user = await UserRepo.registerUser(credentials);
+    if (!user) throw new Error("Registration failed");
 
     const token = jwt.sign(
       { id: user.id, username: user.username },
       config.jwtSecret
     );
-    res.json({ token, user });
+
+    return { token, user };
   }
 }
