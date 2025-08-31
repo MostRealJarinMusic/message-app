@@ -1,4 +1,4 @@
-# Encrypted Messaging App
+# Messaging App
 
 _A simple Discord-like messaging app_ \
 Intended as a side project / exercise in learning the following technologies:
@@ -6,7 +6,7 @@ Intended as a side project / exercise in learning the following technologies:
 - REST APIs
 - JSON formats
 - Websockets - ws
-- Databases - PouchDB
+- Databases
 - Electron
 - TypeScript
 - Angular
@@ -30,4 +30,3 @@ Intended as a side project / exercise in learning the following technologies:
 ### Database
 
 - SQLite3 (server-side)
-- PouchDB (client-side)
