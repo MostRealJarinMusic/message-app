@@ -1,11 +1,6 @@
 import { MessageRepo } from "../../../db/repos/message.repo";
 import { WebSocketManager } from "../../ws/websocket-manager";
-import {
-  ChannelType,
-  Message,
-  UserSignature,
-  WSEventType,
-} from "../../../../../common/types";
+import { ChannelType, WSEventType } from "../../../../../common/types";
 import { Request, Response } from "express";
 import { ChannelRepo } from "../../../db/repos/channel.repo";
 import { ServerMemberRepo } from "../../../db/repos/server-member.repo";
