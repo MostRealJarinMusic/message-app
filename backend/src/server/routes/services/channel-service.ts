@@ -1,5 +1,3 @@
-import { Request, Response, Router } from "express";
-import { MessageRepo } from "../../../db/repos/message.repo";
 import {
   Channel,
   ChannelCreate,
@@ -10,16 +8,14 @@ import {
 import { ulid } from "ulid";
 import { WebSocketManager } from "../../ws/websocket-manager";
 import { ChannelRepo } from "../../../db/repos/channel.repo";
-import { SignedRequest } from "../../../types/types";
 import { ServerMemberRepo } from "../../../db/repos/server-member.repo";
-import { DMChannelRepo } from "../../../db/repos/dm-channel.repo";
 import {
   BadRequestError,
   ForbiddenError,
   NotFoundError,
 } from "../../../errors/errors";
 
-export class ChannelHandler {
+export class ChannelService {
   //Creating channel in server
   static async createChannel(
     serverId: string,

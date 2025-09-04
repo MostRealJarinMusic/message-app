@@ -11,7 +11,7 @@ import { BadRequestError, NotFoundError } from "../../../errors/errors";
 import { ChannelRepo } from "../../../db/repos/channel.repo";
 import { ulid } from "ulid";
 
-export class CategoryHandler {
+export class CategoryService {
   //Accessing server categories
   static async getCategories(serverId: string) {
     const categories = await ChannelCategoryRepo.getCategories(serverId);

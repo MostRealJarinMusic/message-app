@@ -8,7 +8,7 @@ import { ulid } from "ulid";
 import { v4 as uuid } from "uuid";
 import { ServerInviteRepo } from "../../../db/repos/server-invite.repo";
 import { ServerMemberRepo } from "../../../db/repos/server-member.repo";
-import { WebSocketManager } from "../../../server/ws/websocket-manager";
+import { WebSocketManager } from "../../ws/websocket-manager";
 import { ServerRepo } from "../../../db/repos/server.repo";
 import {
   BadRequestError,
@@ -16,7 +16,7 @@ import {
   NotFoundError,
 } from "../../../errors/errors";
 
-export class InviteHandler {
+export class InviteService {
   //Create invite
   static async createInvite(inviteCreate: ServerInviteCreate) {
     if (!inviteCreate) throw new BadRequestError("Invite data required");

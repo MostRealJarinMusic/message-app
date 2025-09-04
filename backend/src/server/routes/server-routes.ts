@@ -1,11 +1,11 @@
 import { Request, Response, Router } from "express";
 import { authMiddleware } from "../../middleware/auth-middleware";
 import { WebSocketManager } from "../ws/websocket-manager";
-import { ServerHandler } from "./handlers/server-handler";
+import { ServerService } from "./services/server-service";
 import { SignedRequest } from "../../types/types";
 import { asyncHandler } from "../../utils/async-wrapper";
-import { ChannelHandler } from "./handlers/channel-handler";
-import { CategoryHandler } from "./handlers/category-handler";
+import { ChannelService } from "./services/channel-service";
+import { CategoryService } from "./services/category-service";
 
 export default function serverRoutes(wsManager: WebSocketManager): Router {
   const serverRoutes = Router();
@@ -15,7 +15,7 @@ export default function serverRoutes(wsManager: WebSocketManager): Router {
     "",
     authMiddleware,
     asyncHandler(async (req: SignedRequest, res: Response) => {
-      const servers = await ServerHandler.getAllServers(req.signature!.id);
+      const servers = await ServerService.getAllServers(req.signature!.id);
       res.json(servers);
     })
   );
@@ -25,7 +25,7 @@ export default function serverRoutes(wsManager: WebSocketManager): Router {
     "/:serverId/users",
     authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
-      const users = await ServerHandler.getServerUsers(req.params.serverId);
+      const users = await ServerService.getServerUsers(req.params.serverId);
       res.json(users);
     })
   );
@@ -35,7 +35,7 @@ export default function serverRoutes(wsManager: WebSocketManager): Router {
     "/:serverId/presences",
     authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
-      const presences = await ServerHandler.getServerUserPresences(
+      const presences = await ServerService.getServerUserPresences(
         req.params.serverId,
         wsManager
       );
@@ -49,7 +49,7 @@ export default function serverRoutes(wsManager: WebSocketManager): Router {
     "/:serverId/channels",
     authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
-      const channels = await ChannelHandler.getChannels(req.params.serverId);
+      const channels = await ChannelService.getChannels(req.params.serverId);
       res.json(channels);
     })
   );
@@ -59,7 +59,7 @@ export default function serverRoutes(wsManager: WebSocketManager): Router {
     "/:serverId/channels",
     authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
-      const channel = await ChannelHandler.createChannel(
+      const channel = await ChannelService.createChannel(
         req.params.serverId,
         req.body,
         wsManager
@@ -75,7 +75,7 @@ export default function serverRoutes(wsManager: WebSocketManager): Router {
     "/:serverId/structure",
     authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
-      const categories = await CategoryHandler.getCategories(
+      const categories = await CategoryService.getCategories(
         req.params.serverId
       );
       res.json(categories);
@@ -87,7 +87,7 @@ export default function serverRoutes(wsManager: WebSocketManager): Router {
     "/:serverId/categories",
     authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
-      const category = await CategoryHandler.createCategory(
+      const category = await CategoryService.createCategory(
         req.params.serverId,
         req.body,
         wsManager
@@ -103,7 +103,7 @@ export default function serverRoutes(wsManager: WebSocketManager): Router {
     "",
     authMiddleware,
     asyncHandler(async (req: SignedRequest, res: Response) => {
-      const server = await ServerHandler.createServer(
+      const server = await ServerService.createServer(
         req.signature!.id,
         req.body,
         wsManager
@@ -117,7 +117,7 @@ export default function serverRoutes(wsManager: WebSocketManager): Router {
     "/:serverId",
     authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
-      await ServerHandler.deleteServer(req.params.serverId, wsManager);
+      await ServerService.deleteServer(req.params.serverId, wsManager);
       res.status(204).send();
     })
   );
@@ -127,7 +127,7 @@ export default function serverRoutes(wsManager: WebSocketManager): Router {
     "/:serverId",
     authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
-      await ServerHandler.editServer(req.params.serverId, req.body, wsManager);
+      await ServerService.editServer(req.params.serverId, req.body, wsManager);
       res.status(204).send();
     })
   );

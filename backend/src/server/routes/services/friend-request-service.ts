@@ -20,7 +20,7 @@ import {
   NotFoundError,
 } from "../../../errors/errors";
 
-export class FriendRequestHandler {
+export class FriendRequestService {
   static async sendFriendRequest(
     senderId: string,
     data: FriendRequestCreate,

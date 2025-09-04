@@ -13,7 +13,7 @@ import { DMChannelRepo } from "../../../db/repos/dm-channel.repo";
 import { BadRequestError, NotFoundError } from "../../../errors/errors";
 import { ulid } from "ulid";
 
-export class MessageHandler {
+export class MessageService {
   static async sendMessage(
     channelId: string,
     authorId: string,

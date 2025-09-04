@@ -8,7 +8,7 @@ import {
 } from "../../../../../common/types";
 import { BadRequestError, UnauthorizedError } from "../../../errors/errors";
 
-export class AuthHandler {
+export class AuthService {
   static async login(credentials: LoginCredentials): Promise<AuthPayload> {
     const user = await UserRepo.loginUser(credentials);
     if (!user) throw new UnauthorizedError("Invalid credentials");

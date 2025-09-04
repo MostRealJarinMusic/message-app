@@ -1,6 +1,6 @@
 import { FriendRepo } from "../../../db/repos/friend.repo";
 
-export class FriendHandler {
+export class FriendService {
   static async getFriends(userId: string) {
     //Check if user exists?
 

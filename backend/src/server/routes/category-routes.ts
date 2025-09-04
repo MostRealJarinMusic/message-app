@@ -1,7 +1,7 @@
 import { Request, Response, Router } from "express";
 import { WebSocketManager } from "../ws/websocket-manager";
 import { authMiddleware } from "../../middleware/auth-middleware";
-import { CategoryHandler } from "./handlers/category-handler";
+import { CategoryService } from "./services/category-service";
 import { asyncHandler } from "../../utils/async-wrapper";
 
 export default function categoryRoutes(wsManager: WebSocketManager): Router {
@@ -12,7 +12,7 @@ export default function categoryRoutes(wsManager: WebSocketManager): Router {
     "/:categoryId",
     authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
-      await CategoryHandler.deleteCategory(req.params.categoryId, wsManager);
+      await CategoryService.deleteCategory(req.params.categoryId, wsManager);
       res.status(204).send();
     })
   );
@@ -22,7 +22,7 @@ export default function categoryRoutes(wsManager: WebSocketManager): Router {
     "/:categoryId",
     authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
-      await CategoryHandler.editCategory(
+      await CategoryService.editCategory(
         req.params.categoryId,
         req.body,
         wsManager

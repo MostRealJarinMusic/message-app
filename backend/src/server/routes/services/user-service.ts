@@ -1,8 +1,8 @@
 import { UserRepo } from "../../../db/repos/user.repo";
-import { WebSocketManager } from "../../../server/ws/websocket-manager";
+import { WebSocketManager } from "../../ws/websocket-manager";
 import { NotFoundError } from "../../../errors/errors";
 
-export class UserHandler {
+export class UserService {
   static async getAllUsers() {
     const users = await UserRepo.getAllUsers();
     return users;

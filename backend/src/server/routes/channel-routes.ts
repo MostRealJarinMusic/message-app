@@ -1,10 +1,10 @@
 import { Request, Response, Router } from "express";
 import { authMiddleware } from "../../middleware/auth-middleware";
 import { WebSocketManager } from "../ws/websocket-manager";
-import { ChannelHandler } from "./handlers/channel-handler";
+import { ChannelService } from "./services/channel-service";
 import { SignedRequest } from "../../types/types";
 import { asyncHandler } from "../../utils/async-wrapper";
-import { MessageHandler } from "./handlers/message-handler";
+import { MessageService } from "./services/message-service";
 
 export default function channelRoutes(wsManager: WebSocketManager): Router {
   const channelRoutes = Router();
@@ -13,7 +13,7 @@ export default function channelRoutes(wsManager: WebSocketManager): Router {
     "/:channelId",
     authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
-      await ChannelHandler.deleteChannel(req.params.channelId, wsManager);
+      await ChannelService.deleteChannel(req.params.channelId, wsManager);
       res.status(204).send();
     })
   );
@@ -22,7 +22,7 @@ export default function channelRoutes(wsManager: WebSocketManager): Router {
     "/:channelId/messages",
     authMiddleware,
     asyncHandler(async (req: SignedRequest, res: Response) => {
-      const message = await MessageHandler.sendMessage(
+      const message = await MessageService.sendMessage(
         req.params.channelId,
         req.signature!.id,
         req.body,
@@ -36,7 +36,7 @@ export default function channelRoutes(wsManager: WebSocketManager): Router {
     "/:channelId/messages",
     authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
-      const messages = await MessageHandler.getMessages(req.params.channelId);
+      const messages = await MessageService.getMessages(req.params.channelId);
       res.json(messages);
     })
   );
@@ -45,7 +45,7 @@ export default function channelRoutes(wsManager: WebSocketManager): Router {
     "/:channelId",
     authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
-      await ChannelHandler.editChannel(
+      await ChannelService.editChannel(
         req.params.channelId,
         req.body,
         wsManager

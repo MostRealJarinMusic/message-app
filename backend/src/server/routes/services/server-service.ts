@@ -18,7 +18,7 @@ import { SignedRequest } from "../../../types/types";
 import { ServerMemberRepo } from "../../../db/repos/server-member.repo";
 import { BadRequestError, NotFoundError } from "../../../errors/errors";
 
-export class ServerHandler {
+export class ServerService {
   //Gets all servers that the user is a member of
   static async getAllServers(userId: string) {
     const servers = await ServerRepo.getServers(userId);

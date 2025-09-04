@@ -1,10 +1,10 @@
 import { Router } from "express";
 import { Request, Response } from "express-serve-static-core";
 import { authMiddleware } from "../../middleware/auth-middleware";
-import { UserHandler } from "./handlers/user-handler";
+import { UserService } from "./services/user-service";
 import { SignedRequest } from "../../types/types";
-import { DirectMessageHandler } from "./handlers/direct-message-handler";
-import { FriendHandler } from "./handlers/friend-handler";
+import { DirectMessageService } from "./services/direct-message-service";
+import { FriendService } from "./services/friend-service";
 import { WebSocketManager } from "../ws/websocket-manager";
 import { asyncHandler } from "../../utils/async-wrapper";
 
@@ -16,7 +16,7 @@ export default function userRoutes(wsManager: WebSocketManager): Router {
     authMiddleware,
     asyncHandler(async (req: SignedRequest, res: Response) => {
       const userId = req.signature!.id;
-      const dmChannels = await DirectMessageHandler.getChannels(userId);
+      const dmChannels = await DirectMessageService.getChannels(userId);
 
       res.json(dmChannels);
     })
@@ -26,7 +26,7 @@ export default function userRoutes(wsManager: WebSocketManager): Router {
     "/me/friends",
     authMiddleware,
     asyncHandler(async (req: SignedRequest, res: Response) => {
-      const friendIds = await FriendHandler.getFriends(req.signature!.id);
+      const friendIds = await FriendService.getFriends(req.signature!.id);
       res.json(friendIds);
     })
   );
@@ -35,7 +35,7 @@ export default function userRoutes(wsManager: WebSocketManager): Router {
     "/me",
     authMiddleware,
     asyncHandler(async (req: SignedRequest, res: Response) => {
-      const user = await UserHandler.getUserById(req.signature!.id);
+      const user = await UserService.getUserById(req.signature!.id);
       res.json(user);
     })
   );
@@ -45,7 +45,7 @@ export default function userRoutes(wsManager: WebSocketManager): Router {
     "/presences",
     authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
-      const presences = await UserHandler.getAllUserPresences(wsManager);
+      const presences = await UserService.getAllUserPresences(wsManager);
       res.json(presences);
     })
   );
@@ -55,14 +55,14 @@ export default function userRoutes(wsManager: WebSocketManager): Router {
     "/",
     authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
-      const users = await UserHandler.getAllUsers();
+      const users = await UserService.getAllUsers();
       res.json(users);
     })
   );
 
   //Currently this route isn't used - temporarily disabled as a reminder for testing code
   // userRoutes.get("/:id", authMiddleware, (req, res) =>
-  //   UserHandler.getUserById(req, res)
+  //   UserService.getUserById(req, res)
   // );
 
   return userRoutes;
