@@ -37,3 +37,11 @@ export class ConflictError extends Error {
     this.name = "ConflictError";
   }
 }
+
+export class GoneError extends Error {
+  status = 410;
+  constructor(message: string) {
+    super(message);
+    this.name = "GoneError";
+  }
+}

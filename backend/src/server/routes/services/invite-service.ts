@@ -13,6 +13,7 @@ import { ServerRepo } from "../../../db/repos/server.repo";
 import {
   BadRequestError,
   ConflictError,
+  GoneError,
   NotFoundError,
 } from "../../../errors/errors";
 
@@ -65,7 +66,7 @@ export class InviteService {
     //Check if it is expired
     const now = new Date();
     const expiresOn = new Date(invite.expiresOn);
-    if (now > expiresOn) throw new BadRequestError("Invite has expired");
+    if (now > expiresOn) throw new GoneError("Invite has expired");
 
     //Check if already part of server
     const existingMember = await ServerMemberRepo.getServerMember(
