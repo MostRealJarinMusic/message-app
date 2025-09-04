@@ -31,22 +31,33 @@ export default function userRoutes(wsManager: WebSocketManager): Router {
     })
   );
 
-  userRoutes.get("/me", authMiddleware, (req: Request, res: Response) =>
-    UserHandler.getMe(req as SignedRequest, res)
+  userRoutes.get(
+    "/me",
+    authMiddleware,
+    asyncHandler(async (req: SignedRequest, res: Response) => {
+      const user = await UserHandler.getUserById(req.signature!.id);
+      res.json(user);
+    })
   );
 
   //Temporary
   userRoutes.get(
     "/presences",
     authMiddleware,
-    (req: Request, res: Response) => {
-      UserHandler.getAllUserPresences(req as SignedRequest, res, wsManager);
-    }
+    asyncHandler(async (req: Request, res: Response) => {
+      const presences = await UserHandler.getAllUserPresences(wsManager);
+      res.json(presences);
+    })
   );
 
   //Temporary
-  userRoutes.get("/", authMiddleware, (req: Request, res: Response) =>
-    UserHandler.getAllUsers(req, res)
+  userRoutes.get(
+    "/",
+    authMiddleware,
+    asyncHandler(async (req: Request, res: Response) => {
+      const users = await UserHandler.getAllUsers();
+      res.json(users);
+    })
   );
 
   //Currently this route isn't used - temporarily disabled as a reminder for testing code
