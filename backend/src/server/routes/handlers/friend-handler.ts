@@ -3,19 +3,14 @@ import { Response } from "express";
 import { SignedRequest } from "../../../types/types";
 
 export class FriendHandler {
-  static async getFriends(req: SignedRequest, res: Response) {
-    try {
-      const userId = req.signature!.id;
+  static async getFriends(userId: string) {
+    //Check if user exists?
 
-      const allFriendIds = await FriendRepo.getFriends(userId);
-
-      res.json(allFriendIds);
-    } catch (err) {
-      res.status(500).json({ error: "Failed to fetch friends" });
-    }
+    const allFriendIds = await FriendRepo.getFriends(userId);
+    return allFriendIds;
   }
 
-  static async blockFriend(req: SignedRequest, res: Response) {}
+  static async blockFriend(userId: string, blockedId: string) {}
 
-  static async removeFriend(req: SignedRequest, res: Response) {}
+  static async removeFriend(userId: string, removeId: string) {}
 }
