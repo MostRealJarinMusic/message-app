@@ -7,7 +7,6 @@ import {
   WSEventType,
 } from '@common/types';
 import { PrivateApiService } from 'src/app/core/services/api/private-api.service';
-import { ServerService } from 'src/app/features/server/services/server/server.service';
 import { SocketService } from 'src/app/core/services/socket/socket.service';
 import { LoggerService } from 'src/app/core/services/logger/logger.service';
 import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
@@ -18,7 +17,6 @@ import { NavigationService } from 'src/app/core/services/navigation/navigation.s
 export class ChannelCategoryService {
   private logger = inject(LoggerService);
   private apiService = inject(PrivateApiService);
-  private serverService = inject(ServerService);
   private navService = inject(NavigationService);
   private wsService = inject(SocketService);
 

@@ -2,13 +2,41 @@ import { getDB } from "../db";
 import { Channel } from "@common/types";
 
 export class ChannelRepo {
-  static async getChannels(serverId: string) {
+  static async getChannelsByServer(serverId: string) {
     const db = await getDB();
 
     return new Promise<Channel[]>((resolve, reject) => {
       db.all(
         `SELECT * FROM channels WHERE serverId = ?`,
         [serverId],
+        (err, rows) => {
+          if (err) {
+            console.log("Error retrieving channels:", err);
+            return reject(err);
+          }
+
+          const allChannels: Channel[] = rows.map((row: any) => ({
+            id: row.id,
+            serverId: row.serverId,
+            type: row.type,
+            name: row.name,
+            categoryId: row.categoryId,
+            topic: row.topic,
+          }));
+
+          resolve(allChannels);
+        }
+      );
+    });
+  }
+
+  static async getChannelsByCategory(categoryId: string) {
+    const db = await getDB();
+
+    return new Promise<Channel[]>((resolve, reject) => {
+      db.all(
+        `SELECT * FROM channels WHERE categoryId = ?`,
+        [categoryId],
         (err, rows) => {
           if (err) {
             console.log("Error retrieving channels:", err);

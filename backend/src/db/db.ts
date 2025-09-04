@@ -128,7 +128,7 @@ export const getDB = async () => {
   dbInstance.exec(`
     CREATE TABLE IF NOT EXISTS server_invites (
       id              TEXT PRIMARY KEY,
-      serverId        TEXT NOT NULL,
+      serverId        TEXT,
       link            TEXT NOT NULL,
       createdAt       TEXT NOT NULL,
       expiresOn       TEXT NOT NULL,

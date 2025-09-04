@@ -122,11 +122,15 @@ export interface ServerMember {
 
 export interface ServerInvite {
   id: string;
-  serverId: string;
+  serverId: string | null;
   link: string;
   createdAt: string;
   expiresOn: string;
-  valid: boolean;
+}
+
+export interface ServerInviteCreate {
+  serverId: string;
+  expiresOn?: string;
 }
 //#endregion
 
@@ -152,6 +156,8 @@ export enum WSEventType {
   SERVER_CREATE = "server:create",
   SERVER_UPDATE = "server:update",
   SERVER_DELETE = "server:delete",
+
+  SERVER_MEMBER_ADD = "server:member:add",
 
   PRESENCE = "presence:update",
 
@@ -181,6 +187,7 @@ export type WSEventPayload = {
   [WSEventType.SERVER_CREATE]: Server;
   [WSEventType.SERVER_UPDATE]: Server;
   [WSEventType.SERVER_DELETE]: Server;
+  [WSEventType.SERVER_MEMBER_ADD]: ServerMember;
   [WSEventType.PRESENCE]: PresenceUpdate;
   [WSEventType.FRIEND_REQUEST_SENT]: FriendRequest;
   [WSEventType.FRIEND_REQUEST_RECEIVE]: FriendRequest;
@@ -251,15 +258,6 @@ export interface FriendRequestUpdate {
   id: string;
   status: FriendRequestStatus;
 }
-
-//#endregion
-
-// //#region DM channels
-// export interface DMChannel {
-//   channelId: string;
-//   userId1: string;
-//   userId2: string;
-// }
 
 //#endregion
 

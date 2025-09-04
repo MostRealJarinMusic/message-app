@@ -1,8 +1,9 @@
 import { Request, Response, Router } from "express";
 import { authMiddleware } from "../../middleware/auth-middleware";
 import { WebSocketManager } from "../ws/websocket-manager";
-import { FriendRequestHandler } from "./handlers/friend-request-handler";
+import { FriendRequestService } from "./services/friend-request-service";
 import { SignedRequest } from "../../types/types";
+import { asyncHandler } from "../../utils/async-wrapper";
 
 export default function friendRequestRoutes(
   wsManager: WebSocketManager
@@ -12,53 +13,62 @@ export default function friendRequestRoutes(
   friendRequestRoutes.post(
     "",
     authMiddleware,
-    async (req: Request, res: Response) => {
-      FriendRequestHandler.sendFriendRequest(
-        req as SignedRequest,
-        res,
+    asyncHandler(async (req: SignedRequest, res: Response) => {
+      const result = await FriendRequestService.sendFriendRequest(
+        req.signature!.id,
+        req.body,
         wsManager
       );
-    }
+      res.status(201).json(result);
+    })
   );
 
   friendRequestRoutes.get(
     "/incoming",
     authMiddleware,
-    async (req: Request, res: Response) => {
-      FriendRequestHandler.getIncomingFriendRequests(req as SignedRequest, res);
-    }
+    asyncHandler(async (req, res) => {
+      const result = await FriendRequestService.getIncomingFriendRequests(
+        req.signature!.id
+      );
+      res.json(result);
+    })
   );
 
   friendRequestRoutes.get(
     "/outgoing",
     authMiddleware,
-    async (req: Request, res: Response) => {
-      FriendRequestHandler.getOutgoingFriendRequests(req as SignedRequest, res);
-    }
+    asyncHandler(async (req, res) => {
+      const result = await FriendRequestService.getOutgoingFriendRequests(
+        req.signature!.id
+      );
+      res.json(result);
+    })
   );
 
   friendRequestRoutes.patch(
     "/:requestId",
     authMiddleware,
-    async (req: Request, res: Response) => {
-      FriendRequestHandler.updateFriendRequest(
-        req as SignedRequest,
-        res,
+    asyncHandler(async (req: SignedRequest, res: Response) => {
+      await FriendRequestService.updateFriendRequest(
+        req.signature!.id,
+        req.body,
         wsManager
       );
-    }
+      res.status(204).send();
+    })
   );
 
   friendRequestRoutes.delete(
     "/:requestId",
     authMiddleware,
-    async (req: Request, res: Response) => {
-      FriendRequestHandler.deleteFriendRequest(
-        req as SignedRequest,
-        res,
+    asyncHandler(async (req: SignedRequest, res: Response) => {
+      await FriendRequestService.deleteFriendRequest(
+        req.signature!.id,
+        req.params.requestId,
         wsManager
       );
-    }
+      res.status(204).send();
+    })
   );
 
   return friendRequestRoutes;

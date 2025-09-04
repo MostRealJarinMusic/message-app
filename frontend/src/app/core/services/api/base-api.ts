@@ -5,8 +5,6 @@ import { LoggerService } from '../logger/logger.service';
 import { LoggerType } from '@common/types';
 
 export abstract class BaseApiService {
-  private logger = inject(LoggerService);
-
   protected constructor(
     protected http: HttpClient,
     private baseUrl: string,
@@ -33,15 +31,13 @@ export abstract class BaseApiService {
   }
 
   protected handleError(error: HttpErrorResponse) {
-    this.logger.error(LoggerType.SERVICE_API, 'API error:', error);
-
     let errorMessage = 'An unknown error occured.';
     if (error.error instanceof ErrorEvent) {
       //Client-side or network error
       errorMessage = `Network error: ${error.message}`;
     } else {
       //Backend returned unsuccessful response code
-      errorMessage = `Backend returned code ${error.status}: ${error.message}`;
+      errorMessage = `Backend returned code ${error.status}: ${error.message} => ${error.error.message}`;
     }
 
     return throwError(() => new Error(errorMessage));

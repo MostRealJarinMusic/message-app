@@ -4,6 +4,7 @@ import { SocketService } from 'src/app/core/services/socket/socket.service';
 import { PrivateApiService } from 'src/app/core/services/api/private-api.service';
 import { LoggerService } from 'src/app/core/services/logger/logger.service';
 import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
+import { ChannelCategoryService } from 'src/app/features/category/services/channel-category/channel-category.service';
 
 @Injectable({
   providedIn: 'root',
@@ -11,6 +12,7 @@ import { NavigationService } from 'src/app/core/services/navigation/navigation.s
 export class ChannelService {
   private apiService = inject(PrivateApiService);
   private wsService = inject(SocketService);
+  private categoryService = inject(ChannelCategoryService);
   private navService = inject(NavigationService);
   private logger = inject(LoggerService);
 
@@ -18,7 +20,11 @@ export class ChannelService {
   readonly groupedChannels = computed(() => {
     const map = new Map<string | null, Channel[]>();
 
-    for (const channel of this.channels()!) {
+    for (const category of this.categoryService.channelCategories() ?? []) {
+      map.set(category.id, []);
+    }
+
+    for (const channel of this.channels() ?? []) {
       const key = channel.categoryId ?? null;
 
       if (!map.has(key)) {
