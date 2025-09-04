@@ -2,9 +2,9 @@ import { Request, Response, Router } from "express";
 import { MessageRepo } from "../../../db/repos/message.repo";
 import {
   Channel,
+  ChannelCreate,
   ChannelType,
   ChannelUpdate,
-  Message,
   WSEventType,
 } from "../../../../../common/types";
 import { ulid } from "ulid";
@@ -13,9 +13,44 @@ import { ChannelRepo } from "../../../db/repos/channel.repo";
 import { SignedRequest } from "../../../types/types";
 import { ServerMemberRepo } from "../../../db/repos/server-member.repo";
 import { DMChannelRepo } from "../../../db/repos/dm-channel.repo";
-import { ForbiddenError, NotFoundError } from "../../../errors/errors";
+import {
+  BadRequestError,
+  ForbiddenError,
+  NotFoundError,
+} from "../../../errors/errors";
 
 export class ChannelHandler {
+  //Creating channel in server
+  static async createChannel(
+    serverId: string,
+    channelCreate: ChannelCreate,
+    wsManager: WebSocketManager
+  ) {
+    if (!channelCreate) throw new BadRequestError("Channel data required");
+
+    const channel: Channel = {
+      name: channelCreate.name,
+      type: ChannelType.TEXT,
+      categoryId: channelCreate.categoryId,
+      serverId: serverId,
+      id: ulid(),
+    };
+
+    await ChannelRepo.createChannel(channel);
+
+    const memberIds = await ServerMemberRepo.getServerMemberIds(serverId);
+    wsManager.broadcastToGroup(WSEventType.CHANNEL_CREATE, channel, memberIds);
+
+    return channel;
+  }
+
+  //Accessing server channels
+  static async getChannels(serverId: string) {
+    //Check if server exists?
+    const channels = await ChannelRepo.getChannelsByServer(serverId);
+    return channels;
+  }
+
   static async deleteChannel(channelId: string, wsManager: WebSocketManager) {
     const channel = await ChannelRepo.getChannel(channelId);
     if (!channel) throw new NotFoundError("Channel doesn't exist");

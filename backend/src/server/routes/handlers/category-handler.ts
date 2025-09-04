@@ -1,15 +1,50 @@
 import {
   ChannelCategory,
+  ChannelCategoryCreate,
   ChannelCategoryUpdate,
   WSEventType,
 } from "../../../../../common/types";
 import { ChannelCategoryRepo } from "../../../db/repos/category.repo";
 import { WebSocketManager } from "../../ws/websocket-manager";
 import { ServerMemberRepo } from "../../../db/repos/server-member.repo";
-import { NotFoundError } from "../../../errors/errors";
+import { BadRequestError, NotFoundError } from "../../../errors/errors";
 import { ChannelRepo } from "../../../db/repos/channel.repo";
+import { ulid } from "ulid";
 
 export class CategoryHandler {
+  //Accessing server categories
+  static async getCategories(serverId: string) {
+    const categories = await ChannelCategoryRepo.getCategories(serverId);
+
+    return categories;
+  }
+
+  //Creating categories in server
+  static async createCategory(
+    serverId: string,
+    categoryCreate: ChannelCategoryCreate,
+    wsManager: WebSocketManager
+  ) {
+    if (!categoryCreate) throw new BadRequestError("Category data required");
+
+    const category: ChannelCategory = {
+      id: ulid(),
+      serverId: serverId,
+      name: categoryCreate.name,
+    };
+
+    await ChannelCategoryRepo.createCategory(category);
+
+    const memberIds = await ServerMemberRepo.getServerMemberIds(serverId);
+    wsManager.broadcastToGroup(
+      WSEventType.CATEGORY_CREATE,
+      category,
+      memberIds
+    );
+
+    return category;
+  }
+
   static async deleteCategory(categoryId: string, wsManager: WebSocketManager) {
     const category = await ChannelCategoryRepo.getCategory(categoryId);
 

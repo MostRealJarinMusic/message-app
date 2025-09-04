@@ -16,273 +16,117 @@ import { ulid } from "ulid";
 import { ChannelCategoryRepo } from "../../../db/repos/category.repo";
 import { SignedRequest } from "../../../types/types";
 import { ServerMemberRepo } from "../../../db/repos/server-member.repo";
+import { BadRequestError, NotFoundError } from "../../../errors/errors";
 
 export class ServerHandler {
   //Gets all servers that the user is a member of
-  static async getAllServers(req: Request, res: Response) {
-    try {
-      const userId = (req as any).signature.id;
-      const servers = await ServerRepo.getServers(userId);
-
-      res.json(servers);
-    } catch (err) {
-      console.error("Error getting servers", err);
-      res.status(500).json({ error: "Failed to fetch servers" });
-    }
+  static async getAllServers(userId: string) {
+    const servers = await ServerRepo.getServers(userId);
+    return servers;
   }
 
   //Accessing server users
-  static async getServerUsers(req: Request, res: Response) {
-    try {
-      const serverId = req.params.serverId;
-      const members = await ServerMemberRepo.getServerMembers(serverId);
+  static async getServerUsers(serverId: string) {
+    //Check if server exists?
 
-      res.json(members);
-    } catch (err) {
-      res.status(500).json({ error: "Failed to load users" });
-    }
+    const members = await ServerMemberRepo.getServerMembers(serverId);
+    return members;
   }
 
   //Accessing server user presences
   static async getServerUserPresences(
-    req: Request,
-    res: Response,
+    serverId: string,
     wsManager: WebSocketManager
   ) {
-    try {
-      const serverId = req.params.serverId;
-      const memberIds = await ServerMemberRepo.getServerMemberIds(serverId);
-      const presences = wsManager.getPresenceSnapshot(memberIds);
+    const memberIds = await ServerMemberRepo.getServerMemberIds(serverId);
+    const presences = wsManager.getPresenceSnapshot(memberIds);
 
-      res.json(presences);
-    } catch (err) {
-      res.status(500).json({ error: "Failed to load presence" });
-    }
-  }
-
-  //Accessing server channels
-  static async getChannels(req: Request, res: Response) {
-    try {
-      const serverId = req.params.serverId;
-      const channels = await ChannelRepo.getChannelsByServer(serverId);
-
-      res.json(channels);
-    } catch (err) {
-      console.error("Error getting channels", err);
-      res.status(500).json({ error: "Failed to fetch channels" });
-    }
-  }
-
-  //Creating channel in server
-  static async createChannel(
-    req: Request,
-    res: Response,
-    wsManager: WebSocketManager
-  ) {
-    try {
-      const serverId = req.params.serverId;
-      const newChannelData = req.body;
-
-      if (!newChannelData) {
-        res.status(400).json({ error: "Channel data required" });
-        return;
-      }
-
-      const newChannel: Channel = {
-        name: newChannelData.name,
-        type: ChannelType.TEXT,
-        categoryId: newChannelData.categoryId,
-        serverId: serverId,
-        id: ulid(),
-      };
-
-      await ChannelRepo.createChannel(newChannel);
-
-      const memberIds = await ServerMemberRepo.getServerMemberIds(serverId);
-      wsManager.broadcastToGroup(
-        WSEventType.CHANNEL_CREATE,
-        newChannel,
-        memberIds
-      );
-
-      res.status(201).json(newChannel);
-    } catch (err) {
-      res.status(500).json({ error: "Failed to create channel" });
-    }
-  }
-
-  //Accessing server categories
-  static async getCategories(req: Request, res: Response) {
-    try {
-      const serverId = req.params.serverId;
-      const categories = await ChannelCategoryRepo.getCategories(serverId);
-
-      res.json(categories);
-    } catch (err) {
-      res.status(500).json({ error: "Failed to fetch structure" });
-    }
-  }
-
-  //Creating categories in server
-  static async createCategory(
-    req: Request,
-    res: Response,
-    wsManager: WebSocketManager
-  ) {
-    try {
-      const serverId = req.params.serverId;
-      const newCategoryData = req.body;
-
-      if (!newCategoryData) {
-        res.status(400).json({ error: "Category data required" });
-        return;
-      }
-
-      const newCategory: ChannelCategory = {
-        id: ulid(),
-        serverId: serverId,
-        name: newCategoryData.name,
-      };
-
-      await ChannelCategoryRepo.createCategory(newCategory);
-
-      const memberIds = await ServerMemberRepo.getServerMemberIds(serverId);
-      wsManager.broadcastToGroup(
-        WSEventType.CATEGORY_CREATE,
-        newCategory,
-        memberIds
-      );
-
-      res.status(201).json(newCategory);
-    } catch (err) {
-      res.status(500).json({ error: "Failed to create category" });
-    }
+    return presences;
   }
 
   //Creating a server
   static async createServer(
-    req: SignedRequest,
-    res: Response,
+    creatorId: string,
+    serverCreate: ServerCreate,
     wsManager: WebSocketManager
   ) {
-    try {
-      const newServerData = req.body as ServerCreate;
+    if (!serverCreate) throw new BadRequestError("Server data required");
 
-      if (!newServerData) {
-        res.status(400).json({ error: "Server data required" });
-        return;
-      }
+    const server: Server = {
+      id: ulid(),
+      name: serverCreate.name,
+      description: serverCreate.description,
+    };
 
-      const creatorId = req.signature!.id;
+    await ServerRepo.createServer(server);
+    //Create category
+    // - Text channel
+    const newCategory: ChannelCategory = {
+      id: ulid(),
+      serverId: server.id,
+      name: "Text Channels",
+    };
+    await ChannelCategoryRepo.createCategory(newCategory);
 
-      const newServer: Server = {
-        id: ulid(),
-        name: newServerData.name,
-        description: newServerData.description,
-      };
+    // - Create general
+    const newChannel: Channel = {
+      id: ulid(),
+      type: ChannelType.TEXT,
+      serverId: server.id,
+      name: "General",
+      categoryId: newCategory.id,
+      createdBy: creatorId,
+    };
+    await ChannelRepo.createChannel(newChannel);
 
-      await ServerRepo.createServer(newServer);
-      //Create category
-      // - Text channel
-      const newCategory: ChannelCategory = {
-        id: ulid(),
-        serverId: newServer.id,
-        name: "Text Channels",
-      };
-      await ChannelCategoryRepo.createCategory(newCategory);
+    //Add server member
+    const member: ServerMember = {
+      userId: creatorId,
+      serverId: server.id,
+    };
+    await ServerMemberRepo.addServerMember(member);
 
-      // - Create general
-      const newChannel: Channel = {
-        id: ulid(),
-        type: ChannelType.TEXT,
-        serverId: newServer.id,
-        name: "General",
-        categoryId: newCategory.id,
-        createdBy: creatorId,
-      };
-      await ChannelRepo.createChannel(newChannel);
+    // With public servers, we may have to notify people
+    //Broadcast to creator
+    wsManager.broadcastToUser(WSEventType.SERVER_CREATE, server, creatorId);
 
-      //Add server member
-      const member: ServerMember = {
-        userId: creatorId,
-        serverId: newServer.id,
-      };
-      await ServerMemberRepo.addServerMember(member);
-
-      // With public servers, we may have to notify people
-      //Broadcast to creator
-      wsManager.broadcastToUser(
-        WSEventType.SERVER_CREATE,
-        newServer,
-        creatorId
-      );
-
-      res.status(201).json(newServer);
-    } catch (err) {
-      res.status(500).json({ error: "Failed to create server" });
-    }
+    return server;
   }
 
   //Deleting a server
-  static async deleteServer(
-    req: Request,
-    res: Response,
-    wsManager: WebSocketManager
-  ) {
-    try {
-      const serverId = req.params.serverId;
-      const server = await ServerRepo.getServer(serverId);
+  static async deleteServer(serverId: string, wsManager: WebSocketManager) {
+    const server = await ServerRepo.getServer(serverId);
+    if (!server) throw new NotFoundError("Server doesn't exist");
 
-      if (!server) {
-        res.status(404).json({ error: "Server doesn't exist" });
-        return;
-      }
+    const memberIds = await ServerMemberRepo.getServerMemberIds(serverId);
 
-      const memberIds = await ServerMemberRepo.getServerMemberIds(serverId);
+    await ServerRepo.deleteServer(serverId);
 
-      await ServerRepo.deleteServer(serverId);
-
-      wsManager.broadcastToGroup(WSEventType.SERVER_DELETE, server, memberIds);
-
-      res.status(204).send();
-    } catch (err) {
-      res.status(500).json({ error: "Failed to delete server" });
-    }
+    wsManager.broadcastToGroup(WSEventType.SERVER_DELETE, server, memberIds);
   }
 
   //Editing a server
   static async editServer(
-    req: Request,
-    res: Response,
+    serverId: string,
+    serverUpdate: ServerUpdate,
     wsManager: WebSocketManager
   ) {
-    try {
-      const serverId = req.params.serverId;
-      const serverUpdate = req.body.serverUpdate as ServerUpdate;
-      const server = await ServerRepo.getServer(serverId);
+    const server = await ServerRepo.getServer(serverId);
+    if (!server) throw new NotFoundError("Server doesn't exist");
 
-      if (!server) {
-        res.status(404).json({ error: "Server doesn't exist" });
-        return;
-      }
+    const proposedServer = {
+      ...server,
+      ...serverUpdate,
+    } as Server;
 
-      const proposedServer = {
-        ...server,
-        ...serverUpdate,
-      } as Server;
+    await ServerRepo.editServer(proposedServer);
+    const updatedServer = await ServerRepo.getServer(serverId);
 
-      await ServerRepo.editServer(proposedServer);
-      const updatedServer = await ServerRepo.getServer(serverId);
-
-      const memberIds = await ServerMemberRepo.getServerMemberIds(serverId);
-      wsManager.broadcastToGroup(
-        WSEventType.SERVER_UPDATE,
-        updatedServer,
-        memberIds
-      );
-      res.status(204).send();
-    } catch (err) {
-      res.status(500).json({ error: "Failed to edit server" });
-    }
+    const memberIds = await ServerMemberRepo.getServerMemberIds(serverId);
+    wsManager.broadcastToGroup(
+      WSEventType.SERVER_UPDATE,
+      updatedServer,
+      memberIds
+    );
   }
 }
