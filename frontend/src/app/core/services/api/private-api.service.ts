@@ -91,9 +91,9 @@ export class PrivateApiService extends BaseApiService {
     );
   }
 
-  createChannel(serverId: string, newChannelData: ChannelCreate) {
+  createChannel(serverId: string, channelCreate: ChannelCreate) {
     return this.authorisedFetch<Channel>((_) =>
-      this.post<Channel>(`servers/${serverId}/channels`, newChannelData),
+      this.post<Channel>(`servers/${serverId}/channels`, channelCreate),
     );
   }
 
@@ -140,8 +140,8 @@ export class PrivateApiService extends BaseApiService {
     return this.authorisedFetch<Server[]>((_) => this.get<Server[]>('servers'));
   }
 
-  createServer(newServerData: ServerCreate) {
-    return this.authorisedFetch<Server>((_) => this.post<Server>(`servers`, newServerData));
+  createServer(serverCreate: ServerCreate) {
+    return this.authorisedFetch<Server>((_) => this.post<Server>(`servers`, serverCreate));
   }
 
   deleteServer(serverId: string) {
