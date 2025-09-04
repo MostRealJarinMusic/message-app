@@ -41,7 +41,6 @@ export default function friendRequestRoutes(
       const result = await FriendRequestHandler.getOutgoingFriendRequests(
         req.signature!.id
       );
-      console.log(result);
       res.json(result);
     })
   );

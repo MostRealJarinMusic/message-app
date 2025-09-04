@@ -9,9 +9,7 @@ import {
 } from "../../../../../common/types";
 import { FriendRequestRepo } from "../../../db/repos/friend-request.repo";
 import { FriendRepo } from "../../../db/repos/friend.repo";
-import { Response } from "express";
 import { WebSocketManager } from "../../ws/websocket-manager";
-import { SignedRequest } from "../../../types/types";
 import { ulid } from "ulid";
 import { UserRepo } from "../../../db/repos/user.repo";
 import { ChannelRepo } from "../../../db/repos/channel.repo";
