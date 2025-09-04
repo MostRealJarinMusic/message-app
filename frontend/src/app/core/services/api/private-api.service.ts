@@ -17,6 +17,8 @@ import {
   PresenceUpdate,
   Server,
   ServerCreate,
+  ServerInvite,
+  ServerInviteCreate,
   ServerUpdate,
   User,
 } from '@common/types';
@@ -207,6 +209,25 @@ export class PrivateApiService extends BaseApiService {
   //#region DMs
   getDMChannels(): Observable<Channel[]> {
     return this.authorisedFetch((_) => this.get<Channel[]>('users/me/dms'));
+  }
+
+  //#endregion
+
+  //#region Invites
+  createInvite(inviteCreate: ServerInviteCreate): Observable<ServerInvite> {
+    return this.authorisedFetch((_) => this.post<ServerInvite>('invites', inviteCreate));
+  }
+
+  previewInvite(inviteLink: string): Observable<ServerInvite> {
+    return this.authorisedFetch((_) => this.get<ServerInvite>(`invites/${inviteLink}`));
+  }
+
+  acceptInvite(inviteLink: string): Observable<Server> {
+    return this.authorisedFetch((_) => this.post<Server>(`invites/${inviteLink}/accept`, {}));
+  }
+
+  revokeInvite(inviteId: string): Observable<void> {
+    return this.authorisedFetch((_) => this.delete<void>(`invites/${inviteId}`));
   }
 
   //#endregion
