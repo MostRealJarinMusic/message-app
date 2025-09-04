@@ -24,13 +24,18 @@ export class InviteService {
     //Check permissions
 
     const createdAt = new Date();
+    const expiresOn = inviteCreate.expiresOn
+      ? new Date(inviteCreate.expiresOn)
+      : new Date();
+
+    expiresOn.setDate(expiresOn.getDate() + 7);
 
     const invite: ServerInvite = {
       id: ulid(),
       serverId: inviteCreate.serverId,
       link: uuid(),
       createdAt: createdAt.toISOString(),
-      expiresOn: inviteCreate.expiresOn ?? new Date().toISOString(),
+      expiresOn: expiresOn.toISOString(),
     };
 
     await ServerInviteRepo.createServerInvite(invite);
@@ -58,6 +63,9 @@ export class InviteService {
       throw new NotFoundError("Invite doesn't exist");
 
     //Check if it is expired
+    const now = new Date();
+    const expiresOn = new Date(invite.expiresOn);
+    if (now > expiresOn) throw new BadRequestError("Invite has expired");
 
     //Check if already part of server
     const existingMember = await ServerMemberRepo.getServerMember(
