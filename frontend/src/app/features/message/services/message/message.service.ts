@@ -1,6 +1,6 @@
 import { effect, inject, Injectable, signal } from '@angular/core';
 import { SocketService } from '../../../../core/services/socket/socket.service';
-import { LoggerType, Message, WSEventType } from '@common/types';
+import { LoggerType, Message, MessageCreate, MessageUpdate, WSEventType } from '@common/types';
 import { ChannelService } from 'src/app/features/channel/services/channel/channel.service';
 import { PrivateApiService } from 'src/app/core/services/api/private-api.service';
 import { LoggerService } from 'src/app/core/services/logger/logger.service';
@@ -42,7 +42,11 @@ export class MessageService {
     //Temporary message response code
     const activeChannelId = this.navService.activeChannelId() || this.navService.activeDMId();
 
-    this.apiService.sendMessage(activeChannelId!, content).subscribe({
+    const messageCreate: MessageCreate = {
+      content,
+    };
+
+    this.apiService.sendMessage(activeChannelId!, messageCreate).subscribe({
       next: (message) => {},
       error: (err) => {
         //Response to any errors - optimistic UI
@@ -94,8 +98,12 @@ export class MessageService {
     });
   }
 
-  public editMessage(messageId: string, newContent: string) {
-    this.apiService.editMessage(messageId, newContent).subscribe({
+  public editMessage(messageId: string, content: string) {
+    const messageUpdate: MessageUpdate = {
+      content,
+    };
+
+    this.apiService.editMessage(messageId, messageUpdate).subscribe({
       next: () => {
         this.logger.log(LoggerType.SERVICE_MESSAGE, 'Successful edit');
       },

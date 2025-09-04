@@ -23,7 +23,7 @@ export default function messageRoutes(wsManager: WebSocketManager): Router {
     asyncHandler(async (req: Request, res: Response) => {
       await MessageHandler.editMessage(
         req.params.messageId,
-        req.body.content,
+        req.body,
         wsManager
       );
       res.status(204).send();

@@ -3,7 +3,6 @@ import {
   ChannelCategoryUpdate,
   WSEventType,
 } from "../../../../../common/types";
-import { Request, Response } from "express";
 import { ChannelCategoryRepo } from "../../../db/repos/category.repo";
 import { WebSocketManager } from "../../ws/websocket-manager";
 import { ServerMemberRepo } from "../../../db/repos/server-member.repo";

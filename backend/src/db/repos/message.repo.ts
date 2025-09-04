@@ -65,30 +65,7 @@ export class MessageRepo {
     });
   }
 
-  static async getAllMessages() {
-    const db = await getDB();
-
-    return new Promise<Message[]>((resolve, reject) => {
-      db.all(`SELECT * FROM messages ORDER BY createdAt ASC`, (err, rows) => {
-        if (err) {
-          console.log("Error retrieving messages:", err);
-          return reject(err);
-        }
-
-        const allMessages: Message[] = rows.map((row: any) => ({
-          id: row.id,
-          authorId: row.authorId,
-          channelId: row.channelId,
-          content: row.content,
-          createdAt: row.createdAt,
-        }));
-
-        resolve(allMessages);
-      });
-    });
-  }
-
-  static async getAllChannelMessages(channelId: string) {
+  static async getMessagesByChannel(channelId: string) {
     const db = await getDB();
 
     return new Promise<Message[]>((resolve, reject) => {

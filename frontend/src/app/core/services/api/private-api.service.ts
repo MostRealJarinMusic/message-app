@@ -12,6 +12,8 @@ import {
   FriendRequestCreate,
   FriendRequestUpdate,
   Message,
+  MessageCreate,
+  MessageUpdate,
   PresenceUpdate,
   Server,
   ServerCreate,
@@ -40,9 +42,9 @@ export class PrivateApiService extends BaseApiService {
   }
 
   //#region Message CRUD
-  sendMessage(channelId: string, content: string): Observable<Message> {
+  sendMessage(channelId: string, messageCreate: MessageCreate): Observable<Message> {
     return this.authorisedFetch<Message>((_) =>
-      this.post<Message>(`channels/${channelId}/messages`, { content }),
+      this.post<Message>(`channels/${channelId}/messages`, messageCreate),
     );
   }
 
@@ -52,9 +54,9 @@ export class PrivateApiService extends BaseApiService {
     );
   }
 
-  editMessage(messageId: string, content: string): Observable<void> {
+  editMessage(messageId: string, messageUpdate: MessageUpdate): Observable<void> {
     return this.authorisedFetch<void>((_) =>
-      this.patch<void>(`messages/${messageId}`, { content }),
+      this.patch<void>(`messages/${messageId}`, messageUpdate),
     );
   }
 
