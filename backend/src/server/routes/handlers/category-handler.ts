@@ -1,76 +1,73 @@
-import { ChannelCategory, WSEventType } from "../../../../../common/types";
+import {
+  ChannelCategory,
+  ChannelCategoryUpdate,
+  WSEventType,
+} from "../../../../../common/types";
 import { Request, Response } from "express";
 import { ChannelCategoryRepo } from "../../../db/repos/category.repo";
 import { WebSocketManager } from "../../ws/websocket-manager";
 import { ServerMemberRepo } from "../../../db/repos/server-member.repo";
+import { NotFoundError } from "../../../errors/errors";
+import { ChannelRepo } from "../../../db/repos/channel.repo";
 
 export class CategoryHandler {
-  static async deleteCategory(
-    req: Request,
-    res: Response,
-    wsManager: WebSocketManager
-  ) {
-    try {
-      const categoryId = req.params.categoryId;
-      const category = await ChannelCategoryRepo.getCategory(categoryId);
+  static async deleteCategory(categoryId: string, wsManager: WebSocketManager) {
+    const category = await ChannelCategoryRepo.getCategory(categoryId);
 
-      if (!category) {
-        res.status(404).json({ error: "Category doesn't exist" });
-        return;
-      }
+    if (!category) throw new NotFoundError("Category doesn't exist");
 
-      const memberIds = await ServerMemberRepo.getServerMemberIds(
-        category.serverId
-      );
+    const targetChannels = await ChannelRepo.getChannelsByCategory(categoryId);
 
-      await ChannelCategoryRepo.deleteCategory(categoryId);
+    const memberIds = await ServerMemberRepo.getServerMemberIds(
+      category.serverId
+    );
+
+    await ChannelCategoryRepo.deleteCategory(categoryId);
+    wsManager.broadcastToGroup(
+      WSEventType.CATEGORY_DELETE,
+      category,
+      memberIds
+    );
+
+    const updatedChannels = targetChannels.map((channel) => ({
+      ...channel,
+      categoryId: null,
+    }));
+
+    updatedChannels.forEach((updatedChannel) => {
       wsManager.broadcastToGroup(
-        WSEventType.CATEGORY_DELETE,
-        category,
+        WSEventType.CHANNEL_UPDATE,
+        updatedChannel,
         memberIds
       );
-
-      res.status(204).send();
-    } catch (err) {
-      res.status(500).json({ error: "Failed to delete category" });
-    }
+    });
   }
 
   static async editCategory(
-    req: Request,
-    res: Response,
+    categoryId: string,
+    categoryUpdate: ChannelCategoryUpdate,
     wsManager: WebSocketManager
   ) {
-    try {
-      const categoryId = req.params.categoryId;
-      const categoryUpdate = req.body.categoryUpdate as ChannelCategoryRepo;
-      const category = await ChannelCategoryRepo.getCategory(categoryId);
+    const category = await ChannelCategoryRepo.getCategory(categoryId);
 
-      if (!category) {
-        res.status(404).json({ error: "Category doesn't exist" });
-        return;
-      }
+    if (!category) throw new NotFoundError("Category doesn't exist");
 
-      const proposedCategory = {
-        ...category,
-        ...categoryUpdate,
-      } as ChannelCategory;
+    const proposedCategory = {
+      ...category,
+      ...categoryUpdate,
+    } as ChannelCategory;
 
-      await ChannelCategoryRepo.editCategory(proposedCategory);
+    await ChannelCategoryRepo.editCategory(proposedCategory);
 
-      const updatedCategory = await ChannelCategoryRepo.getCategory(categoryId);
-      const memberIds = await ServerMemberRepo.getServerMemberIds(
-        updatedCategory.serverId
-      );
+    const updatedCategory = await ChannelCategoryRepo.getCategory(categoryId);
+    const memberIds = await ServerMemberRepo.getServerMemberIds(
+      updatedCategory.serverId
+    );
 
-      wsManager.broadcastToGroup(
-        WSEventType.CATEGORY_UPDATE,
-        updatedCategory,
-        memberIds
-      );
-      res.status(204).send();
-    } catch (err) {
-      res.status(500).json({ error: "Failed to edit category" });
-    }
+    wsManager.broadcastToGroup(
+      WSEventType.CATEGORY_UPDATE,
+      updatedCategory,
+      memberIds
+    );
   }
 }

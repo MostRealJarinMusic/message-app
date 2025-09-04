@@ -115,10 +115,10 @@ export class PrivateApiService extends BaseApiService {
 
   createCategory(
     serverId: string,
-    newCategoryData: ChannelCategoryCreate,
+    categoryCreate: ChannelCategoryCreate,
   ): Observable<ChannelCategory> {
     return this.authorisedFetch<ChannelCategory>((_) =>
-      this.post<ChannelCategory>(`servers/${serverId}/categories`, newCategoryData),
+      this.post<ChannelCategory>(`servers/${serverId}/categories`, categoryCreate),
     );
   }
 
@@ -128,7 +128,7 @@ export class PrivateApiService extends BaseApiService {
 
   editCategory(categoryId: string, categoryUpdate: ChannelCategoryUpdate): Observable<void> {
     return this.authorisedFetch<void>((_) =>
-      this.patch<void>(`categories/${categoryId}`, { categoryUpdate }),
+      this.patch<void>(`categories/${categoryId}`, categoryUpdate),
     );
   }
   //#endregion
@@ -167,9 +167,9 @@ export class PrivateApiService extends BaseApiService {
   //#endregion
 
   //#region Friend Requests CRUD
-  sendFriendRequest(newFriendRequest: FriendRequestCreate): Observable<FriendRequest> {
+  sendFriendRequest(requestCreate: FriendRequestCreate): Observable<FriendRequest> {
     return this.authorisedFetch<FriendRequest>((_) =>
-      this.post<FriendRequest>(`friend-requests`, newFriendRequest),
+      this.post<FriendRequest>(`friend-requests`, requestCreate),
     );
   }
 

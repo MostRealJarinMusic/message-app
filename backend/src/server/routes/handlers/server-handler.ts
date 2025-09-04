@@ -64,7 +64,7 @@ export class ServerHandler {
   static async getChannels(req: Request, res: Response) {
     try {
       const serverId = req.params.serverId;
-      const channels = await ChannelRepo.getChannels(serverId);
+      const channels = await ChannelRepo.getChannelsByServer(serverId);
 
       res.json(channels);
     } catch (err) {
