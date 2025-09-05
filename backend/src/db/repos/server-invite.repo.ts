@@ -50,13 +50,40 @@ export class ServerInviteRepo {
     });
   }
 
-  static async getServerInvite(inviteId: string): Promise<ServerInvite> {
+  static async getServerInviteById(inviteId: string): Promise<ServerInvite> {
     const db = await getDB();
 
     return new Promise((resolve, reject) => {
       db.get(
-        `SELECT * FROM server_invites WHERE id = inviteId`,
+        `SELECT * FROM server_invites WHERE id = ?`,
         [inviteId],
+        (err, row: any) => {
+          if (err) return reject(err);
+          if (!row) return reject(new Error(`Server invite not found`));
+
+          const invite: ServerInvite = {
+            id: row.id,
+            serverId: row.serverId,
+            link: row.link,
+            createdAt: row.createdAt,
+            expiresOn: row.expiresOn,
+          };
+
+          resolve(invite);
+        }
+      );
+    });
+  }
+
+  static async getServerInviteByLink(
+    inviteLink: string
+  ): Promise<ServerInvite> {
+    const db = await getDB();
+
+    return new Promise((resolve, reject) => {
+      db.get(
+        `SELECT * FROM server_invites WHERE link = ?`,
+        [inviteLink],
         (err, row: any) => {
           if (err) return reject(err);
           if (!row) return reject(new Error(`Server invite not found`));

@@ -18,20 +18,20 @@ export default function inviteRoutes(wsManager: WebSocketManager): Router {
   );
 
   inviteRoutes.get(
-    "/:inviteId",
+    "/:link",
     authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
-      const invite = await InviteService.previewInvite(req.params.inviteId);
+      const invite = await InviteService.previewInvite(req.params.link);
       res.json(invite);
     })
   );
 
   inviteRoutes.post(
-    "/:inviteId/accept",
+    "/:link/accept",
     authMiddleware,
     asyncHandler(async (req: SignedRequest, res: Response) => {
       const server = InviteService.acceptInvite(
-        req.params.inviteId,
+        req.params.link,
         req.signature!.id,
         wsManager
       );
@@ -40,9 +40,9 @@ export default function inviteRoutes(wsManager: WebSocketManager): Router {
   );
 
   inviteRoutes.delete(
-    "/:inviteId",
+    "/:link",
     asyncHandler(async (req: Request, res: Response) => {
-      await InviteService.revokeInvite(req.params.inviteId);
+      await InviteService.revokeInvite(req.params.link);
       res.status(204).send();
     })
   );

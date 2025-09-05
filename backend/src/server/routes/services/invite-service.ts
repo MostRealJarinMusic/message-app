@@ -45,8 +45,8 @@ export class InviteService {
   }
 
   //Get invite (preview)
-  static async previewInvite(inviteId: string) {
-    const invite = await ServerInviteRepo.getServerInvite(inviteId);
+  static async previewInvite(link: string) {
+    const invite = await ServerInviteRepo.getServerInviteByLink(link);
     if (!invite) throw new NotFoundError("Invite doesnt exist");
 
     return invite;
@@ -54,11 +54,11 @@ export class InviteService {
 
   //Accept invite
   static async acceptInvite(
-    inviteId: string,
+    link: string,
     userId: string,
     wsManager: WebSocketManager
   ) {
-    const invite = await ServerInviteRepo.getServerInvite(inviteId);
+    const invite = await ServerInviteRepo.getServerInviteByLink(link);
 
     if (!invite || !invite.serverId)
       throw new NotFoundError("Invite doesn't exist");
@@ -99,15 +99,15 @@ export class InviteService {
   }
 
   //Revoke invite
-  static async revokeInvite(inviteId: string) {
-    const invite = await ServerInviteRepo.getServerInvite(inviteId);
+  static async revokeInvite(link: string) {
+    const invite = await ServerInviteRepo.getServerInviteByLink(link);
 
     if (!invite || !invite.serverId)
       throw new NotFoundError("Invite doesn't exist");
 
     //Check permissions here
 
-    await ServerInviteRepo.deleteServerInvite(inviteId);
+    await ServerInviteRepo.deleteServerInvite(invite.id);
   }
 
   //Get server invites

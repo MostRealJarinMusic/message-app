@@ -226,8 +226,8 @@ export class PrivateApiService extends BaseApiService {
     return this.authorisedFetch((_) => this.post<Server>(`invites/${inviteLink}/accept`, {}));
   }
 
-  revokeInvite(inviteId: string): Observable<void> {
-    return this.authorisedFetch((_) => this.delete<void>(`invites/${inviteId}`));
+  revokeInvite(inviteLink: string): Observable<void> {
+    return this.authorisedFetch((_) => this.delete<void>(`invites/${inviteLink}`));
   }
 
   //#endregion
