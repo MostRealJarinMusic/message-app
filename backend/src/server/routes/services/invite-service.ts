@@ -34,7 +34,7 @@ export class InviteService {
     const invite: ServerInvite = {
       id: ulid(),
       serverId: inviteCreate.serverId,
-      link: uuid(),
+      link: `http://message-app/${uuid()}`,
       createdAt: createdAt.toISOString(),
       expiresOn: expiresOn.toISOString(),
     };

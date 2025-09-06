@@ -18,6 +18,7 @@ import { ChannelCreateDialogComponent } from 'src/app/components/dialogs/channel
 import { ServerCreateDialogComponent } from 'src/app/components/dialogs/server-create-dialog/server-create-dialog.component';
 import { ServerEditOverlayComponent } from '../server-edit-overlay/server-edit-overlay.component';
 import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
+import { InviteService } from 'src/app/features/invite/services/invite/invite.service';
 
 @Component({
   selector: 'app-server-list',
@@ -43,6 +44,7 @@ export class ServerListComponent implements OnInit, OnDestroy {
   private categoryService = inject(ChannelCategoryService);
   protected navService = inject(NavigationService);
   private dialogService = inject(DialogService);
+  private inviteService = inject(InviteService);
 
   //Context menu
   @ViewChild('serverContextMenu') serverContextMenu!: ContextMenu;
@@ -73,6 +75,33 @@ export class ServerListComponent implements OnInit, OnDestroy {
 
   private initContextMenu() {
     this.contextMenuItems = [
+      {
+        label: 'Invite People',
+        command: () => {
+          this.serverContextMenu.hide();
+
+          //Temporary
+          if (!this.contextMenuServer) {
+            console.log('No context menu server');
+            return;
+          }
+
+          this.inviteService.createInvite(this.contextMenuServer.id).subscribe({
+            next: async (invite) => {
+              console.log('Successfully created invite');
+              console.log(invite);
+
+              await navigator.clipboard.writeText(invite.link);
+            },
+            error: (err) => {
+              console.log('Failed to create invite', err);
+            },
+          });
+        },
+      },
+      {
+        separator: true,
+      },
       {
         label: 'Server Settings',
         command: () => {

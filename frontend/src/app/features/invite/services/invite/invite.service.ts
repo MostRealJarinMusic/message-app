@@ -13,10 +13,7 @@ export class InviteService {
   constructor() {}
 
   public previewInvite(inviteLink: string) {
-    this.apiService.previewInvite(inviteLink).subscribe({
-      next: (invite) => invite,
-      error: (err) => this.logger.error(LoggerType.SERVICE_INVITE, 'Failed to preview invite', err),
-    });
+    return this.apiService.previewInvite(inviteLink);
   }
 
   public createInvite(serverId: string) {
