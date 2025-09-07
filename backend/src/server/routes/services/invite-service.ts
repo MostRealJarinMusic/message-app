@@ -1,6 +1,7 @@
 import {
   ServerInvite,
   ServerInviteCreate,
+  ServerInvitePreview,
   ServerMember,
   WSEventType,
 } from "../../../../../common/types";
@@ -13,6 +14,7 @@ import { ServerRepo } from "../../../db/repos/server.repo";
 import {
   BadRequestError,
   ConflictError,
+  GoneError,
   NotFoundError,
 } from "../../../errors/errors";
 
@@ -24,13 +26,18 @@ export class InviteService {
     //Check permissions
 
     const createdAt = new Date();
+    const expiresOn = inviteCreate.expiresOn
+      ? new Date(inviteCreate.expiresOn)
+      : new Date();
+
+    expiresOn.setDate(expiresOn.getDate() + 7);
 
     const invite: ServerInvite = {
       id: ulid(),
       serverId: inviteCreate.serverId,
       link: uuid(),
       createdAt: createdAt.toISOString(),
-      expiresOn: inviteCreate.expiresOn ?? new Date().toISOString(),
+      expiresOn: expiresOn.toISOString(),
     };
 
     await ServerInviteRepo.createServerInvite(invite);
@@ -39,25 +46,41 @@ export class InviteService {
   }
 
   //Get invite (preview)
-  static async previewInvite(inviteId: string) {
-    const invite = await ServerInviteRepo.getServerInvite(inviteId);
-    if (!invite) throw new NotFoundError("Invite doesnt exist");
+  static async previewInvite(link: string) {
+    const invite = await ServerInviteRepo.getServerInviteByLink(link);
 
-    return invite;
+    //Server ID check is temporary
+    if (!invite || !invite.serverId)
+      throw new NotFoundError("Invite doesnt exist");
+
+    const server = await ServerRepo.getServer(invite.serverId);
+    const totalMembers = (
+      await ServerMemberRepo.getServerMemberIds(invite.serverId)
+    ).length;
+
+    const invitePreview: ServerInvitePreview = {
+      serverName: server.name,
+      totalMembers,
+    };
+
+    return invitePreview;
   }
 
   //Accept invite
   static async acceptInvite(
-    inviteId: string,
+    link: string,
     userId: string,
     wsManager: WebSocketManager
   ) {
-    const invite = await ServerInviteRepo.getServerInvite(inviteId);
+    const invite = await ServerInviteRepo.getServerInviteByLink(link);
 
     if (!invite || !invite.serverId)
       throw new NotFoundError("Invite doesn't exist");
 
     //Check if it is expired
+    const now = new Date();
+    const expiresOn = new Date(invite.expiresOn);
+    if (now > expiresOn) throw new GoneError("Invite has expired");
 
     //Check if already part of server
     const existingMember = await ServerMemberRepo.getServerMember(
@@ -90,15 +113,15 @@ export class InviteService {
   }
 
   //Revoke invite
-  static async revokeInvite(inviteId: string) {
-    const invite = await ServerInviteRepo.getServerInvite(inviteId);
+  static async revokeInvite(link: string) {
+    const invite = await ServerInviteRepo.getServerInviteByLink(link);
 
     if (!invite || !invite.serverId)
       throw new NotFoundError("Invite doesn't exist");
 
     //Check permissions here
 
-    await ServerInviteRepo.deleteServerInvite(inviteId);
+    await ServerInviteRepo.deleteServerInvite(invite.id);
   }
 
   //Get server invites

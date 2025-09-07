@@ -42,7 +42,10 @@
 
         @if (!isBeingEdited()) {
           <div class="text-xs whitespace-pre-line break-words">
-            {{ message.content }}
+            <span>{{ message.content }}</span>
+            @if (embedData) {
+              <app-embed-host [embed]="embedData" />
+            }
             <!-- @if (message.editedAt !== undefined) {
               <span class="text-[10px] ml-1 font-light text-muted-color">{{ message.editedAt }}</span>
             } -->

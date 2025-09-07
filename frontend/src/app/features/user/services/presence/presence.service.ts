@@ -71,7 +71,6 @@ export class PresenceService {
   private loadUserPresences() {
     this.apiService.getUserPresences().subscribe({
       next: (presences) => {
-        console.log(presences);
         presences.forEach((update) => this.handlePresenceUpdate(update));
       },
       error: (err) => {
