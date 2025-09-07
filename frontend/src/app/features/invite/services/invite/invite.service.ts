@@ -33,5 +33,7 @@ export class InviteService {
 
   public async acceptInvite(inviteLink: string) {
     const server = await firstValueFrom(this.apiService.acceptInvite(inviteLink));
+
+    this.serverService.joinServer(server);
   }
 }
