@@ -38,10 +38,7 @@ export class MessageService {
   public sendMessage(content: string): void {
     //this.dbService.saveMessage(message);
 
-    //Should use HTTP
-    //Temporary message response code
     const activeChannelId = this.navService.activeChannelId() || this.navService.activeDMId();
-
     const messageCreate: MessageCreate = {
       content,
     };
