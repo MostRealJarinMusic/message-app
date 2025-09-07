@@ -74,13 +74,16 @@ export class ServerMemberRepo {
   static async getServerMember(serverId: string, userId: string) {
     const db = await getDB();
 
-    return new Promise((resolve, reject) => {
+    return new Promise<ServerMember | null>((resolve, reject) => {
       db.get(
         `SELECT * FROM server_members WHERE serverId = ? AND userId = ?`,
         [serverId, userId],
         (err, row: any) => {
           if (err) return reject(err);
-          if (!row) return reject(new Error(`Server member not found`));
+          if (!row) {
+            resolve(null);
+            return;
+          }
 
           const member: ServerMember = {
             userId: row.userId,

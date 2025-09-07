@@ -18,11 +18,14 @@ export class EmbedResolverService {
       const match = url.match(this.inviteRegex);
       if (!match || !match[1]) return null;
 
+      const link = match[1];
+
       try {
-        const invitePreview = await this.inviteService.previewInvite(match[1]);
+        const invitePreview = await this.inviteService.previewInvite(link);
 
         const embedData: EmbedData = {
           type: EmbedType.INVITE,
+          link,
           url,
           meta: invitePreview,
         };

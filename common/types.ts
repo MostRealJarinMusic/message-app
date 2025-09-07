@@ -316,6 +316,7 @@ export enum EmbedType {
 export interface EmbedData {
   type: EmbedType;
   url: string;
+  link?: string;
   meta?: {
     title?: string;
     description?: string;

@@ -30,7 +30,7 @@ export default function inviteRoutes(wsManager: WebSocketManager): Router {
     "/:link/accept",
     authMiddleware,
     asyncHandler(async (req: SignedRequest, res: Response) => {
-      const server = InviteService.acceptInvite(
+      const server = await InviteService.acceptInvite(
         req.params.link,
         req.signature!.id,
         wsManager

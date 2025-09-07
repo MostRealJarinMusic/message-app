@@ -11,7 +11,11 @@
       <div class="flex-1"></div>
 
       <!-- Join button -->
-      <button class="rounded-lg bg-green-600 px-4 py-1 text-white hover:bg-green-700">Join</button>
+      <button
+        class="rounded-lg bg-green-600 px-4 py-1 text-white hover:bg-green-700"
+        (click)="inviteService.acceptInvite(embed()!.link!)">
+        Join
+      </button>
     </div>
   }
   @default {
