@@ -19,12 +19,12 @@ export class EmbedResolverService {
       if (!match || !match[1]) return null;
 
       try {
-        const invite = await this.inviteService.previewInvite(match[1]);
+        const invitePreview = await this.inviteService.previewInvite(match[1]);
 
         const embedData: EmbedData = {
           type: EmbedType.INVITE,
           url,
-          meta: invite,
+          meta: invitePreview,
         };
 
         return embedData;

@@ -1,6 +1,18 @@
 @switch (embed()?.type) {
   @case (EmbedType.INVITE) {
-    <div class="p-2 text-sm text-gray-400">Invite here</div>
+    <div class="flex items-center gap-3 rounded-xl border border-gray-300 bg-gray-50 p-3 shadow-sm">
+      <!-- Server info -->
+      <div class="flex flex-col">
+        <span class="font-medium text-gray-900">{{ embed()!.meta!['serverName'] }}</span>
+        <span class="text-sm text-gray-600"> {{ embed()!.meta!['totalMembers'] }} members </span>
+      </div>
+
+      <!-- Spacer -->
+      <div class="flex-1"></div>
+
+      <!-- Join button -->
+      <button class="rounded-lg bg-green-600 px-4 py-1 text-white hover:bg-green-700">Join</button>
+    </div>
   }
   @default {
     <div class="p-2 text-sm text-gray-400">Unknown embed type</div>
