@@ -128,6 +128,11 @@ export interface ServerInvite {
   expiresOn: string;
 }
 
+export interface ServerInvitePreview {
+  serverName: string;
+  totalMembers: number;
+}
+
 export interface ServerInviteCreate {
   serverId: string;
   expiresOn?: string;
@@ -298,6 +303,25 @@ export enum LoggerType {
   SERVICE_FRIEND = "FRIEND SERVICE",
   SERVICE_SESSION = "SESSION SERVICE",
   SERVICE_INVITE = "INVITE SERVICE",
+}
+
+//#endregion
+
+//#region Embeds
+export enum EmbedType {
+  INVITE = "embed:invite",
+  LINK = "embed:link",
+}
+
+export interface EmbedData {
+  type: EmbedType;
+  url: string;
+  meta?: {
+    title?: string;
+    description?: string;
+    image?: string;
+    [key: string]: any;
+  };
 }
 
 //#endregion

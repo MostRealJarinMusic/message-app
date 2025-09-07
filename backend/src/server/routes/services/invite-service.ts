@@ -1,6 +1,7 @@
 import {
   ServerInvite,
   ServerInviteCreate,
+  ServerInvitePreview,
   ServerMember,
   WSEventType,
 } from "../../../../../common/types";
@@ -34,7 +35,7 @@ export class InviteService {
     const invite: ServerInvite = {
       id: ulid(),
       serverId: inviteCreate.serverId,
-      link: `http://message-app/${uuid()}`,
+      link: uuid(),
       createdAt: createdAt.toISOString(),
       expiresOn: expiresOn.toISOString(),
     };
@@ -47,9 +48,22 @@ export class InviteService {
   //Get invite (preview)
   static async previewInvite(link: string) {
     const invite = await ServerInviteRepo.getServerInviteByLink(link);
-    if (!invite) throw new NotFoundError("Invite doesnt exist");
 
-    return invite;
+    //Server ID check is temporary
+    if (!invite || !invite.serverId)
+      throw new NotFoundError("Invite doesnt exist");
+
+    const server = await ServerRepo.getServer(invite.serverId);
+    const totalMembers = (
+      await ServerMemberRepo.getServerMemberIds(invite.serverId)
+    ).length;
+
+    const invitePreview: ServerInvitePreview = {
+      serverName: server.name,
+      totalMembers,
+    };
+
+    return invitePreview;
   }
 
   //Accept invite
