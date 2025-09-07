@@ -1,0 +1,8 @@
+@switch (embed()?.type) {
+  @case (EmbedType.INVITE) {
+    <div class="p-2 text-sm text-gray-400">Invite here</div>
+  }
+  @default {
+    <div class="p-2 text-sm text-gray-400">Unknown embed type</div>
+  }
+}

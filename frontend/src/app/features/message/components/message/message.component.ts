@@ -1,5 +1,5 @@
-import { Component, computed, inject, Input, signal } from '@angular/core';
-import { Message } from '@common/types';
+import { Component, computed, inject, Input, OnInit, signal } from '@angular/core';
+import { EmbedData, Message } from '@common/types';
 import { AvatarModule } from 'primeng/avatar';
 import { AvatarGroupModule } from 'primeng/avatargroup';
 import { isToday, isYesterday } from 'date-fns';
@@ -11,6 +11,8 @@ import { FormsModule } from '@angular/forms';
 import { TextareaModule } from 'primeng/textarea';
 import { MessageEditService } from 'src/app/features/message/services/message-edit/message-edit.service';
 import { UserService } from 'src/app/features/user/services/user/user.service';
+import { EmbedResolverService } from 'src/app/core/services/embed-resolver/embed-resolver.service';
+import { EmbedHostComponent } from 'src/app/shared/components/embed-host/embed-host.component';
 
 @Component({
   selector: 'app-message',
@@ -22,19 +24,31 @@ import { UserService } from 'src/app/features/user/services/user/user.service';
     CommonModule,
     FormsModule,
     TextareaModule,
+    EmbedHostComponent,
   ],
   templateUrl: './message.component.html',
   styleUrl: './message.component.scss',
 })
-export class MessageComponent {
+export class MessageComponent implements OnInit {
   private messageService = inject(MessageService);
   protected userService = inject(UserService);
   private editService = inject(MessageEditService);
+  private embedService = inject(EmbedResolverService);
 
   @Input() message!: Message;
   @Input() isMine!: boolean;
 
+  protected embedData: EmbedData | null = null;
   protected editContent = this.editService.getContent();
+
+  async ngOnInit() {
+    if (!this.message) return;
+
+    const url = this.message.content.match(/https?:\/\/[^\s]+/);
+    if (url) {
+      this.embedData = await this.embedService.resolve(url[0]);
+    }
+  }
 
   protected formatTime(timestamp: string): string {
     const dateTime = new Date(timestamp);

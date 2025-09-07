@@ -77,7 +77,7 @@ export class ServerListComponent implements OnInit, OnDestroy {
     this.contextMenuItems = [
       {
         label: 'Invite People',
-        command: () => {
+        command: async () => {
           this.serverContextMenu.hide();
 
           //Temporary
@@ -86,17 +86,24 @@ export class ServerListComponent implements OnInit, OnDestroy {
             return;
           }
 
-          this.inviteService.createInvite(this.contextMenuServer.id).subscribe({
-            next: async (invite) => {
-              console.log('Successfully created invite');
-              console.log(invite);
+          // this.inviteService.createInvite(this.contextMenuServer.id).subscribe({
+          //   next: async (invite) => {
+          //     console.log('Successfully created invite');
+          //     console.log(invite);
 
-              await navigator.clipboard.writeText(invite.link);
-            },
-            error: (err) => {
-              console.log('Failed to create invite', err);
-            },
-          });
+          //     await navigator.clipboard.writeText(invite.link);
+          //   },
+          //   error: (err) => {
+          //     console.log('Failed to create invite', err);
+          //   },
+          // });
+
+          const invite = await this.inviteService.createInvite(this.contextMenuServer.id);
+          const link = this.inviteService.constructLink(invite.link);
+
+          await navigator.clipboard.writeText(link);
+
+          this.contextMenuServer = null;
         },
       },
       {

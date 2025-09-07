@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { LoggerType, ServerInviteCreate } from '@common/types';
+import { firstValueFrom } from 'rxjs';
 import { PrivateApiService } from 'src/app/core/services/api/private-api.service';
 import { LoggerService } from 'src/app/core/services/logger/logger.service';
 
@@ -12,16 +13,20 @@ export class InviteService {
 
   constructor() {}
 
-  public previewInvite(inviteLink: string) {
-    return this.apiService.previewInvite(inviteLink);
+  public async previewInvite(inviteLink: string) {
+    return await firstValueFrom(this.apiService.previewInvite(inviteLink));
   }
 
-  public createInvite(serverId: string) {
+  public async createInvite(serverId: string) {
     const inviteCreate: ServerInviteCreate = {
       serverId,
     };
 
-    return this.apiService.createInvite(inviteCreate);
+    return await firstValueFrom(this.apiService.createInvite(inviteCreate));
+  }
+
+  public constructLink(link: string) {
+    return `https://message-app/invite/${link}`;
   }
 
   public acceptInvite(inviteLink: string) {

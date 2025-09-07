@@ -16,11 +16,10 @@ export class EmbedResolverService {
   async resolve(url: string): Promise<EmbedData | null> {
     if (this.inviteRegex.test(url)) {
       const match = url.match(this.inviteRegex);
-
       if (!match || !match[1]) return null;
 
       try {
-        const invite = await firstValueFrom(this.inviteService.previewInvite(match[1]));
+        const invite = await this.inviteService.previewInvite(match[1]);
 
         const embedData: EmbedData = {
           type: EmbedType.INVITE,
