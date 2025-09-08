@@ -76,27 +76,10 @@ export class ServerListComponent implements OnInit, OnDestroy {
   private initContextMenu() {
     this.contextMenuItems = [
       {
-        label: 'Invite People',
+        label: 'Copy Invite Link',
         command: async () => {
           this.serverContextMenu.hide();
-
-          //Temporary
-          if (!this.contextMenuServer) {
-            console.log('No context menu server');
-            return;
-          }
-
-          // this.inviteService.createInvite(this.contextMenuServer.id).subscribe({
-          //   next: async (invite) => {
-          //     console.log('Successfully created invite');
-          //     console.log(invite);
-
-          //     await navigator.clipboard.writeText(invite.link);
-          //   },
-          //   error: (err) => {
-          //     console.log('Failed to create invite', err);
-          //   },
-          // });
+          if (!this.contextMenuServer) return;
 
           const invite = await this.inviteService.createInvite(this.contextMenuServer.id);
           const link = this.inviteService.constructLink(invite.link);
