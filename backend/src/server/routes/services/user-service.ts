@@ -22,4 +22,10 @@ export class UserService {
     if (!user) throw new NotFoundError("User doesn't exist");
     return user;
   }
+
+  static async getMe(userId: string) {
+    const user = await UserRepo.getMe(userId);
+    if (!user) throw new NotFoundError("User doesn't exist");
+    return user;
+  }
 }

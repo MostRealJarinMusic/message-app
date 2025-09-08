@@ -1,7 +1,7 @@
 //#region Auth types
 export interface AuthPayload {
   token: string;
-  user: User;
+  user: PrivateUser;
 }
 export interface LoginCredentials {
   username?: string;
@@ -223,11 +223,14 @@ export enum PresenceStatus {
 //#endregion
 
 //#region User types
-export interface User {
+export interface PublicUser {
   id: string;
   username: string;
-  email: string;
   status?: PresenceStatus;
+}
+
+export interface PrivateUser extends PublicUser {
+  email: string;
 }
 //#endregion
 

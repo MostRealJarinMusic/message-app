@@ -1,5 +1,5 @@
 import { effect, inject, Injectable, signal } from '@angular/core';
-import { LoggerType, User } from '@common/types';
+import { LoggerType, PublicUser, PrivateUser } from '@common/types';
 import { catchError, firstValueFrom, Observable, of, tap } from 'rxjs';
 import { PrivateApiService } from '../../../../core/services/api/private-api.service';
 import { ServerService } from 'src/app/features/server/services/server/server.service';
@@ -14,15 +14,19 @@ export class UserService {
   private navService = inject(NavigationService);
   private logger = inject(LoggerService);
 
-  readonly currentUser = signal<User | null>(null);
-  private userCache = new Map<string, User>();
-  readonly serverUsers = signal<User[] | null>(null);
+  readonly currentUser = signal<PrivateUser | null>(null);
+  private userCache = new Map<string, PublicUser>();
+  readonly serverUsers = signal<PublicUser[] | null>(null);
   readonly usernameMap = new Map<string, string>();
 
   constructor() {
     this.logger.init(LoggerType.SERVICE_USER);
 
     this.loadUsers();
+
+    effect(() => {
+      console.log(this.currentUser());
+    });
 
     effect(() => {
       const currentServer = this.navService.activeServerId();
@@ -44,7 +48,7 @@ export class UserService {
   //   });
   // }
 
-  loadCurrentUser(): Promise<User> {
+  loadCurrentUser(): Promise<PrivateUser> {
     return firstValueFrom(
       this.apiService.getCurrentUser().pipe(
         tap((user) => this.currentUser.set(user)),

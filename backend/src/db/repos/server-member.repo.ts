@@ -1,11 +1,11 @@
-import { ServerMember, User } from "@common/types";
+import { ServerMember, PublicUser } from "@common/types";
 import { getDB } from "../db";
 
 export class ServerMemberRepo {
   static async getServerMembers(serverId: string) {
     const db = await getDB();
 
-    return new Promise<User[]>((resolve, reject) => {
+    return new Promise<PublicUser[]>((resolve, reject) => {
       db.all(
         `
         SELECT * FROM server_members 
@@ -19,10 +19,9 @@ export class ServerMemberRepo {
             return reject(err);
           }
 
-          const allMembers: User[] = rows.map((row: any) => ({
+          const allMembers: PublicUser[] = rows.map((row: any) => ({
             id: row.id,
             username: row.username,
-            email: row.email,
           }));
 
           resolve(allMembers);

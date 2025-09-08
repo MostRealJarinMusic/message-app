@@ -35,7 +35,7 @@ export default function userRoutes(wsManager: WebSocketManager): Router {
     "/me",
     authMiddleware,
     asyncHandler(async (req: SignedRequest, res: Response) => {
-      const user = await UserService.getUserById(req.signature!.id);
+      const user = await UserService.getMe(req.signature!.id);
       res.json(user);
     })
   );
