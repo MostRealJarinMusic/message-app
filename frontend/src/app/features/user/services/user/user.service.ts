@@ -2,7 +2,6 @@ import { effect, inject, Injectable, signal } from '@angular/core';
 import { LoggerType, PublicUser, PrivateUser } from '@common/types';
 import { catchError, firstValueFrom, Observable, of, tap } from 'rxjs';
 import { PrivateApiService } from '../../../../core/services/api/private-api.service';
-import { ServerService } from 'src/app/features/server/services/server/server.service';
 import { LoggerService } from 'src/app/core/services/logger/logger.service';
 import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
 
@@ -23,10 +22,6 @@ export class UserService {
     this.logger.init(LoggerType.SERVICE_USER);
 
     this.loadUsers();
-
-    effect(() => {
-      console.log(this.currentUser());
-    });
 
     effect(() => {
       const currentServer = this.navService.activeServerId();

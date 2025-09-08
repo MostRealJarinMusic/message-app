@@ -35,11 +35,18 @@ export class MessageListComponent {
       componentReference.instance.isMine = message.authorId === this.userService.currentUser()?.id;
     }
 
-    setTimeout(() => this.scrollToBottom(), 0);
+    setTimeout(() => this.scrollToBottom(), 5);
   }
 
   private scrollToBottom() {
     const element = this.messageListRef.nativeElement;
-    if (element) element.scrollTop = element.scrollHeight;
+    if (element) {
+      const target = element.scrollHeight;
+
+      element.scrollTop = target; //element.scrollHeight;
+
+      console.log(element.scrollHeight);
+      console.log(element.scrollTop);
+    }
   }
 }
