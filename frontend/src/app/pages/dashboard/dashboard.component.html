@@ -1,6 +1,5 @@
 @let serversViewActive = navService.isActive('servers');
 @let friendsViewActive = navService.isActive('friends');
-@let directMessagesViewActive = navService.isActive('direct_messages');
 
 <div class="grid h-screen bg-surface-900 grid-cols-[26rem_1fr] grid-rows-1">
   <div class="grid grid-cols-[8rem_1px_1fr] grid-rows-layout relative">
@@ -11,17 +10,16 @@
     <div class="col-start-3 row-start-3 m-2">
       @if (serversViewActive) {
         <app-channel-list class="overflow-y-auto"></app-channel-list>
-      } @else if (directMessagesViewActive) {
+      } @else {
         <app-dms-list class="overflow-hidden"></app-dms-list>
       }
     </div>
 
-    <div
-      class="absolute bottom-0 left-0 right-0 p-3 bg-surface-800 rounded-lg m-4 shadow-lg z-50 flex items-center justify-between">
+    <div class="absolute bottom-0 left-0 right-0 z-50 m-4">
       <app-user-panel />
     </div>
   </div>
-  <div class="grid grid-cols-[1fr_1px_14rem] grid-rows-layout bg-surface-800">
+  <div class="grid grid-cols-[1fr_1px_14rem] grid-rows-layout bg-surface-800 overflow-hidden">
     @if (friendsViewActive) {
       <app-friends-title-bar class="col-span-3" />
       <p-divider layout="horizontal" class="col-span-3" styleClass="!my-0"></p-divider>
