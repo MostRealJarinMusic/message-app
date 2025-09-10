@@ -226,6 +226,7 @@ export enum PresenceStatus {
 export interface PublicUser {
   id: string;
   username: string;
+  bio: string;
   status?: PresenceStatus;
 }
 

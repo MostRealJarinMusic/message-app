@@ -19,8 +19,8 @@ export class UserRepo {
         if (err) return reject(err);
 
         db.get(
-          `INSERT INTO users (id, username, email, hashedPassword) VALUES (?, ?, ?, ?) RETURNING *`,
-          [ulid(), payload.username, payload.email, hashedPassword],
+          `INSERT INTO users (id, username, email, bio, hashedPassword) VALUES (?, ?, ?, ?, ?) RETURNING *`,
+          [ulid(), payload.username, payload.email, "", hashedPassword],
           (err, row: any) => {
             if (err) return reject(err);
 
@@ -28,7 +28,10 @@ export class UserRepo {
               id: row.id, //Returns row ID and not the new ID
               username: row.username,
               email: row.email,
+              bio: row.bio,
             };
+
+            console.log(user);
 
             resolve(user);
           }
@@ -61,6 +64,7 @@ export class UserRepo {
                 id: row.id.toString(),
                 username: row.username,
                 email: row.email,
+                bio: row.bio,
               };
 
               resolve(user);
@@ -75,22 +79,19 @@ export class UserRepo {
     const db = await getDB();
 
     return new Promise((resolve, reject) => {
-      db.get(
-        `SELECT id, username, email FROM users WHERE id = ?`,
-        [id],
-        (err, row: any) => {
-          if (err) return reject(err);
-          if (!row) return resolve(null);
+      db.get(`SELECT * FROM users WHERE id = ?`, [id], (err, row: any) => {
+        if (err) return reject(err);
+        if (!row) return resolve(null);
 
-          const user: PrivateUser = {
-            id: row.id.toString(),
-            username: row.username,
-            email: row.email,
-          };
+        const user: PrivateUser = {
+          id: row.id.toString(),
+          username: row.username,
+          email: row.email,
+          bio: row.bio,
+        };
 
-          resolve(user);
-        }
-      );
+        resolve(user);
+      });
     });
   }
 
@@ -98,21 +99,18 @@ export class UserRepo {
     const db = await getDB();
 
     return new Promise((resolve, reject) => {
-      db.get(
-        `SELECT id, username, email FROM users WHERE id = ?`,
-        [id],
-        (err, row: any) => {
-          if (err) return reject(err);
-          if (!row) return resolve(null);
+      db.get(`SELECT * FROM users WHERE id = ?`, [id], (err, row: any) => {
+        if (err) return reject(err);
+        if (!row) return resolve(null);
 
-          const user: PublicUser = {
-            id: row.id.toString(),
-            username: row.username,
-          };
+        const user: PublicUser = {
+          id: row.id.toString(),
+          username: row.username,
+          bio: row.bio,
+        };
 
-          resolve(user);
-        }
-      );
+        resolve(user);
+      });
     });
   }
 
@@ -121,7 +119,7 @@ export class UserRepo {
 
     return new Promise((resolve, reject) => {
       db.get(
-        `SELECT id, username, email FROM users WHERE username = ?`,
+        `SELECT * FROM users WHERE username = ?`,
         [username],
         (err, row: any) => {
           if (err) return reject(err);
@@ -130,6 +128,7 @@ export class UserRepo {
           const user: PublicUser = {
             id: row.id.toString(),
             username: row.username,
+            bio: row.bio,
           };
 
           resolve(user);
@@ -162,6 +161,7 @@ export class UserRepo {
         const allUsers: PublicUser[] = rows.map((row: any) => ({
           id: row.id,
           username: row.username,
+          bio: row.bio,
         }));
 
         resolve(allUsers);

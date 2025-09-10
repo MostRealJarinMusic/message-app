@@ -22,6 +22,7 @@ export class ServerMemberRepo {
           const allMembers: PublicUser[] = rows.map((row: any) => ({
             id: row.id,
             username: row.username,
+            bio: row.bio,
           }));
 
           resolve(allMembers);

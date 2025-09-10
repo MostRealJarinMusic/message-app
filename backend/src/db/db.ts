@@ -31,6 +31,7 @@ export const getDB = async () => {
       id              TEXT PRIMARY KEY,
       username        TEXT NOT NULL,
       email           TEXT NOT NULL,
+      bio             TEXT,
       hashedPassword  TEXT NOT NULL
     );
   `);

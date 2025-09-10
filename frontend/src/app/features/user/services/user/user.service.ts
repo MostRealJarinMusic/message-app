@@ -24,6 +24,13 @@ export class UserService {
     this.loadUsers();
 
     effect(() => {
+      console.log(this.currentUser());
+      if (this.currentUser()) {
+        console.log(this.currentUser()?.bio);
+      }
+    });
+
+    effect(() => {
       const currentServer = this.navService.activeServerId();
       if (currentServer) {
         this.loadServerUsers(currentServer);
