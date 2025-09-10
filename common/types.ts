@@ -233,6 +233,10 @@ export interface PublicUser {
 export interface PrivateUser extends PublicUser {
   email: string;
 }
+
+export interface UserUpdate {
+  bio: string;
+}
 //#endregion
 
 //#region Friend and Friend request types
