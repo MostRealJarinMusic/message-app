@@ -166,4 +166,19 @@ export class UserRepo {
       });
     });
   }
+
+  static async updateUser(updatedUser: PrivateUser) {
+    const db = await getDB();
+
+    return new Promise<void>((resolve, reject) => {
+      db.run(
+        `UPDATE users SET bio = ? WHERE id = ?`,
+        [updatedUser.bio, updatedUser.id],
+        function (err) {
+          if (err) return reject(err);
+          resolve();
+        }
+      );
+    });
+  }
 }
