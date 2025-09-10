@@ -31,8 +31,6 @@ export class UserRepo {
               bio: row.bio,
             };
 
-            console.log(user);
-
             resolve(user);
           }
         );

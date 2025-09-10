@@ -21,14 +21,8 @@ export class UserService {
   constructor() {
     this.logger.init(LoggerType.SERVICE_USER);
 
+    //Temporary
     this.loadUsers();
-
-    effect(() => {
-      console.log(this.currentUser());
-      if (this.currentUser()) {
-        console.log(this.currentUser()?.bio);
-      }
-    });
 
     effect(() => {
       const currentServer = this.navService.activeServerId();
