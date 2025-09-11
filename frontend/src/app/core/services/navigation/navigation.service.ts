@@ -78,7 +78,7 @@ export class NavigationService {
     if (!path) throw new Error(`Node ${targetId} not found`);
 
     path.filter((n) => n.id !== 'root');
-    // console.log('Path:', path);
+    console.log('Path:', path);
 
     this.root.update((root) => {
       let node = root;
@@ -104,7 +104,12 @@ export class NavigationService {
       );
 
       for (const newChild of children) {
-        if (!existing.has(newChild.id)) existing.set(newChild.id, newChild);
+        const existingChild = existing.get(newChild.id);
+        if (existingChild) {
+          existing.set(newChild.id, { ...existingChild, ...newChild });
+        } else {
+          existing.set(newChild.id, newChild);
+        }
       }
 
       parent.children = Array.from(existing.values());
