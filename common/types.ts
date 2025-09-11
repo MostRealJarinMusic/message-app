@@ -163,6 +163,7 @@ export enum WSEventType {
   SERVER_DELETE = "server:delete",
 
   SERVER_MEMBER_ADD = "server:member:add",
+  SERVER_JOIN = "server:member:join",
 
   PRESENCE = "presence:update",
 
@@ -193,6 +194,7 @@ export type WSEventPayload = {
   [WSEventType.SERVER_UPDATE]: Server;
   [WSEventType.SERVER_DELETE]: Server;
   [WSEventType.SERVER_MEMBER_ADD]: ServerMember;
+  [WSEventType.SERVER_JOIN]: Server;
   [WSEventType.PRESENCE]: PresenceUpdate;
   [WSEventType.FRIEND_REQUEST_SENT]: FriendRequest;
   [WSEventType.FRIEND_REQUEST_RECEIVE]: FriendRequest;
