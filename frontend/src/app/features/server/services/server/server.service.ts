@@ -78,7 +78,7 @@ export class ServerService {
         this.upsertServer(server);
       },
       error: (err) => {
-        console.log('Failed to join server from WebSocket message');
+        console.log('Failed to join server from WebSocket message:', err);
       },
     });
   }
