@@ -108,6 +108,9 @@ export class InviteService {
       memberIds.filter((m) => m !== userId)
     );
 
+    //WebSocket message to notify other synced clients that they have joined
+    wsManager.broadcastToUser(WSEventType.SERVER_JOIN, server, userId);
+
     //Return server
     return server;
   }

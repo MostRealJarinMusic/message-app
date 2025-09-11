@@ -72,6 +72,15 @@ export class ServerService {
         currentServers!.map((s) => (s.id === server.id ? { ...s, ...server } : s)),
       );
     });
+
+    this.wsService.on(WSEventType.SERVER_JOIN).subscribe({
+      next: (server) => {
+        this.upsertServer(server);
+      },
+      error: (err) => {
+        console.log('Failed to join server from WebSocket message');
+      },
+    });
   }
 
   public createServer(serverName: string) {
@@ -112,9 +121,19 @@ export class ServerService {
   }
 
   public joinServer(server: Server) {
-    this.servers.update((current) => [...current, server]);
+    this.upsertServer(server);
+
+    this.navService.navigate(server.id);
+  }
+
+  private upsertServer(server: Server) {
+    this.servers.update((current) => {
+      const exists = current.find((s) => s.id === server.id);
+
+      if (exists) return current.map((s) => (s.id === server.id ? { ...s, ...server } : s));
+      return [...current, server];
+    });
 
     this.navService.addServers([server]);
-    this.navService.navigate(server.id);
   }
 }
