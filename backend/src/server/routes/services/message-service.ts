@@ -37,15 +37,7 @@ export class MessageService {
     await MessageRepo.createMessage(message);
 
     //Target IDs for the channel
-    let targetIds: string[] = [];
-
-    if (channel.type === ChannelType.TEXT && channel.serverId) {
-      //we are on a server - assume that all channels are public
-      targetIds = await ServerMemberRepo.getServerMemberIds(channel.serverId);
-    } else if (channel.type === ChannelType.DM) {
-      //We are on a DM
-      targetIds = await DMChannelRepo.getDMChannelParticipantIds(channel.id);
-    }
+    let targetIds: string[] = await this.getTargetIdsForChannel(channelId);
 
     wsManager.broadcastToGroup(WSEventType.RECEIVE, message, targetIds);
 
@@ -63,18 +55,10 @@ export class MessageService {
     const message = await MessageRepo.getMessage(messageId);
     if (!message) throw new NotFoundError("Message doesn't exist");
 
-    const channel = await ChannelRepo.getChannel(message.channelId);
-
     //Target IDs for the channel
-    let targetIds: string[] = [];
-
-    if (channel.type === ChannelType.TEXT && channel.serverId) {
-      //we are on a server - assume that all channels are public
-      targetIds = await ServerMemberRepo.getServerMemberIds(channel.serverId);
-    } else if (channel.type === ChannelType.DM) {
-      //We are on a DM
-      targetIds = await DMChannelRepo.getDMChannelParticipantIds(channel.id);
-    }
+    let targetIds: string[] = await this.getTargetIdsForChannel(
+      message.channelId
+    );
 
     await MessageRepo.deleteMessage(messageId);
 
@@ -94,20 +78,27 @@ export class MessageService {
     await MessageRepo.editMessage(messageId, messageUpdate.content);
     const newMessage = await MessageRepo.getMessage(messageId);
 
-    const channel = await ChannelRepo.getChannel(message.channelId);
-
     //Target IDs for the channel
-    let targetIds: string[] = [];
-
-    if (channel.type === ChannelType.TEXT && channel.serverId) {
-      //we are on a server - assume that all channels are public
-      targetIds = await ServerMemberRepo.getServerMemberIds(channel.serverId);
-    } else if (channel.type === ChannelType.DM) {
-      //We are on a DM
-      targetIds = await DMChannelRepo.getDMChannelParticipantIds(channel.id);
-    }
+    let targetIds: string[] = await this.getTargetIdsForChannel(
+      message.channelId
+    );
 
     //Broadcast to users
     wsManager.broadcastToGroup(WSEventType.EDITED, newMessage, targetIds);
+  }
+
+  private static async getTargetIdsForChannel(
+    channelId: string
+  ): Promise<string[]> {
+    const channel = await ChannelRepo.getChannel(channelId);
+    if (!channel) throw new NotFoundError("Channel doesn't exist");
+
+    if (channel.type === ChannelType.TEXT && channel.serverId) {
+      return ServerMemberRepo.getServerMemberIds(channel.serverId);
+    } else if (channel.type === ChannelType.DM) {
+      return DMChannelRepo.getDMChannelParticipantIds(channel.id);
+    }
+
+    return [];
   }
 }
