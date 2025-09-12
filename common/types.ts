@@ -178,6 +178,8 @@ export enum WSEventType {
 
   PING = "ping",
   PONG = "pong",
+
+  USER_UPDATE = "user:update", //In the future, we may want to distinguish public updates and private updates
 }
 
 export type WSEventPayload = {
@@ -204,6 +206,7 @@ export type WSEventPayload = {
   [WSEventType.DM_CHANNEL_CREATE]: Channel;
   [WSEventType.PING]: { timestamp: Timestamp };
   [WSEventType.PONG]: { timestamp: Timestamp };
+  [WSEventType.USER_UPDATE]: PublicUser;
 };
 
 //#endregion

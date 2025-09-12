@@ -56,6 +56,27 @@ export class ServerMemberRepo {
     });
   }
 
+  static async getServerMemberIdsByServerIds(
+    serverIds: string[]
+  ): Promise<string[]> {
+    if (serverIds.length === 0) return [];
+
+    const db = await getDB();
+
+    return new Promise<string[]>((resolve, reject) => {
+      const placeholders = serverIds.map(() => "?").join(",");
+      db.all(
+        `SELECT userId FROM server_members WHERE serverId IN (${placeholders})`,
+        serverIds,
+        (err, rows) => {
+          if (err) return reject(err);
+          const allMemberIds = rows.map((row: any) => row.userId);
+          resolve(allMemberIds);
+        }
+      );
+    });
+  }
+
   static async addServerMember(member: ServerMember): Promise<void> {
     const db = await getDB();
 

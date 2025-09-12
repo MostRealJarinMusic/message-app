@@ -45,3 +45,11 @@ export class GoneError extends Error {
     this.name = "GoneError";
   }
 }
+
+export class InternalServerError extends Error {
+  status = 500;
+  constructor(message = "Internal server error") {
+    super(message);
+    this.name = "InternalServerError";
+  }
+}

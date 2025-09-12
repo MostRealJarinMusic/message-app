@@ -26,7 +26,7 @@ export default function userRoutes(wsManager: WebSocketManager): Router {
     "/me/friends",
     authMiddleware,
     asyncHandler(async (req: SignedRequest, res: Response) => {
-      const friendIds = await FriendService.getFriends(req.signature!.id);
+      const friendIds = await FriendService.getFriendIds(req.signature!.id);
       res.json(friendIds);
     })
   );

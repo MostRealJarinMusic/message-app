@@ -1,7 +1,7 @@
 import { FriendRepo } from "../../../db/repos/friend.repo";
 
 export class FriendService {
-  static async getFriends(userId: string) {
+  static async getFriendIds(userId: string) {
     //Check if user exists?
 
     const allFriendIds = await FriendRepo.getFriends(userId);
