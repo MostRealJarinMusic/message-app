@@ -163,7 +163,6 @@ export enum WSEventType {
   SERVER_DELETE = "server:delete",
 
   SERVER_MEMBER_ADD = "server:member:add",
-  SERVER_JOIN = "server:member:join",
 
   PRESENCE = "presence:update",
 
@@ -180,6 +179,7 @@ export enum WSEventType {
   PONG = "pong",
 
   USER_UPDATE = "user:update", //In the future, we may want to distinguish public updates and private updates
+  USER_SERVER_JOIN = "user:server:join",
 }
 
 export type WSEventPayload = {
@@ -196,7 +196,6 @@ export type WSEventPayload = {
   [WSEventType.SERVER_UPDATE]: Server;
   [WSEventType.SERVER_DELETE]: Server;
   [WSEventType.SERVER_MEMBER_ADD]: ServerMember;
-  [WSEventType.SERVER_JOIN]: Server;
   [WSEventType.PRESENCE]: PresenceUpdate;
   [WSEventType.FRIEND_REQUEST_SENT]: FriendRequest;
   [WSEventType.FRIEND_REQUEST_RECEIVE]: FriendRequest;
@@ -207,6 +206,7 @@ export type WSEventPayload = {
   [WSEventType.PING]: { timestamp: Timestamp };
   [WSEventType.PONG]: { timestamp: Timestamp };
   [WSEventType.USER_UPDATE]: PublicUser;
+  [WSEventType.USER_SERVER_JOIN]: Server;
 };
 
 //#endregion

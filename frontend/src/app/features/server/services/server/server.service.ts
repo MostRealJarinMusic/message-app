@@ -73,7 +73,7 @@ export class ServerService {
       );
     });
 
-    this.wsService.on(WSEventType.SERVER_JOIN).subscribe({
+    this.wsService.on(WSEventType.USER_SERVER_JOIN).subscribe({
       next: (server) => {
         this.upsertServer(server);
       },

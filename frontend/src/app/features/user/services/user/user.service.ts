@@ -1,15 +1,17 @@
 import { effect, inject, Injectable, signal } from '@angular/core';
-import { LoggerType, PublicUser, PrivateUser } from '@common/types';
+import { LoggerType, PublicUser, PrivateUser, WSEvent, WSEventType } from '@common/types';
 import { catchError, firstValueFrom, Observable, of, tap } from 'rxjs';
 import { PrivateApiService } from '../../../../core/services/api/private-api.service';
 import { LoggerService } from 'src/app/core/services/logger/logger.service';
 import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
+import { SocketService } from 'src/app/core/services/socket/socket.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UserService {
   private apiService = inject(PrivateApiService);
+  private wsService = inject(SocketService);
   private navService = inject(NavigationService);
   private logger = inject(LoggerService);
 
@@ -20,6 +22,8 @@ export class UserService {
 
   constructor() {
     this.logger.init(LoggerType.SERVICE_USER);
+
+    this.initWebSocket();
 
     //Temporary
     this.loadUsers();
@@ -90,6 +94,28 @@ export class UserService {
       },
       error: (err) => {
         this.logger.error(LoggerType.SERVICE_USER, 'Error loading server users', err);
+      },
+    });
+  }
+
+  private initWebSocket() {
+    this.wsService.on(WSEventType.USER_UPDATE).subscribe({
+      next: (updatedUser) => {
+        //Assuming this isn't an edit for you
+        const existing = this.userCache.get(updatedUser.id);
+
+        this.userCache.set(updatedUser.id, { ...existing, ...updatedUser });
+
+        if (!this.serverUsers() || this.serverUsers() === null) return;
+
+        this.serverUsers.update((serverUsers) => {
+          if (!serverUsers) return serverUsers;
+
+          return serverUsers.map((u) => (u.id === updatedUser.id ? updatedUser : u));
+        });
+      },
+      error: (err) => {
+        console.log('Failed to update user:', err);
       },
     });
   }
