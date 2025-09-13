@@ -1,6 +1,5 @@
 import { Request, Response, Router } from "express";
 import { authMiddleware } from "../middleware/auth-middleware";
-import { WebSocketManager } from "../websocket/websocket-manager";
 import { ChannelService } from "../services/channel.service";
 import { SignedRequest } from "../types/types";
 import { asyncHandler } from "../utils/async-wrapper";
