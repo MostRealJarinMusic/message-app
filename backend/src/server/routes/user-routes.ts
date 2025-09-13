@@ -40,6 +40,19 @@ export default function userRoutes(wsManager: WebSocketManager): Router {
     })
   );
 
+  userRoutes.get(
+    "/me",
+    authMiddleware,
+    asyncHandler(async (req: SignedRequest, res: Response) => {
+      await UserService.updateUserSettings(
+        req.signature!.id,
+        req.body,
+        wsManager
+      );
+      res.status(204).send();
+    })
+  );
+
   //Temporary
   userRoutes.get(
     "/presences",

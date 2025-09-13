@@ -23,6 +23,7 @@ import {
   ServerUpdate,
   PublicUser,
   PrivateUser,
+  UserUpdate,
 } from '@common/types';
 import { AuthTokenService } from '../authtoken/auth-token.service';
 import { Channel } from '@common/types';
@@ -82,6 +83,10 @@ export class PrivateApiService extends BaseApiService {
     return this.authorisedFetch<PublicUser[]>((_) =>
       this.get<PublicUser[]>(`servers/${serverId}/users`),
     );
+  }
+
+  updateUserSettings(userUpdate: UserUpdate): Observable<void> {
+    return this.authorisedFetch((_) => this.patch<void>(`users/me`, userUpdate));
   }
 
   //Temporary route
