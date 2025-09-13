@@ -146,9 +146,9 @@ export interface WSEvent<T extends WSEventType> {
 }
 
 export enum WSEventType {
-  RECEIVE = "message:receive",
-  EDITED = "message:edited",
-  DELETED = "message:deleted",
+  MESSAGE_RECEIVE = "message:receive",
+  MESSAGE_EDIT = "message:edit",
+  MESSAGE_DELETE = "message:delete",
 
   CHANNEL_CREATE = "channel:create",
   CHANNEL_UPDATE = "channel:update",
@@ -183,9 +183,9 @@ export enum WSEventType {
 }
 
 export type WSEventPayload = {
-  [WSEventType.RECEIVE]: Message;
-  [WSEventType.EDITED]: Message;
-  [WSEventType.DELETED]: Message;
+  [WSEventType.MESSAGE_RECEIVE]: Message;
+  [WSEventType.MESSAGE_EDIT]: Message;
+  [WSEventType.MESSAGE_DELETE]: Message;
   [WSEventType.CHANNEL_CREATE]: Channel;
   [WSEventType.CHANNEL_UPDATE]: Channel;
   [WSEventType.CHANNEL_DELETE]: Channel;

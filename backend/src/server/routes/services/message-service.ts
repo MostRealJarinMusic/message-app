@@ -39,7 +39,7 @@ export class MessageService {
     //Target IDs for the channel
     let targetIds: string[] = await this.getTargetIdsForChannel(channelId);
 
-    wsManager.broadcastToGroup(WSEventType.RECEIVE, message, targetIds);
+    wsManager.broadcastToGroup(WSEventType.MESSAGE_RECEIVE, message, targetIds);
 
     return message;
   }
@@ -63,7 +63,7 @@ export class MessageService {
     await MessageRepo.deleteMessage(messageId);
 
     //Broadcast to users
-    wsManager.broadcastToGroup(WSEventType.DELETED, message, targetIds);
+    wsManager.broadcastToGroup(WSEventType.MESSAGE_DELETE, message, targetIds);
   }
 
   static async editMessage(
@@ -84,7 +84,7 @@ export class MessageService {
     );
 
     //Broadcast to users
-    wsManager.broadcastToGroup(WSEventType.EDITED, newMessage, targetIds);
+    wsManager.broadcastToGroup(WSEventType.MESSAGE_EDIT, newMessage, targetIds);
   }
 
   private static async getTargetIdsForChannel(
