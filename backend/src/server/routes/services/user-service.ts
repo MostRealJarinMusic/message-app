@@ -1,7 +1,11 @@
 import { UserRepo } from "../../../db/repos/user.repo";
 import { WebSocketManager } from "../../ws/websocket-manager";
 import { InternalServerError, NotFoundError } from "../../../errors/errors";
-import { PrivateUser, UserUpdate, WSEventType } from "@common/types";
+import {
+  PrivateUser,
+  UserUpdate,
+  WSEventType,
+} from "../../../../../common/types";
 import { RelevanceService } from "./relevance-service";
 
 export class UserService {
