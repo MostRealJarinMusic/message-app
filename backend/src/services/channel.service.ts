@@ -72,11 +72,8 @@ export class ChannelService {
       throw new ForbiddenError("Attempted to edit DM channel");
 
     const proposedChannel = { ...channel, ...channelUpdate };
-    console.log(proposedChannel);
     await this.channelRepo.editChannel(proposedChannel);
     const updatedChannel = await this.channelRepo.getChannel(channelId);
-
-    console.log(updatedChannel);
 
     const memberIds = await this.serverMemberRepo.getServerMemberIds(
       channel.serverId

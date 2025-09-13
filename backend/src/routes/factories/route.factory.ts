@@ -1,12 +1,12 @@
 import { Application } from "express";
-import authRoutes from "../auth-routes";
-import userRoutes from "../user-routes";
-import channelRoutes from "../channel-routes";
-import serverRoutes from "../server-routes";
-import messageRoutes from "../message-routes";
-import categoryRoutes from "../category-routes";
-import friendRequestRoutes from "../friend-request-routes";
-import inviteRoutes from "../invite-routes";
+import authRoutes from "../auth.routes";
+import userRoutes from "../user.routes";
+import channelRoutes from "../channel.routes";
+import serverRoutes from "../server.routes";
+import messageRoutes from "../message.routes";
+import categoryRoutes from "../category.routes";
+import friendRequestRoutes from "../friend-request.routes";
+import inviteRoutes from "../invite.routes";
 import { Services } from "../../types/types";
 
 export function registerRoutes(app: Application, services: Services) {

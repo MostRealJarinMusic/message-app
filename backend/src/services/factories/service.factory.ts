@@ -46,14 +46,6 @@ export function createServices(
     eventBus
   );
 
-  const messageService = new MessageService(
-    repos.message,
-    repos.channel,
-    repos.serverMember,
-    repos.dmChannel,
-    eventBus
-  );
-
   const serverService = new ServerService(
     repos.category,
     repos.serverMember,
@@ -63,7 +55,20 @@ export function createServices(
     presenceManager
   );
 
-  const relevanceService = new RelevanceService(friendService, serverService);
+  const relevanceService = new RelevanceService(
+    friendService,
+    serverService,
+    repos.channel,
+    repos.serverMember,
+    repos.dmChannel
+  );
+
+  const messageService = new MessageService(
+    repos.message,
+    repos.channel,
+    relevanceService,
+    eventBus
+  );
 
   const userService = new UserService(
     repos.user,

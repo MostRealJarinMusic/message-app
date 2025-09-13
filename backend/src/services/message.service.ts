@@ -12,13 +12,13 @@ import { ServerMemberRepo } from "../db/repos/server-member.repo";
 import { BadRequestError, NotFoundError } from "../errors/errors";
 import { ulid } from "ulid";
 import { EventBusPort } from "../types/types";
+import { RelevanceService } from "./relevance.service";
 
 export class MessageService {
   constructor(
     private readonly messageRepo: MessageRepo,
     private readonly channelRepo: ChannelRepo,
-    private readonly serverMemberRepo: ServerMemberRepo,
-    private readonly dmChannelRepo: DMChannelRepo,
+    private readonly relevanceService: RelevanceService,
     private readonly eventBus: EventBusPort
   ) {}
 
@@ -44,7 +44,8 @@ export class MessageService {
     await this.messageRepo.createMessage(message);
 
     //Target IDs for the channel
-    let targetIds: string[] = await this.getTargetIdsForChannel(channelId);
+    let targetIds: string[] =
+      await this.relevanceService.getTargetIdsForChannel(channelId);
 
     this.eventBus.publish(WSEventType.MESSAGE_RECEIVE, message, targetIds);
 
@@ -63,9 +64,8 @@ export class MessageService {
     if (!message) throw new NotFoundError("Message doesn't exist");
 
     //Target IDs for the channel
-    let targetIds: string[] = await this.getTargetIdsForChannel(
-      message.channelId
-    );
+    let targetIds: string[] =
+      await this.relevanceService.getTargetIdsForChannel(message.channelId);
 
     await this.messageRepo.deleteMessage(messageId);
 
@@ -77,30 +77,14 @@ export class MessageService {
     const message = await this.messageRepo.getMessage(messageId);
     if (!message) throw new NotFoundError("Message doesn't exist");
 
-    const proposedMessage = { ...message, ...messageUpdate };
-
     await this.messageRepo.editMessage(messageId, messageUpdate.content);
     const newMessage = await this.messageRepo.getMessage(messageId);
 
     //Target IDs for the channel
-    let targetIds: string[] = await this.getTargetIdsForChannel(
-      message.channelId
-    );
+    let targetIds: string[] =
+      await this.relevanceService.getTargetIdsForChannel(message.channelId);
 
     //Broadcast to users
     this.eventBus.publish(WSEventType.MESSAGE_EDIT, newMessage, targetIds);
-  }
-
-  private async getTargetIdsForChannel(channelId: string): Promise<string[]> {
-    const channel = await this.channelRepo.getChannel(channelId);
-    if (!channel) throw new NotFoundError("Channel doesn't exist");
-
-    if (channel.type === ChannelType.TEXT && channel.serverId) {
-      return this.serverMemberRepo.getServerMemberIds(channel.serverId);
-    } else if (channel.type === ChannelType.DM) {
-      return this.dmChannelRepo.getDMChannelParticipantIds(channel.id);
-    }
-
-    return [];
   }
 }

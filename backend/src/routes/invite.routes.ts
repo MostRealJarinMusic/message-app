@@ -1,5 +1,5 @@
 import { Request, Response, Router } from "express";
-import { authMiddleware } from "..//middleware/auth-middleware";
+import { authMiddleware } from "../middleware/auth-middleware";
 import { InviteService } from "../services/invite.service";
 import { SignedRequest } from "../types/types";
 import { asyncHandler } from "../utils/async-wrapper";
