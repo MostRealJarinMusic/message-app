@@ -1,12 +1,14 @@
 import { ChannelCategory } from "@common/types";
-import { getDB } from "../db";
+import { DB } from "../db";
 
 export class ChannelCategoryRepo {
-  static async getCategories(serverId: string) {
-    const db = await getDB();
+  constructor(private db: DB) {}
+
+  getCategories(serverId: string) {
+    const database = this.db.getInstance();
 
     return new Promise<ChannelCategory[]>((resolve, reject) => {
-      db.all(
+      database.all(
         `SELECT * FROM channel_categories WHERE serverId = ?`,
         [serverId],
         (err, rows) => {
@@ -27,11 +29,11 @@ export class ChannelCategoryRepo {
     });
   }
 
-  static async categoryExists(categoryId: string) {
-    const db = await getDB();
+  categoryExists(categoryId: string) {
+    const database = this.db.getInstance();
 
     return new Promise((resolve, reject) => {
-      db.get(
+      database.get(
         `SELECT 1 FROM channel_categories WHERE id = ? LIMIT 1`,
         [categoryId],
         (err, row) => {
@@ -42,11 +44,11 @@ export class ChannelCategoryRepo {
     });
   }
 
-  static async createCategory(category: ChannelCategory): Promise<void> {
-    const db = await getDB();
+  createCategory(category: ChannelCategory): Promise<void> {
+    const database = this.db.getInstance();
 
     return new Promise((resolve, reject) => {
-      db.run(
+      database.run(
         `INSERT INTO channel_categories (id, serverId, name) VALUES (?, ?, ?)`,
         [category.id, category.serverId, category.name],
         function (err) {
@@ -57,11 +59,11 @@ export class ChannelCategoryRepo {
     });
   }
 
-  static async deleteCategory(categoryId: string): Promise<void> {
-    const db = await getDB();
+  deleteCategory(categoryId: string): Promise<void> {
+    const database = this.db.getInstance();
 
     return new Promise((resolve, reject) => {
-      db.run(
+      database.run(
         `DELETE FROM channel_categories WHERE id = ?`,
         [categoryId],
         function (err) {
@@ -72,11 +74,11 @@ export class ChannelCategoryRepo {
     });
   }
 
-  static async getCategory(categoryId: string): Promise<ChannelCategory> {
-    const db = await getDB();
+  getCategory(categoryId: string): Promise<ChannelCategory> {
+    const database = this.db.getInstance();
 
     return new Promise((resolve, reject) => {
-      db.get(
+      database.get(
         `SELECT * FROM channel_categories WHERE id = ?`,
         [categoryId],
         (err, row: any) => {
@@ -96,11 +98,11 @@ export class ChannelCategoryRepo {
     });
   }
 
-  static async editCategory(newCategory: ChannelCategory) {
-    const db = await getDB();
+  editCategory(newCategory: ChannelCategory) {
+    const database = this.db.getInstance();
 
     return new Promise<void>((resolve, reject) => {
-      db.run(
+      database.run(
         `UPDATE channel_categories SET name = ? WHERE id = ?`,
         [newCategory.name, newCategory.id],
         function (err) {

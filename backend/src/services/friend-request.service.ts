@@ -6,29 +6,36 @@ import {
   FriendRequestStatus,
   FriendRequestUpdate,
   WSEventType,
-} from "../../../../../common/types";
-import { FriendRequestRepo } from "../../../db/repos/friend-request.repo";
-import { FriendRepo } from "../../../db/repos/friend.repo";
-import { WebSocketManager } from "../../ws/websocket-manager";
+} from "../../../common/types";
 import { ulid } from "ulid";
-import { UserRepo } from "../../../db/repos/user.repo";
-import { ChannelRepo } from "../../../db/repos/channel.repo";
-import { DMChannelRepo } from "../../../db/repos/dm-channel.repo";
 import {
   BadRequestError,
   ConflictError,
   NotFoundError,
-} from "../../../errors/errors";
+} from "../errors/errors";
+import { EventBusPort } from "../types/types";
+import { FriendRequestRepo } from "../db/repos/friend-request.repo";
+import { FriendRepo } from "../db/repos/friend.repo";
+import { UserRepo } from "../db/repos/user.repo";
+import { ChannelRepo } from "../db/repos/channel.repo";
+import { DMChannelRepo } from "../db/repos/dm-channel.repo";
 
 export class FriendRequestService {
-  static async sendFriendRequest(
-    senderId: string,
-    data: FriendRequestCreate,
-    wsManager: WebSocketManager
-  ) {
+  constructor(
+    private readonly friendRequestRepo: FriendRequestRepo,
+    private readonly friendRepo: FriendRepo,
+    private readonly userRepo: UserRepo,
+    private readonly channelRepo: ChannelRepo,
+    private readonly dmChannelRepo: DMChannelRepo,
+    private readonly eventBus: EventBusPort
+  ) {}
+
+  async sendFriendRequest(senderId: string, data: FriendRequestCreate) {
     if (!data) throw new BadRequestError("Friend request data required");
 
-    const targetUser = await UserRepo.getUserByUsername(data.targetUsername);
+    const targetUser = await this.userRepo.getUserByUsername(
+      data.targetUsername
+    );
 
     if (!targetUser)
       throw new NotFoundError(
@@ -38,7 +45,7 @@ export class FriendRequestService {
     if (targetUser.id === senderId)
       throw new BadRequestError("Cannot friend yourself");
 
-    const existingRequest = await FriendRequestRepo.requestExistsByUserIds(
+    const existingRequest = await this.friendRequestRepo.requestExistsByUserIds(
       senderId,
       targetUser.id
     );
@@ -54,27 +61,23 @@ export class FriendRequestService {
       createdAt: new Date().toISOString(),
     };
 
-    await FriendRequestRepo.createRequest(friendRequest);
+    await this.friendRequestRepo.createRequest(friendRequest);
 
     // //Notify sender
-    wsManager.broadcastToUser(
-      WSEventType.FRIEND_REQUEST_SENT,
-      friendRequest,
-      friendRequest.senderId
-    );
+    this.eventBus.publish(WSEventType.FRIEND_REQUEST_SENT, friendRequest, [
+      friendRequest.senderId,
+    ]);
 
     //Notify requested user
-    wsManager.broadcastToUser(
-      WSEventType.FRIEND_REQUEST_RECEIVE,
-      friendRequest,
-      friendRequest.receiverId
-    );
+    this.eventBus.publish(WSEventType.FRIEND_REQUEST_RECEIVE, friendRequest, [
+      friendRequest.receiverId,
+    ]);
 
     return friendRequest;
   }
 
-  static async getIncomingFriendRequests(userId: string) {
-    const allRequests = await FriendRequestRepo.getFriendRequestsForUser(
+  async getIncomingFriendRequests(userId: string) {
+    const allRequests = await this.friendRequestRepo.getFriendRequestsForUser(
       userId
     );
     return allRequests.filter(
@@ -82,8 +85,8 @@ export class FriendRequestService {
     );
   }
 
-  static async getOutgoingFriendRequests(userId: string) {
-    const allRequests = await FriendRequestRepo.getFriendRequestsForUser(
+  async getOutgoingFriendRequests(userId: string) {
+    const allRequests = await this.friendRequestRepo.getFriendRequestsForUser(
       userId
     );
     return allRequests.filter(
@@ -91,13 +94,9 @@ export class FriendRequestService {
     );
   }
 
-  static async updateFriendRequest(
-    receiverId: string,
-    update: FriendRequestUpdate,
-    wsManager: WebSocketManager
-  ) {
+  async updateFriendRequest(receiverId: string, update: FriendRequestUpdate) {
     //Accepting or rejecting friend requests
-    const friendRequest = await FriendRequestRepo.getFriendRequestById(
+    const friendRequest = await this.friendRequestRepo.getFriendRequestById(
       update.id
     );
 
@@ -107,11 +106,13 @@ export class FriendRequestService {
       throw new BadRequestError("Cannot friend yourself");
 
     //Mark friend request with action
-    await FriendRequestRepo.updateFriendRequestStatus(update);
-    const updated = await FriendRequestRepo.getFriendRequestById(update.id);
+    await this.friendRequestRepo.updateFriendRequestStatus(update);
+    const updated = await this.friendRequestRepo.getFriendRequestById(
+      update.id
+    );
 
     //Sender and receiver notification that request is updated - frontend will deal with UI update
-    wsManager.broadcastToGroup(WSEventType.FRIEND_REQUEST_UPDATE, updated, [
+    this.eventBus.publish(WSEventType.FRIEND_REQUEST_UPDATE, updated, [
       friendRequest.senderId,
       receiverId,
     ]);
@@ -119,20 +120,18 @@ export class FriendRequestService {
     switch (updated.status) {
       case FriendRequestStatus.ACCEPTED:
         //Add friend
-        await FriendRepo.addFriend(friendRequest.senderId, receiverId);
+        await this.friendRepo.addFriend(friendRequest.senderId, receiverId);
 
         //Sender notification for new friend
-        wsManager.broadcastToUser(
-          WSEventType.FRIEND_ADD,
-          { id: receiverId },
-          friendRequest.senderId
-        );
+        this.eventBus.publish(WSEventType.FRIEND_ADD, { id: receiverId }, [
+          friendRequest.senderId,
+        ]);
 
         //Receiver notification for new friend
-        wsManager.broadcastToUser(
+        this.eventBus.publish(
           WSEventType.FRIEND_ADD,
           { id: friendRequest.senderId },
-          receiverId
+          [receiverId]
         );
 
         //Create the channel and direct message entry
@@ -143,11 +142,11 @@ export class FriendRequestService {
           participants: [friendRequest.senderId, receiverId],
         };
 
-        await ChannelRepo.createChannel(channel);
-        await DMChannelRepo.createDMChannel(channel, friendRequest);
+        await this.channelRepo.createChannel(channel);
+        await this.dmChannelRepo.createDMChannel(channel, friendRequest);
 
         //Notification for channel creation
-        wsManager.broadcastToGroup(WSEventType.DM_CHANNEL_CREATE, channel, [
+        this.eventBus.publish(WSEventType.DM_CHANNEL_CREATE, channel, [
           friendRequest.senderId,
           receiverId,
         ]);
@@ -161,12 +160,8 @@ export class FriendRequestService {
     }
   }
 
-  static async deleteFriendRequest(
-    userId: string,
-    requestId: string,
-    wsManager: WebSocketManager
-  ) {
-    const friendRequest = await FriendRequestRepo.getFriendRequestById(
+  async deleteFriendRequest(userId: string, requestId: string) {
+    const friendRequest = await this.friendRequestRepo.getFriendRequestById(
       requestId
     );
 
@@ -177,12 +172,11 @@ export class FriendRequestService {
         "Incorrect permissions to delete friend request"
       );
 
-    await FriendRequestRepo.deleteFriendRequest(requestId);
+    await this.friendRequestRepo.deleteFriendRequest(requestId);
 
-    wsManager.broadcastToGroup(
-      WSEventType.FRIEND_REQUEST_DELETE,
-      friendRequest,
-      [friendRequest.senderId, friendRequest.receiverId]
-    );
+    this.eventBus.publish(WSEventType.FRIEND_REQUEST_DELETE, friendRequest, [
+      friendRequest.senderId,
+      friendRequest.receiverId,
+    ]);
   }
 }

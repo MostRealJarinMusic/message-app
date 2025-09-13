@@ -1,12 +1,11 @@
-import { Request, Response, Router } from "express";
-import { authMiddleware } from "../../middleware/auth-middleware";
-import { WebSocketManager } from "../ws/websocket-manager";
-import { FriendRequestService } from "./services/friend-request-service";
-import { SignedRequest } from "../../types/types";
-import { asyncHandler } from "../../utils/async-wrapper";
+import { Response, Router } from "express";
+import { authMiddleware } from "../middleware/auth-middleware";
+import { FriendRequestService } from "../services/friend-request.service";
+import { SignedRequest } from "../types/types";
+import { asyncHandler } from "../utils/async-wrapper";
 
 export default function friendRequestRoutes(
-  wsManager: WebSocketManager
+  friendRequestService: FriendRequestService
 ): Router {
   const friendRequestRoutes = Router();
 
@@ -14,10 +13,9 @@ export default function friendRequestRoutes(
     "",
     authMiddleware,
     asyncHandler(async (req: SignedRequest, res: Response) => {
-      const result = await FriendRequestService.sendFriendRequest(
+      const result = await friendRequestService.sendFriendRequest(
         req.signature!.id,
-        req.body,
-        wsManager
+        req.body
       );
       res.status(201).json(result);
     })
@@ -27,7 +25,7 @@ export default function friendRequestRoutes(
     "/incoming",
     authMiddleware,
     asyncHandler(async (req, res) => {
-      const result = await FriendRequestService.getIncomingFriendRequests(
+      const result = await friendRequestService.getIncomingFriendRequests(
         req.signature!.id
       );
       res.json(result);
@@ -38,7 +36,7 @@ export default function friendRequestRoutes(
     "/outgoing",
     authMiddleware,
     asyncHandler(async (req, res) => {
-      const result = await FriendRequestService.getOutgoingFriendRequests(
+      const result = await friendRequestService.getOutgoingFriendRequests(
         req.signature!.id
       );
       res.json(result);
@@ -49,10 +47,9 @@ export default function friendRequestRoutes(
     "/:requestId",
     authMiddleware,
     asyncHandler(async (req: SignedRequest, res: Response) => {
-      await FriendRequestService.updateFriendRequest(
+      await friendRequestService.updateFriendRequest(
         req.signature!.id,
-        req.body,
-        wsManager
+        req.body
       );
       res.status(204).send();
     })
@@ -62,10 +59,9 @@ export default function friendRequestRoutes(
     "/:requestId",
     authMiddleware,
     asyncHandler(async (req: SignedRequest, res: Response) => {
-      await FriendRequestService.deleteFriendRequest(
+      await friendRequestService.deleteFriendRequest(
         req.signature!.id,
-        req.params.requestId,
-        wsManager
+        req.params.requestId
       );
       res.status(204).send();
     })

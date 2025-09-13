@@ -1,13 +1,14 @@
-import { ulid } from "ulid";
-import { getDB } from "../db";
+import { DB } from "../db";
 import { Message } from "@common/types";
 
 export class MessageRepo {
-  static async createMessage(message: Message): Promise<void> {
-    const db = await getDB();
+  constructor(private db: DB) {}
+
+  createMessage(message: Message): Promise<void> {
+    const database = this.db.getInstance();
 
     return new Promise((resolve, reject) => {
-      db.run(
+      database.run(
         `INSERT INTO messages (id, authorId, channelId, content, createdAt) VALUES (?, ?, ?, ?, ?)`,
         [
           message.id,
@@ -24,11 +25,11 @@ export class MessageRepo {
     });
   }
 
-  static async messageExists(messageId: string): Promise<boolean> {
-    const db = await getDB();
+  messageExists(messageId: string): Promise<boolean> {
+    const database = this.db.getInstance();
 
     return new Promise((resolve, reject) => {
-      db.get(
+      database.get(
         `SELECT 1 FROM messages WHERE id = ? LIMIT 1`,
         [messageId],
         (err, row) => {
@@ -39,11 +40,11 @@ export class MessageRepo {
     });
   }
 
-  static async getMessage(messageId: string): Promise<Message> {
-    const db = await getDB();
+  getMessage(messageId: string): Promise<Message> {
+    const database = this.db.getInstance();
 
     return new Promise((resolve, reject) => {
-      db.get(
+      database.get(
         `SELECT * FROM messages WHERE id = ?`,
         [messageId],
         (err, row: any) => {
@@ -65,11 +66,11 @@ export class MessageRepo {
     });
   }
 
-  static async getMessagesByChannel(channelId: string) {
-    const db = await getDB();
+  getMessagesByChannel(channelId: string) {
+    const database = this.db.getInstance();
 
     return new Promise<Message[]>((resolve, reject) => {
-      db.all(
+      database.all(
         `SELECT * FROM messages WHERE channelId = ? ORDER BY createdAt ASC`,
         [channelId],
         (err, rows) => {
@@ -92,22 +93,26 @@ export class MessageRepo {
     });
   }
 
-  static async deleteMessage(messageId: string) {
-    const db = await getDB();
+  deleteMessage(messageId: string) {
+    const database = this.db.getInstance();
 
     return new Promise<void>((resolve, reject) => {
-      db.run(`DELETE FROM messages WHERE id = ?`, [messageId], function (err) {
-        if (err) return reject(err);
-        resolve();
-      });
+      database.run(
+        `DELETE FROM messages WHERE id = ?`,
+        [messageId],
+        function (err) {
+          if (err) return reject(err);
+          resolve();
+        }
+      );
     });
   }
 
-  static async editMessage(messageId: string, newContent: string) {
-    const db = await getDB();
+  editMessage(messageId: string, newContent: string) {
+    const database = this.db.getInstance();
 
     return new Promise<void>((resolve, reject) => {
-      db.run(
+      database.run(
         `UPDATE messages SET content = ?  WHERE id = ?`,
         [newContent, messageId],
         function (err) {

@@ -1,7 +1,7 @@
 import http from "http";
 import jwt from "jsonwebtoken";
 import WebSocket from "ws";
-import { config } from "../../config";
+import { config } from "../config";
 import {
   PresenceStatus,
   PresenceUpdate,
@@ -9,7 +9,8 @@ import {
   WSEvent,
   WSEventPayload,
   WSEventType,
-} from "../../../../common/types";
+} from "../../../common/types";
+import { EventBusPort } from "../types/types";
 
 const HEARTBEAT_INTERVAL = 60000;
 const TIMEOUT_LIMIT = 120000;
@@ -20,13 +21,53 @@ export class WebSocketManager {
   private userSockets: Map<string, Set<WebSocket>>;
   private presenceStore: Map<string, string>;
 
-  constructor(server: http.Server) {
+  constructor(server: http.Server, private readonly eventBus: EventBusPort) {
     this.userSockets = new Map<string, Set<WebSocket>>();
     this.presenceStore = new Map<string, string>();
 
     this.wss = new WebSocket.Server({ server });
     this.wss.on("connection", this.handleConnection.bind(this));
     setInterval(this.pingClients.bind(this), HEARTBEAT_INTERVAL);
+
+    this.setupEventBusSubscriptions();
+  }
+
+  private setupEventBusSubscriptions() {
+    const broadcastEvents: WSEventType[] = [
+      WSEventType.MESSAGE_RECEIVE,
+      WSEventType.MESSAGE_EDIT,
+      WSEventType.MESSAGE_DELETE,
+      WSEventType.CHANNEL_CREATE,
+      WSEventType.CHANNEL_UPDATE,
+      WSEventType.CHANNEL_DELETE,
+      WSEventType.CATEGORY_CREATE,
+      WSEventType.CATEGORY_UPDATE,
+      WSEventType.CATEGORY_DELETE,
+      WSEventType.SERVER_CREATE,
+      WSEventType.SERVER_UPDATE,
+      WSEventType.SERVER_DELETE,
+      WSEventType.SERVER_MEMBER_ADD,
+      WSEventType.PRESENCE,
+      WSEventType.FRIEND_REQUEST_SENT,
+      WSEventType.FRIEND_REQUEST_RECEIVE,
+      WSEventType.FRIEND_REQUEST_UPDATE,
+      WSEventType.FRIEND_REQUEST_DELETE,
+      WSEventType.FRIEND_ADD,
+      WSEventType.DM_CHANNEL_CREATE,
+      WSEventType.USER_UPDATE,
+      WSEventType.USER_SERVER_JOIN,
+    ];
+
+    broadcastEvents.forEach((broadcastEvent) =>
+      this.eventBus.subscribe(broadcastEvent, (payload, targetIds) => {
+        if (targetIds) {
+          this.broadcastToGroup(broadcastEvent, payload, targetIds);
+          return;
+        }
+
+        this.broadcastToAll(broadcastEvent, payload);
+      })
+    );
   }
 
   private handleConnection(ws: WebSocket, req: http.IncomingMessage) {
@@ -125,15 +166,6 @@ export class WebSocketManager {
   //#endregion
 
   //#region Broadcasting and single DMs
-  public broadcastToUser<T extends WSEventType>(
-    event: T,
-    payload: WSEventPayload[T],
-    targetId: string
-  ) {
-    const sockets = this.userSockets.get(targetId);
-    if (sockets) this.broadcast(event, payload, Array.from(sockets));
-  }
-
   public broadcastToAll<T extends WSEventType>(
     event: T,
     payload: WSEventPayload[T]

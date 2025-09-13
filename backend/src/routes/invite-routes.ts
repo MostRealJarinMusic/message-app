@@ -1,18 +1,17 @@
 import { Request, Response, Router } from "express";
-import { WebSocketManager } from "../ws/websocket-manager";
-import { authMiddleware } from "../..//middleware/auth-middleware";
-import { InviteService } from "./services/invite-service";
-import { SignedRequest } from "../../types/types";
-import { asyncHandler } from "../../utils/async-wrapper";
+import { authMiddleware } from "..//middleware/auth-middleware";
+import { InviteService } from "../services/invite.service";
+import { SignedRequest } from "../types/types";
+import { asyncHandler } from "../utils/async-wrapper";
 
-export default function inviteRoutes(wsManager: WebSocketManager): Router {
+export default function inviteRoutes(inviteService: InviteService): Router {
   const inviteRoutes = Router();
 
   inviteRoutes.post(
     "",
     authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
-      const invite = await InviteService.createInvite(req.body);
+      const invite = await inviteService.createInvite(req.body);
       res.status(201).json(invite);
     })
   );
@@ -21,7 +20,7 @@ export default function inviteRoutes(wsManager: WebSocketManager): Router {
     "/:link",
     authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
-      const invite = await InviteService.previewInvite(req.params.link);
+      const invite = await inviteService.previewInvite(req.params.link);
       res.json(invite);
     })
   );
@@ -30,10 +29,9 @@ export default function inviteRoutes(wsManager: WebSocketManager): Router {
     "/:link/accept",
     authMiddleware,
     asyncHandler(async (req: SignedRequest, res: Response) => {
-      const server = await InviteService.acceptInvite(
+      const server = await inviteService.acceptInvite(
         req.params.link,
-        req.signature!.id,
-        wsManager
+        req.signature!.id
       );
       res.json(server);
     })
@@ -42,7 +40,7 @@ export default function inviteRoutes(wsManager: WebSocketManager): Router {
   inviteRoutes.delete(
     "/:link",
     asyncHandler(async (req: Request, res: Response) => {
-      await InviteService.revokeInvite(req.params.link);
+      await inviteService.revokeInvite(req.params.link);
       res.status(204).send();
     })
   );

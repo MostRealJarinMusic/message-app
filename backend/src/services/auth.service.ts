@@ -1,16 +1,18 @@
-import { UserRepo } from "../../../db/repos/user.repo";
 import jwt from "jsonwebtoken";
-import { config } from "../../../config";
+import { config } from "../config";
 import {
   AuthPayload,
   LoginCredentials,
   RegisterPayload,
-} from "../../../../../common/types";
-import { BadRequestError, UnauthorizedError } from "../../../errors/errors";
+} from "../../../common/types";
+import { BadRequestError, UnauthorizedError } from "../errors/errors";
+import { UserRepo } from "../db/repos/user.repo";
 
 export class AuthService {
-  static async login(credentials: LoginCredentials): Promise<AuthPayload> {
-    const user = await UserRepo.loginUser(credentials);
+  constructor(private readonly userRepo: UserRepo) {}
+
+  async login(credentials: LoginCredentials): Promise<AuthPayload> {
+    const user = await this.userRepo.loginUser(credentials);
     if (!user) throw new UnauthorizedError("Invalid credentials");
 
     const token = jwt.sign(
@@ -21,8 +23,8 @@ export class AuthService {
     return { token, user };
   }
 
-  static async register(credentials: RegisterPayload): Promise<AuthPayload> {
-    const user = await UserRepo.registerUser(credentials);
+  async register(credentials: RegisterPayload): Promise<AuthPayload> {
+    const user = await this.userRepo.registerUser(credentials);
     if (!user) throw new BadRequestError("Registration failed");
 
     const token = jwt.sign(

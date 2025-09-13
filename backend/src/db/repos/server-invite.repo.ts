@@ -1,12 +1,14 @@
 import { ServerInvite } from "@common/types";
-import { getDB } from "../db";
+import { DB } from "../db";
 
 export class ServerInviteRepo {
-  static async getServerInvites(serverId: string) {
-    const db = await getDB();
+  constructor(private db: DB) {}
+
+  getServerInvites(serverId: string) {
+    const database = this.db.getInstance();
 
     return new Promise<ServerInvite[]>((resolve, reject) => {
-      db.all(
+      database.all(
         `SELECT * FROM server_invites WHERE serverId = ?`,
         [serverId],
         (err, rows) => {
@@ -29,11 +31,11 @@ export class ServerInviteRepo {
     });
   }
 
-  static async createServerInvite(invite: ServerInvite): Promise<void> {
-    const db = await getDB();
+  createServerInvite(invite: ServerInvite): Promise<void> {
+    const database = this.db.getInstance();
 
     return new Promise((resolve, reject) => {
-      db.run(
+      database.run(
         `INSERT INTO server_invites (id, serverId, link, createdAt, expiresOn) VALUES (?, ?, ?, ?, ?)`,
         [
           invite.id,
@@ -50,11 +52,11 @@ export class ServerInviteRepo {
     });
   }
 
-  static async getServerInviteById(inviteId: string): Promise<ServerInvite> {
-    const db = await getDB();
+  getServerInviteById(inviteId: string): Promise<ServerInvite> {
+    const database = this.db.getInstance();
 
     return new Promise((resolve, reject) => {
-      db.get(
+      database.get(
         `SELECT * FROM server_invites WHERE id = ?`,
         [inviteId],
         (err, row: any) => {
@@ -75,13 +77,11 @@ export class ServerInviteRepo {
     });
   }
 
-  static async getServerInviteByLink(
-    inviteLink: string
-  ): Promise<ServerInvite> {
-    const db = await getDB();
+  getServerInviteByLink(inviteLink: string): Promise<ServerInvite> {
+    const database = this.db.getInstance();
 
     return new Promise((resolve, reject) => {
-      db.get(
+      database.get(
         `SELECT * FROM server_invites WHERE link = ?`,
         [inviteLink],
         (err, row: any) => {
@@ -102,11 +102,11 @@ export class ServerInviteRepo {
     });
   }
 
-  static async deleteServerInvite(inviteId: string): Promise<void> {
-    const db = await getDB();
+  deleteServerInvite(inviteId: string): Promise<void> {
+    const database = this.db.getInstance();
 
     return new Promise<void>((resolve, reject) => {
-      db.run(
+      database.run(
         `DELETE FROM server_invites WHERE id = ?`,
         [inviteId],
         function (err) {

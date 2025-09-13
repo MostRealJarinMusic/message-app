@@ -162,7 +162,7 @@ export enum WSEventType {
   SERVER_UPDATE = "server:update",
   SERVER_DELETE = "server:delete",
 
-  SERVER_MEMBER_ADD = "server:member:add",
+  SERVER_MEMBER_ADD = "server:member:add", //Notifying other users
 
   PRESENCE = "presence:update",
 
@@ -179,7 +179,10 @@ export enum WSEventType {
   PONG = "pong",
 
   USER_UPDATE = "user:update", //In the future, we may want to distinguish public updates and private updates
-  USER_SERVER_JOIN = "user:server:join",
+  USER_SERVER_JOIN = "user:server:join", //For the user themselves
+
+  TYPING_START = "user:typing:start",
+  TYPING_STOP = "user:typing:stop",
 }
 
 export type WSEventPayload = {
@@ -207,6 +210,8 @@ export type WSEventPayload = {
   [WSEventType.PONG]: { timestamp: Timestamp };
   [WSEventType.USER_UPDATE]: PublicUser;
   [WSEventType.USER_SERVER_JOIN]: Server;
+  [WSEventType.TYPING_START]: TypingIndicator;
+  [WSEventType.TYPING_STOP]: TypingIndicator;
 };
 
 //#endregion
@@ -336,6 +341,14 @@ export interface EmbedData {
     image?: string;
     [key: string]: any;
   };
+}
+
+//#endregion
+
+//#region Typing indicator types
+export interface TypingIndicator {
+  userId: string;
+  channelId: string;
 }
 
 //#endregion

@@ -4,23 +4,25 @@ import {
   ServerInvitePreview,
   ServerMember,
   WSEventType,
-} from "../../../../../common/types";
+} from "../../../common/types";
 import { ulid } from "ulid";
 import { v4 as uuid } from "uuid";
-import { ServerInviteRepo } from "../../../db/repos/server-invite.repo";
-import { ServerMemberRepo } from "../../../db/repos/server-member.repo";
-import { WebSocketManager } from "../../ws/websocket-manager";
-import { ServerRepo } from "../../../db/repos/server.repo";
-import {
-  BadRequestError,
-  ConflictError,
-  GoneError,
-  NotFoundError,
-} from "../../../errors/errors";
+import { BadRequestError, GoneError, NotFoundError } from "../errors/errors";
+import { EventBusPort } from "../types/types";
+import { ServerInviteRepo } from "../db/repos/server-invite.repo";
+import { ServerMemberRepo } from "../db/repos/server-member.repo";
+import { ServerRepo } from "../db/repos/server.repo";
 
 export class InviteService {
+  constructor(
+    private readonly serverInviteRepo: ServerInviteRepo,
+    private readonly serverMemberRepo: ServerMemberRepo,
+    private readonly serverRepo: ServerRepo,
+    private readonly eventBus: EventBusPort
+  ) {}
+
   //Create invite
-  static async createInvite(inviteCreate: ServerInviteCreate) {
+  async createInvite(inviteCreate: ServerInviteCreate) {
     if (!inviteCreate) throw new BadRequestError("Invite data required");
 
     //Check permissions
@@ -40,22 +42,22 @@ export class InviteService {
       expiresOn: expiresOn.toISOString(),
     };
 
-    await ServerInviteRepo.createServerInvite(invite);
+    await this.serverInviteRepo.createServerInvite(invite);
 
     return invite;
   }
 
   //Get invite (preview)
-  static async previewInvite(link: string) {
-    const invite = await ServerInviteRepo.getServerInviteByLink(link);
+  async previewInvite(link: string) {
+    const invite = await this.serverInviteRepo.getServerInviteByLink(link);
 
     //Server ID check is temporary
     if (!invite || !invite.serverId)
       throw new NotFoundError("Invite doesnt exist");
 
-    const server = await ServerRepo.getServer(invite.serverId);
+    const server = await this.serverRepo.getServer(invite.serverId);
     const totalMembers = (
-      await ServerMemberRepo.getServerMemberIds(invite.serverId)
+      await this.serverMemberRepo.getServerMemberIds(invite.serverId)
     ).length;
 
     const invitePreview: ServerInvitePreview = {
@@ -67,12 +69,8 @@ export class InviteService {
   }
 
   //Accept invite
-  static async acceptInvite(
-    link: string,
-    userId: string,
-    wsManager: WebSocketManager
-  ) {
-    const invite = await ServerInviteRepo.getServerInviteByLink(link);
+  async acceptInvite(link: string, userId: string) {
+    const invite = await this.serverInviteRepo.getServerInviteByLink(link);
 
     if (!invite || !invite.serverId)
       throw new NotFoundError("Invite doesn't exist");
@@ -83,7 +81,7 @@ export class InviteService {
     if (now > expiresOn) throw new GoneError("Invite has expired");
 
     //Check if already part of server
-    const existingMember = await ServerMemberRepo.getServerMember(
+    const existingMember = await this.serverMemberRepo.getServerMember(
       invite.serverId,
       userId
     );
@@ -92,44 +90,44 @@ export class InviteService {
       throw new BadRequestError("User is already a member of server");
 
     //Accept
-    const server = await ServerRepo.getServer(invite.serverId);
+    const server = await this.serverRepo.getServer(invite.serverId);
     //Add server member
     const member: ServerMember = {
       userId: userId,
       serverId: server.id,
     };
-    await ServerMemberRepo.addServerMember(member);
+    await this.serverMemberRepo.addServerMember(member);
 
     //WebSocket message to notify other server members
-    const memberIds = await ServerMemberRepo.getServerMemberIds(server.id);
-    wsManager.broadcastToGroup(
+    const memberIds = await this.serverMemberRepo.getServerMemberIds(server.id);
+    this.eventBus.publish(
       WSEventType.SERVER_MEMBER_ADD,
       member,
       memberIds.filter((m) => m !== userId)
     );
 
     //WebSocket message to notify other synced clients that they have joined
-    wsManager.broadcastToUser(WSEventType.USER_SERVER_JOIN, server, userId);
+    this.eventBus.publish(WSEventType.USER_SERVER_JOIN, server, [userId]);
 
     //Return server
     return server;
   }
 
   //Revoke invite
-  static async revokeInvite(link: string) {
-    const invite = await ServerInviteRepo.getServerInviteByLink(link);
+  async revokeInvite(link: string) {
+    const invite = await this.serverInviteRepo.getServerInviteByLink(link);
 
     if (!invite || !invite.serverId)
       throw new NotFoundError("Invite doesn't exist");
 
     //Check permissions here
 
-    await ServerInviteRepo.deleteServerInvite(invite.id);
+    await this.serverInviteRepo.deleteServerInvite(invite.id);
   }
 
   //Get server invites
-  static async getServerInvites(serverId: string) {
-    const invites = await ServerInviteRepo.getServerInvites(serverId);
+  async getServerInvites(serverId: string) {
+    const invites = await this.serverInviteRepo.getServerInvites(serverId);
     return invites;
   }
 }

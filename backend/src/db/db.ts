@@ -1,141 +1,149 @@
-import { Database } from "sqlite3";
+import { Database, OPEN_CREATE, OPEN_READWRITE } from "sqlite3";
 
-let dbInstance: Database | null = null;
+export class DB {
+  private db: Database;
 
-export const getDB = async () => {
-  if (!dbInstance) {
-    dbInstance = new Database("./chat.db", (err) => {
+  constructor(filePath: string = "./chat.db") {
+    this.db = new Database(filePath, (err) => {
       if (err) {
-        console.error("Failed to load database", err);
-        return;
+        console.log("Failed to load database");
+        throw err;
       }
-
-      dbInstance!.run("PRAGMA foreign_keys = ON;");
     });
   }
 
-  dbInstance.exec(`
-    CREATE TABLE IF NOT EXISTS messages (
-      id          TEXT PRIMARY KEY,
-      authorId    TEXT,
-      channelId   TEXT NOT NULL,
-      content     TEXT NOT NULL,
-      createdAt   TEXT NOT NULL,
-      FOREIGN KEY (channelId) REFERENCES channels(id) ON DELETE CASCADE,
-      FOREIGN KEY (authorId) REFERENCES users(id) ON DELETE SET NULL
-    );
-  `);
+  getInstance() {
+    return this.db;
+  }
 
-  dbInstance.exec(`
-    CREATE TABLE IF NOT EXISTS users (
-      id              TEXT PRIMARY KEY,
-      username        TEXT NOT NULL,
-      email           TEXT NOT NULL,
-      bio             TEXT,
-      hashedPassword  TEXT NOT NULL
-    );
-  `);
+  async initTables(): Promise<void> {
+    const execAsync = (sql: string) =>
+      new Promise<void>((resolve, reject) =>
+        this.db.exec(sql, (err) => (err ? reject(err) : resolve()))
+      );
 
-  dbInstance.exec(`
-    CREATE TABLE IF NOT EXISTS friendships (
-      userId1           TEXT NOT NULL,
-      userId2           TEXT NOT NULL,
-      createdAt         TEXT,
-      CHECK (userId1 < userId2),
-      PRIMARY KEY (userId1, userId2),
-      FOREIGN KEY (userId1) REFERENCES users(id) ON DELETE CASCADE,
-      FOREIGN KEY (userId2) REFERENCES users(id) ON DELETE CASCADE
-    );
-  `);
+    await execAsync("PRAGMA foreign_keys = ON;");
 
-  dbInstance.exec(`
-    CREATE TABLE IF NOT EXISTS friend_requests (
-      id              TEXT PRIMARY KEY,
-      senderId        TEXT NOT NULL,
-      receiverId      TEXT NOT NULL,
-      status          TEXT NOT NULL,
-      createdAt       TEXT NOT NULL,
-      respondedAt     TEXT,
-      UNIQUE (senderId, receiverId),
-      FOREIGN KEY (senderId) REFERENCES users(id) ON DELETE CASCADE,
-      FOREIGN KEY (receiverId) REFERENCES users(id) ON DELETE CASCADE
-    );
-  `);
+    await execAsync(`
+      CREATE TABLE IF NOT EXISTS messages (
+        id          TEXT PRIMARY KEY,
+        authorId    TEXT,
+        channelId   TEXT NOT NULL,
+        content     TEXT NOT NULL,
+        createdAt   TEXT NOT NULL,
+        FOREIGN KEY (channelId) REFERENCES channels(id) ON DELETE CASCADE,
+        FOREIGN KEY (authorId) REFERENCES users(id) ON DELETE SET NULL
+      );
+    `);
 
-  dbInstance.exec(`
-    CREATE TABLE IF NOT EXISTS channels (
-      id          TEXT PRIMARY KEY,
-      serverId    TEXT,
-      name        TEXT NOT NULL,
-      type        TEXT NOT NULL,
-      categoryId  TEXT,
-      topic       TEXT,
-      FOREIGN KEY (serverId) REFERENCES servers(id) ON DELETE CASCADE,
-      FOREIGN KEY (categoryId) REFERENCES channel_categories(id) ON DELETE SET NULL
-    );
-  `);
+    await execAsync(`
+      CREATE TABLE IF NOT EXISTS users (
+        id              TEXT PRIMARY KEY,
+        username        TEXT NOT NULL,
+        email           TEXT NOT NULL,
+        bio             TEXT,
+        hashedPassword  TEXT NOT NULL
+      );
+    `);
 
-  dbInstance.exec(`
-    CREATE TABLE IF NOT EXISTS channel_categories ( 
-      id            TEXT PRIMARY KEY,
-      serverId      TEXT NOT NULL,
-      name          TEXT NOT NULL,
-      FOREIGN KEY (serverId) REFERENCES servers(id) ON DELETE CASCADE
-    );
-  `);
+    await execAsync(`
+      CREATE TABLE IF NOT EXISTS friendships (
+        userId1           TEXT NOT NULL,
+        userId2           TEXT NOT NULL,
+        createdAt         TEXT,
+        CHECK (userId1 < userId2),
+        PRIMARY KEY (userId1, userId2),
+        FOREIGN KEY (userId1) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (userId2) REFERENCES users(id) ON DELETE CASCADE
+      );
+    `);
 
-  dbInstance.exec(`
-    CREATE TABLE IF NOT EXISTS channel_participants (
-      channelId       TEXT NOT NULL,
-      userId          TEXT NOT NULL,
-      PRIMARY KEY (channelId, userId),
-      FOREIGN KEY (channelId) REFERENCES channels(id) ON DELETE CASCADE,
-      FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
-    );  
-  `);
+    await execAsync(`
+      CREATE TABLE IF NOT EXISTS friend_requests (
+        id              TEXT PRIMARY KEY,
+        senderId        TEXT NOT NULL,
+        receiverId      TEXT NOT NULL,
+        status          TEXT NOT NULL,
+        createdAt       TEXT NOT NULL,
+        respondedAt     TEXT,
+        UNIQUE (senderId, receiverId),
+        FOREIGN KEY (senderId) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (receiverId) REFERENCES users(id) ON DELETE CASCADE
+      );
+    `);
 
-  dbInstance.exec(`
-    CREATE TABLE IF NOT EXISTS direct_messages (
-      channelId       TEXT PRIMARY KEY,
-      userId1         TEXT NOT NULL,
-      userId2         TEXT NOT NULL,
-      CHECK (userId1 < userId2),
-      UNIQUE (userId1, userId2),
-      FOREIGN KEY (channelId) REFERENCES channels(id) ON DELETE CASCADE,
-      FOREIGN KEY (userId1) REFERENCES users(id) ON DELETE CASCADE,
-      FOREIGN KEY (userId2) REFERENCES users(id) ON DELETE CASCADE
-    );
-    
-  `);
+    await execAsync(`
+      CREATE TABLE IF NOT EXISTS channels (
+        id          TEXT PRIMARY KEY,
+        serverId    TEXT,
+        name        TEXT NOT NULL,
+        type        TEXT NOT NULL,
+        categoryId  TEXT,
+        topic       TEXT,
+        FOREIGN KEY (serverId) REFERENCES servers(id) ON DELETE CASCADE,
+        FOREIGN KEY (categoryId) REFERENCES channel_categories(id) ON DELETE SET NULL
+      );
+    `);
 
-  dbInstance.exec(`
-    CREATE TABLE IF NOT EXISTS servers (
-      id            TEXT PRIMARY KEY,
-      name          TEXT NOT NULL,
-      description   TEXT
-    );    
-  `);
+    await execAsync(`
+      CREATE TABLE IF NOT EXISTS channel_categories ( 
+        id            TEXT PRIMARY KEY,
+        serverId      TEXT NOT NULL,
+        name          TEXT NOT NULL,
+        FOREIGN KEY (serverId) REFERENCES servers(id) ON DELETE CASCADE
+      );
+    `);
 
-  dbInstance.exec(`
-    CREATE TABLE IF NOT EXISTS server_members (
-      userId        TEXT NOT NULL,
-      serverId      TEXT NOT NULL,
-      PRIMARY KEY (userId, serverId),
-      FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
-      FOREIGN KEY (serverId) REFERENCES servers(id) ON DELETE CASCADE
-    );
-  `);
+    await execAsync(`
+      CREATE TABLE IF NOT EXISTS channel_participants (
+        channelId       TEXT NOT NULL,
+        userId          TEXT NOT NULL,
+        PRIMARY KEY (channelId, userId),
+        FOREIGN KEY (channelId) REFERENCES channels(id) ON DELETE CASCADE,
+        FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
+      );  
+    `);
 
-  dbInstance.exec(`
-    CREATE TABLE IF NOT EXISTS server_invites (
-      id              TEXT PRIMARY KEY,
-      serverId        TEXT,
-      link            TEXT NOT NULL,
-      createdAt       TEXT NOT NULL,
-      expiresOn       TEXT NOT NULL,
-      FOREIGN KEY (serverId) REFERENCES servers(id) ON DELETE SET NULL
-    );
-  `);
+    await execAsync(`
+      CREATE TABLE IF NOT EXISTS direct_messages (
+        channelId       TEXT PRIMARY KEY,
+        userId1         TEXT NOT NULL,
+        userId2         TEXT NOT NULL,
+        CHECK (userId1 < userId2),
+        UNIQUE (userId1, userId2),
+        FOREIGN KEY (channelId) REFERENCES channels(id) ON DELETE CASCADE,
+        FOREIGN KEY (userId1) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (userId2) REFERENCES users(id) ON DELETE CASCADE
+      );
+    `);
 
-  return dbInstance;
-};
+    await execAsync(`
+      CREATE TABLE IF NOT EXISTS servers (
+        id            TEXT PRIMARY KEY,
+        name          TEXT NOT NULL,
+        description   TEXT
+      );    
+    `);
+
+    await execAsync(`
+      CREATE TABLE IF NOT EXISTS server_members (
+        userId        TEXT NOT NULL,
+        serverId      TEXT NOT NULL,
+        PRIMARY KEY (userId, serverId),
+        FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (serverId) REFERENCES servers(id) ON DELETE CASCADE
+      );
+    `);
+
+    await execAsync(`
+      CREATE TABLE IF NOT EXISTS server_invites (
+        id              TEXT PRIMARY KEY,
+        serverId        TEXT,
+        link            TEXT NOT NULL,
+        createdAt       TEXT NOT NULL,
+        expiresOn       TEXT NOT NULL,
+        FOREIGN KEY (serverId) REFERENCES servers(id) ON DELETE SET NULL
+      );
+    `);
+  }
+}

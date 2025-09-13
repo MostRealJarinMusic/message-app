@@ -1,12 +1,14 @@
-import { getDB } from "../db";
+import { DB } from "../db";
 import { Channel } from "@common/types";
 
 export class ChannelRepo {
-  static async getChannelsByServer(serverId: string) {
-    const db = await getDB();
+  constructor(private db: DB) {}
+
+  getChannelsByServer(serverId: string) {
+    const database = this.db.getInstance();
 
     return new Promise<Channel[]>((resolve, reject) => {
-      db.all(
+      database.all(
         `SELECT * FROM channels WHERE serverId = ?`,
         [serverId],
         (err, rows) => {
@@ -30,11 +32,11 @@ export class ChannelRepo {
     });
   }
 
-  static async getChannelsByCategory(categoryId: string) {
-    const db = await getDB();
+  getChannelsByCategory(categoryId: string) {
+    const database = this.db.getInstance();
 
     return new Promise<Channel[]>((resolve, reject) => {
-      db.all(
+      database.all(
         `SELECT * FROM channels WHERE categoryId = ?`,
         [categoryId],
         (err, rows) => {
@@ -58,11 +60,11 @@ export class ChannelRepo {
     });
   }
 
-  static async channelExists(channelId: string): Promise<boolean> {
-    const db = await getDB();
+  channelExists(channelId: string): Promise<boolean> {
+    const database = this.db.getInstance();
 
     return new Promise((resolve, reject) => {
-      db.get(
+      database.get(
         `SELECT 1 FROM channels WHERE id = ? LIMIT 1`,
         [channelId],
         (err, row) => {
@@ -73,11 +75,11 @@ export class ChannelRepo {
     });
   }
 
-  static async createChannel(channel: Channel): Promise<void> {
-    const db = await getDB();
+  createChannel(channel: Channel): Promise<void> {
+    const database = this.db.getInstance();
 
     return new Promise((resolve, reject) => {
-      db.run(
+      database.run(
         `INSERT INTO channels (id, serverId, name, categoryId, topic, type) VALUES (?, ?, ?, ?, ?, ?)`,
         [
           channel.id,
@@ -95,22 +97,26 @@ export class ChannelRepo {
     });
   }
 
-  static async deleteChannel(channelId: string): Promise<void> {
-    const db = await getDB();
+  deleteChannel(channelId: string): Promise<void> {
+    const database = this.db.getInstance();
 
     return new Promise((resolve, reject) => {
-      db.run(`DELETE FROM channels WHERE id = ?`, [channelId], function (err) {
-        if (err) return reject(err);
-        resolve();
-      });
+      database.run(
+        `DELETE FROM channels WHERE id = ?`,
+        [channelId],
+        function (err) {
+          if (err) return reject(err);
+          resolve();
+        }
+      );
     });
   }
 
-  static async getChannel(channelId: string): Promise<Channel> {
-    const db = await getDB();
+  getChannel(channelId: string): Promise<Channel> {
+    const database = this.db.getInstance();
 
     return new Promise((resolve, reject) => {
-      db.get(
+      database.get(
         `SELECT * FROM channels WHERE id = ?`,
         [channelId],
         (err, row: any) => {
@@ -133,11 +139,11 @@ export class ChannelRepo {
     });
   }
 
-  static async editChannel(newChannel: Channel) {
-    const db = await getDB();
+  editChannel(newChannel: Channel) {
+    const database = this.db.getInstance();
 
     return new Promise<void>((resolve, reject) => {
-      db.run(
+      database.run(
         `UPDATE channels SET name = ?, categoryId = ?, topic = ? WHERE id = ?`,
         [
           newChannel.name,
@@ -153,7 +159,7 @@ export class ChannelRepo {
     });
   }
 
-  static async addChannelParticipant(channelId: string, userId: string) {}
+  addChannelParticipant(channelId: string, userId: string) {}
 
-  static async getChannelParticipants(channelId: string) {}
+  getChannelParticipants(channelId: string) {}
 }
