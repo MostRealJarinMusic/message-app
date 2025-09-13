@@ -85,8 +85,8 @@ export class PrivateApiService extends BaseApiService {
     );
   }
 
-  updateUserSettings(userUpdate: UserUpdate): Observable<void> {
-    return this.authorisedFetch((_) => this.patch<void>(`users/me`, userUpdate));
+  updateUserSettings(userUpdate: UserUpdate): Observable<PrivateUser> {
+    return this.authorisedFetch((_) => this.patch<PrivateUser>(`users/me`, userUpdate));
   }
 
   //Temporary route

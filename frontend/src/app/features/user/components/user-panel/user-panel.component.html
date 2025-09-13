@@ -1,11 +1,20 @@
 <div class="flex items-center justify-between p-3 bg-surface-800 rounded-lg shadow-lg w-full">
   <div class="flex items-center space-x-2">
     <p-avatar icon="pi pi-user" shape="circle" />
-    <div>
+    <div class="flex flex-col">
       <p class="text-sm font-semibold">{{ this.username }}</p>
+      <p class="text-xs font-normal">{{ this.bio }}</p>
     </div>
   </div>
   <div class="flex space-x-2">
-    <button pButton pRipple icon="pi pi-cog" class="p-button-rounded" severity="secondary"></button>
+    <button
+      pButton
+      pRipple
+      icon="pi pi-cog"
+      class="p-button-rounded"
+      severity="secondary"
+      (click)="userSettingsService.startEdit()"></button>
   </div>
 </div>
+
+<app-user-settings-overlay />

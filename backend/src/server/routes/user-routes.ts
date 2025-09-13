@@ -40,7 +40,7 @@ export default function userRoutes(wsManager: WebSocketManager): Router {
     })
   );
 
-  userRoutes.get(
+  userRoutes.patch(
     "/me",
     authMiddleware,
     asyncHandler(async (req: SignedRequest, res: Response) => {
@@ -49,7 +49,9 @@ export default function userRoutes(wsManager: WebSocketManager): Router {
         req.body,
         wsManager
       );
-      res.status(204).send();
+
+      const user = await UserService.getMe(req.signature!.id);
+      res.json(user);
     })
   );
 

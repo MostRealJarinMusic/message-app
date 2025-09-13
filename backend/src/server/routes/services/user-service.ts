@@ -60,7 +60,7 @@ export class UserService {
     wsManager.broadcastToGroup(
       WSEventType.USER_UPDATE,
       updatedPublicUser,
-      relevantIds
+      relevantIds.filter((id) => id !== userId) //No WebSocket messages to yourself
     );
 
     return updatedPrivateUser;

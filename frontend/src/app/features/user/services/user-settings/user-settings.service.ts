@@ -40,7 +40,7 @@ export class UserSettingsService {
 
     try {
       const update = form.value as UserUpdate;
-      //this.serverService.editServer(this.currentlyEditedId()!, update);
+      this.userService.updateUserSettings(update);
 
       form.markAsPristine();
     } catch (err) {

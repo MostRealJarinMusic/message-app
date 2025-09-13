@@ -45,8 +45,8 @@ export class MessageListComponent {
 
       element.scrollTop = target; //element.scrollHeight;
 
-      console.log(element.scrollHeight);
-      console.log(element.scrollTop);
+      // console.log(element.scrollHeight);
+      // console.log(element.scrollTop);
     }
   }
 }

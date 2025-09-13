@@ -1,5 +1,12 @@
 import { effect, inject, Injectable, signal } from '@angular/core';
-import { LoggerType, PublicUser, PrivateUser, WSEvent, WSEventType } from '@common/types';
+import {
+  LoggerType,
+  PublicUser,
+  PrivateUser,
+  WSEvent,
+  WSEventType,
+  UserUpdate,
+} from '@common/types';
 import { catchError, firstValueFrom, Observable, of, tap } from 'rxjs';
 import { PrivateApiService } from '../../../../core/services/api/private-api.service';
 import { LoggerService } from 'src/app/core/services/logger/logger.service';
@@ -101,6 +108,8 @@ export class UserService {
   private initWebSocket() {
     this.wsService.on(WSEventType.USER_UPDATE).subscribe({
       next: (updatedUser) => {
+        console.log(updatedUser);
+
         //Assuming this isn't an edit for you
         const existing = this.userCache.get(updatedUser.id);
 
@@ -116,6 +125,19 @@ export class UserService {
       },
       error: (err) => {
         console.log('Failed to update user:', err);
+      },
+    });
+  }
+
+  public updateUserSettings(update: UserUpdate) {
+    this.apiService.updateUserSettings(update).subscribe({
+      next: (updatedUser) => {
+        this.currentUser.set(updatedUser);
+
+        this.logger.log(LoggerType.SERVICE_USER, 'Successful user update');
+      },
+      error: (err) => {
+        this.logger.error(LoggerType.SERVICE_USER, 'Failed to update user', err);
       },
     });
   }

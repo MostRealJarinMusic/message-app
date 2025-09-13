@@ -1,0 +1,36 @@
+<app-fullscreen-overlay
+  [visible]="userSettingsService.editActive()"
+  (visibleChange)="userSettingsService.closeEdit()">
+  <div class="space-y-5 w-full mx-auto">
+    <h1 class="text-lg font-medium text-color-emphasis">Overview - User Settings</h1>
+
+    <form [formGroup]="userSettingsForm" class="space-y-5">
+      <div class="w-full flex flex-col gap-2">
+        <label for="name">Bio</label>
+        <input
+          id="name"
+          type="text"
+          class="!w-full !p-4 !text-sm !bg-surface-700 rounded-lg border !border-surface-600 focus:outline-none focus:ring-2 focus:ring-primary"
+          pInputText
+          formControlName="bio" />
+      </div>
+
+      <p-divider class="!mx-0" layout="horizontal" />
+    </form>
+
+    @if (userSettingsForm.dirty) {
+      <div class="flex justify-between items-center pt-4 border-t border-surface-600">
+        <button
+          pButton
+          label="Cancel"
+          class="p-button-text"
+          (click)="userSettingsService.resetEditForm(userSettingsForm)"></button>
+        <button
+          pButton
+          label="Save Changes"
+          (click)="userSettingsService.saveEdit(userSettingsForm)"
+          [disabled]="!userSettingsForm.dirty || userSettingsForm.invalid"></button>
+      </div>
+    }
+  </div>
+</app-fullscreen-overlay>
