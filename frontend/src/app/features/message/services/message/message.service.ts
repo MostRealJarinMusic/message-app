@@ -60,7 +60,7 @@ export class MessageService {
 
   private initWebSocket(): void {
     //Listeners for sent messages, edits and deletes
-    this.wsService.on(WSEventType.RECEIVE).subscribe((message) => {
+    this.wsService.on(WSEventType.MESSAGE_RECEIVE).subscribe((message) => {
       const activeChannelId = this.navService.activeChannelId() || this.navService.activeDMId();
 
       if (message.channelId === activeChannelId) {
@@ -69,7 +69,7 @@ export class MessageService {
     });
 
     //Deletes
-    this.wsService.on(WSEventType.DELETED).subscribe((message) => {
+    this.wsService.on(WSEventType.MESSAGE_DELETE).subscribe((message) => {
       //Delete the message from the loaded channel if it exists in the history
       const activeChannelId = this.navService.activeChannelId() || this.navService.activeDMId();
 
@@ -79,7 +79,7 @@ export class MessageService {
     });
 
     //Edits
-    this.wsService.on(WSEventType.EDITED).subscribe((message) => {
+    this.wsService.on(WSEventType.MESSAGE_EDIT).subscribe((message) => {
       console.log('Received edit');
 
       //Edit message from the loaded channel if it exists in the history

@@ -21,7 +21,9 @@ import {
   ServerInviteCreate,
   ServerInvitePreview,
   ServerUpdate,
-  User,
+  PublicUser,
+  PrivateUser,
+  UserUpdate,
 } from '@common/types';
 import { AuthTokenService } from '../authtoken/auth-token.service';
 import { Channel } from '@common/types';
@@ -69,21 +71,27 @@ export class PrivateApiService extends BaseApiService {
   //#endregion
 
   //#region Users CRUD
-  getCurrentUser(): Observable<User> {
-    return this.authorisedFetch<User>((_) => this.get<User>('users/me'));
+  getCurrentUser(): Observable<PrivateUser> {
+    return this.authorisedFetch<PrivateUser>((_) => this.get<PrivateUser>('users/me'));
   }
 
-  getUserById(userId: string): Observable<User> {
-    return this.authorisedFetch<User>((_) => this.get<User>(`users/${userId}`));
+  getUserById(userId: string): Observable<PublicUser> {
+    return this.authorisedFetch<PublicUser>((_) => this.get<PublicUser>(`users/${userId}`));
   }
 
   getServerUsers(serverId: string) {
-    return this.authorisedFetch<User[]>((_) => this.get<User[]>(`servers/${serverId}/users`));
+    return this.authorisedFetch<PublicUser[]>((_) =>
+      this.get<PublicUser[]>(`servers/${serverId}/users`),
+    );
+  }
+
+  updateUserSettings(userUpdate: UserUpdate): Observable<PrivateUser> {
+    return this.authorisedFetch((_) => this.patch<PrivateUser>(`users/me`, userUpdate));
   }
 
   //Temporary route
   getAllUsers() {
-    return this.authorisedFetch<User[]>((_) => this.get<User[]>(`users`));
+    return this.authorisedFetch<PublicUser[]>((_) => this.get<PublicUser[]>(`users`));
   }
   //#endregion
 

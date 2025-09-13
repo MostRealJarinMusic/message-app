@@ -1,11 +1,11 @@
-import { ServerMember, User } from "@common/types";
+import { ServerMember, PublicUser } from "@common/types";
 import { getDB } from "../db";
 
 export class ServerMemberRepo {
   static async getServerMembers(serverId: string) {
     const db = await getDB();
 
-    return new Promise<User[]>((resolve, reject) => {
+    return new Promise<PublicUser[]>((resolve, reject) => {
       db.all(
         `
         SELECT * FROM server_members 
@@ -19,10 +19,10 @@ export class ServerMemberRepo {
             return reject(err);
           }
 
-          const allMembers: User[] = rows.map((row: any) => ({
+          const allMembers: PublicUser[] = rows.map((row: any) => ({
             id: row.id,
             username: row.username,
-            email: row.email,
+            bio: row.bio,
           }));
 
           resolve(allMembers);
@@ -50,6 +50,27 @@ export class ServerMemberRepo {
 
           const allMemberIds: string[] = rows.map((row: any) => row.id);
 
+          resolve(allMemberIds);
+        }
+      );
+    });
+  }
+
+  static async getServerMemberIdsByServerIds(
+    serverIds: string[]
+  ): Promise<string[]> {
+    if (serverIds.length === 0) return [];
+
+    const db = await getDB();
+
+    return new Promise<string[]>((resolve, reject) => {
+      const placeholders = serverIds.map(() => "?").join(",");
+      db.all(
+        `SELECT userId FROM server_members WHERE serverId IN (${placeholders})`,
+        serverIds,
+        (err, rows) => {
+          if (err) return reject(err);
+          const allMemberIds = rows.map((row: any) => row.userId);
           resolve(allMemberIds);
         }
       );

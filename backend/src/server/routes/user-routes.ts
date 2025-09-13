@@ -26,7 +26,7 @@ export default function userRoutes(wsManager: WebSocketManager): Router {
     "/me/friends",
     authMiddleware,
     asyncHandler(async (req: SignedRequest, res: Response) => {
-      const friendIds = await FriendService.getFriends(req.signature!.id);
+      const friendIds = await FriendService.getFriendIds(req.signature!.id);
       res.json(friendIds);
     })
   );
@@ -35,7 +35,22 @@ export default function userRoutes(wsManager: WebSocketManager): Router {
     "/me",
     authMiddleware,
     asyncHandler(async (req: SignedRequest, res: Response) => {
-      const user = await UserService.getUserById(req.signature!.id);
+      const user = await UserService.getMe(req.signature!.id);
+      res.json(user);
+    })
+  );
+
+  userRoutes.patch(
+    "/me",
+    authMiddleware,
+    asyncHandler(async (req: SignedRequest, res: Response) => {
+      await UserService.updateUserSettings(
+        req.signature!.id,
+        req.body,
+        wsManager
+      );
+
+      const user = await UserService.getMe(req.signature!.id);
       res.json(user);
     })
   );

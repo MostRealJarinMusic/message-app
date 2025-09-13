@@ -1,27 +1,38 @@
 import { effect, inject, Injectable, signal } from '@angular/core';
-import { LoggerType, User } from '@common/types';
+import {
+  LoggerType,
+  PublicUser,
+  PrivateUser,
+  WSEvent,
+  WSEventType,
+  UserUpdate,
+} from '@common/types';
 import { catchError, firstValueFrom, Observable, of, tap } from 'rxjs';
 import { PrivateApiService } from '../../../../core/services/api/private-api.service';
-import { ServerService } from 'src/app/features/server/services/server/server.service';
 import { LoggerService } from 'src/app/core/services/logger/logger.service';
 import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
+import { SocketService } from 'src/app/core/services/socket/socket.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UserService {
   private apiService = inject(PrivateApiService);
+  private wsService = inject(SocketService);
   private navService = inject(NavigationService);
   private logger = inject(LoggerService);
 
-  readonly currentUser = signal<User | null>(null);
-  private userCache = new Map<string, User>();
-  readonly serverUsers = signal<User[] | null>(null);
+  readonly currentUser = signal<PrivateUser | null>(null);
+  private userCache = new Map<string, PublicUser>();
+  readonly serverUsers = signal<PublicUser[] | null>(null);
   readonly usernameMap = new Map<string, string>();
 
   constructor() {
     this.logger.init(LoggerType.SERVICE_USER);
 
+    this.initWebSocket();
+
+    //Temporary
     this.loadUsers();
 
     effect(() => {
@@ -44,7 +55,7 @@ export class UserService {
   //   });
   // }
 
-  loadCurrentUser(): Promise<User> {
+  loadCurrentUser(): Promise<PrivateUser> {
     return firstValueFrom(
       this.apiService.getCurrentUser().pipe(
         tap((user) => this.currentUser.set(user)),
@@ -90,6 +101,43 @@ export class UserService {
       },
       error: (err) => {
         this.logger.error(LoggerType.SERVICE_USER, 'Error loading server users', err);
+      },
+    });
+  }
+
+  private initWebSocket() {
+    this.wsService.on(WSEventType.USER_UPDATE).subscribe({
+      next: (updatedUser) => {
+        console.log(updatedUser);
+
+        //Assuming this isn't an edit for you
+        const existing = this.userCache.get(updatedUser.id);
+
+        this.userCache.set(updatedUser.id, { ...existing, ...updatedUser });
+
+        if (!this.serverUsers() || this.serverUsers() === null) return;
+
+        this.serverUsers.update((serverUsers) => {
+          if (!serverUsers) return serverUsers;
+
+          return serverUsers.map((u) => (u.id === updatedUser.id ? updatedUser : u));
+        });
+      },
+      error: (err) => {
+        console.log('Failed to update user:', err);
+      },
+    });
+  }
+
+  public updateUserSettings(update: UserUpdate) {
+    this.apiService.updateUserSettings(update).subscribe({
+      next: (updatedUser) => {
+        this.currentUser.set(updatedUser);
+
+        this.logger.log(LoggerType.SERVICE_USER, 'Successful user update');
+      },
+      error: (err) => {
+        this.logger.error(LoggerType.SERVICE_USER, 'Failed to update user', err);
       },
     });
   }

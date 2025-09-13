@@ -1,4 +1,3 @@
-import { Request, Response } from "express";
 import { ServerRepo } from "../../../db/repos/server.repo";
 import { WebSocketManager } from "../../ws/websocket-manager";
 import { ChannelRepo } from "../../../db/repos/channel.repo";
@@ -14,7 +13,6 @@ import {
 } from "../../../../../common/types";
 import { ulid } from "ulid";
 import { ChannelCategoryRepo } from "../../../db/repos/category.repo";
-import { SignedRequest } from "../../../types/types";
 import { ServerMemberRepo } from "../../../db/repos/server-member.repo";
 import { BadRequestError, NotFoundError } from "../../../errors/errors";
 
@@ -42,6 +40,19 @@ export class ServerService {
     const presences = wsManager.getPresenceSnapshot(memberIds);
 
     return presences;
+  }
+
+  //Getting shared server users
+  static async getSharedServerUserIds(userId: string) {
+    const servers = await this.getAllServers(userId);
+    const serverIds = servers.map((s) => s.id);
+
+    const allMemberIds = await ServerMemberRepo.getServerMemberIdsByServerIds(
+      serverIds
+    );
+
+    const uniqueIds = Array.from(new Set(allMemberIds));
+    return uniqueIds.filter((id) => id !== userId);
   }
 
   //Creating a server

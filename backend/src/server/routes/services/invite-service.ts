@@ -109,7 +109,7 @@ export class InviteService {
     );
 
     //WebSocket message to notify other synced clients that they have joined
-    wsManager.broadcastToUser(WSEventType.SERVER_JOIN, server, userId);
+    wsManager.broadcastToUser(WSEventType.USER_SERVER_JOIN, server, userId);
 
     //Return server
     return server;

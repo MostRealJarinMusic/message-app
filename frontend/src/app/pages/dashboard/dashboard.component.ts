@@ -16,6 +16,7 @@ import { DMsListComponent } from 'src/app/features/dms/components/dms-list/dms-l
 import { FriendsListComponent } from 'src/app/features/friend/components/friends-list/friends-list.component';
 import { ChannelService } from 'src/app/features/channel/services/channel/channel.service';
 import { UserService } from 'src/app/features/user/services/user/user.service';
+import { UserPanelComponent } from 'src/app/features/user/components/user-panel/user-panel.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -32,6 +33,7 @@ import { UserService } from 'src/app/features/user/services/user/user.service';
     DMsListComponent,
     FriendsListComponent,
     DynamicDialogModule,
+    UserPanelComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',

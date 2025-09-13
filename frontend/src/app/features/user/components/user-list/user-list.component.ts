@@ -1,8 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
-import { PresenceStatus } from '@common/types';
 import { AvatarModule } from 'primeng/avatar';
-import { AvatarGroupModule } from 'primeng/avatargroup';
 import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
 import { ChannelService } from 'src/app/features/channel/services/channel/channel.service';
 import { PresenceService } from 'src/app/features/user/services/presence/presence.service';

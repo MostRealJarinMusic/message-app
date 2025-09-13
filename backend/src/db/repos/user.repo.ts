@@ -1,12 +1,17 @@
 import { getDB } from "../db";
-import { LoginCredentials, RegisterPayload, User } from "@common/types";
+import {
+  LoginCredentials,
+  RegisterPayload,
+  PrivateUser,
+  PublicUser,
+} from "@common/types";
 import bcrypt from "bcrypt";
 import { ulid } from "ulid";
 
 const SALT_ROUNDS = 10;
 
 export class UserRepo {
-  static async registerUser(payload: RegisterPayload): Promise<User> {
+  static async registerUser(payload: RegisterPayload): Promise<PrivateUser> {
     const db = await getDB();
 
     return new Promise((resolve, reject) => {
@@ -14,15 +19,16 @@ export class UserRepo {
         if (err) return reject(err);
 
         db.get(
-          `INSERT INTO users (id, username, email, hashedPassword) VALUES (?, ?, ?, ?) RETURNING *`,
-          [ulid(), payload.username, payload.email, hashedPassword],
+          `INSERT INTO users (id, username, email, bio, hashedPassword) VALUES (?, ?, ?, ?, ?) RETURNING *`,
+          [ulid(), payload.username, payload.email, "", hashedPassword],
           (err, row: any) => {
             if (err) return reject(err);
 
-            const user: User = {
+            const user: PrivateUser = {
               id: row.id, //Returns row ID and not the new ID
               username: row.username,
               email: row.email,
+              bio: row.bio,
             };
 
             resolve(user);
@@ -32,7 +38,9 @@ export class UserRepo {
     });
   }
 
-  static async loginUser(credentials: LoginCredentials): Promise<User | null> {
+  static async loginUser(
+    credentials: LoginCredentials
+  ): Promise<PrivateUser | null> {
     const db = await getDB();
 
     return new Promise((resolve, reject) => {
@@ -50,10 +58,11 @@ export class UserRepo {
               if (err) return reject(err);
               if (!result) return resolve(null);
 
-              const user: User = {
+              const user: PrivateUser = {
                 id: row.id.toString(),
                 username: row.username,
                 email: row.email,
+                bio: row.bio,
               };
 
               resolve(user);
@@ -64,44 +73,60 @@ export class UserRepo {
     });
   }
 
-  static async getUserById(id: string): Promise<User | null> {
+  static async getMe(id: string): Promise<PrivateUser | null> {
     const db = await getDB();
 
     return new Promise((resolve, reject) => {
-      db.get(
-        `SELECT id, username, email FROM users WHERE id = ?`,
-        [id],
-        (err, row: any) => {
-          if (err) return reject(err);
-          if (!row) return resolve(null);
+      db.get(`SELECT * FROM users WHERE id = ?`, [id], (err, row: any) => {
+        if (err) return reject(err);
+        if (!row) return resolve(null);
 
-          const user: User = {
-            id: row.id.toString(),
-            username: row.username,
-            email: row.email,
-          };
+        const user: PrivateUser = {
+          id: row.id.toString(),
+          username: row.username,
+          email: row.email,
+          bio: row.bio,
+        };
 
-          resolve(user);
-        }
-      );
+        resolve(user);
+      });
     });
   }
 
-  static async getUserByUsername(username: string): Promise<User | null> {
+  static async getUserById(id: string): Promise<PublicUser | null> {
+    const db = await getDB();
+
+    return new Promise((resolve, reject) => {
+      db.get(`SELECT * FROM users WHERE id = ?`, [id], (err, row: any) => {
+        if (err) return reject(err);
+        if (!row) return resolve(null);
+
+        const user: PublicUser = {
+          id: row.id.toString(),
+          username: row.username,
+          bio: row.bio,
+        };
+
+        resolve(user);
+      });
+    });
+  }
+
+  static async getUserByUsername(username: string): Promise<PublicUser | null> {
     const db = await getDB();
 
     return new Promise((resolve, reject) => {
       db.get(
-        `SELECT id, username, email FROM users WHERE username = ?`,
+        `SELECT * FROM users WHERE username = ?`,
         [username],
         (err, row: any) => {
           if (err) return reject(err);
           if (!row) return resolve(null);
 
-          const user: User = {
+          const user: PublicUser = {
             id: row.id.toString(),
             username: row.username,
-            email: row.email,
+            bio: row.bio,
           };
 
           resolve(user);
@@ -124,21 +149,36 @@ export class UserRepo {
   static async getAllUsers() {
     const db = await getDB();
 
-    return new Promise<User[]>((resolve, reject) => {
+    return new Promise<PublicUser[]>((resolve, reject) => {
       db.all(`SELECT * FROM users`, (err, rows) => {
         if (err) {
           console.log("Error retrieving users:", err);
           return reject(err);
         }
 
-        const allUsers: User[] = rows.map((row: any) => ({
+        const allUsers: PublicUser[] = rows.map((row: any) => ({
           id: row.id,
           username: row.username,
-          email: row.email,
+          bio: row.bio,
         }));
 
         resolve(allUsers);
       });
+    });
+  }
+
+  static async updateUser(updatedUser: PrivateUser) {
+    const db = await getDB();
+
+    return new Promise<void>((resolve, reject) => {
+      db.run(
+        `UPDATE users SET bio = ? WHERE id = ?`,
+        [updatedUser.bio, updatedUser.id],
+        function (err) {
+          if (err) return reject(err);
+          resolve();
+        }
+      );
     });
   }
 }

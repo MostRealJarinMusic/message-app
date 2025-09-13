@@ -1,7 +1,7 @@
 //#region Auth types
 export interface AuthPayload {
   token: string;
-  user: User;
+  user: PrivateUser;
 }
 export interface LoginCredentials {
   username?: string;
@@ -146,9 +146,9 @@ export interface WSEvent<T extends WSEventType> {
 }
 
 export enum WSEventType {
-  RECEIVE = "message:receive",
-  EDITED = "message:edited",
-  DELETED = "message:deleted",
+  MESSAGE_RECEIVE = "message:receive",
+  MESSAGE_EDIT = "message:edit",
+  MESSAGE_DELETE = "message:delete",
 
   CHANNEL_CREATE = "channel:create",
   CHANNEL_UPDATE = "channel:update",
@@ -163,7 +163,6 @@ export enum WSEventType {
   SERVER_DELETE = "server:delete",
 
   SERVER_MEMBER_ADD = "server:member:add",
-  SERVER_JOIN = "server:member:join",
 
   PRESENCE = "presence:update",
 
@@ -178,12 +177,15 @@ export enum WSEventType {
 
   PING = "ping",
   PONG = "pong",
+
+  USER_UPDATE = "user:update", //In the future, we may want to distinguish public updates and private updates
+  USER_SERVER_JOIN = "user:server:join",
 }
 
 export type WSEventPayload = {
-  [WSEventType.RECEIVE]: Message;
-  [WSEventType.EDITED]: Message;
-  [WSEventType.DELETED]: Message;
+  [WSEventType.MESSAGE_RECEIVE]: Message;
+  [WSEventType.MESSAGE_EDIT]: Message;
+  [WSEventType.MESSAGE_DELETE]: Message;
   [WSEventType.CHANNEL_CREATE]: Channel;
   [WSEventType.CHANNEL_UPDATE]: Channel;
   [WSEventType.CHANNEL_DELETE]: Channel;
@@ -194,7 +196,6 @@ export type WSEventPayload = {
   [WSEventType.SERVER_UPDATE]: Server;
   [WSEventType.SERVER_DELETE]: Server;
   [WSEventType.SERVER_MEMBER_ADD]: ServerMember;
-  [WSEventType.SERVER_JOIN]: Server;
   [WSEventType.PRESENCE]: PresenceUpdate;
   [WSEventType.FRIEND_REQUEST_SENT]: FriendRequest;
   [WSEventType.FRIEND_REQUEST_RECEIVE]: FriendRequest;
@@ -204,6 +205,8 @@ export type WSEventPayload = {
   [WSEventType.DM_CHANNEL_CREATE]: Channel;
   [WSEventType.PING]: { timestamp: Timestamp };
   [WSEventType.PONG]: { timestamp: Timestamp };
+  [WSEventType.USER_UPDATE]: PublicUser;
+  [WSEventType.USER_SERVER_JOIN]: Server;
 };
 
 //#endregion
@@ -223,11 +226,19 @@ export enum PresenceStatus {
 //#endregion
 
 //#region User types
-export interface User {
+export interface PublicUser {
   id: string;
   username: string;
-  email: string;
+  bio: string;
   status?: PresenceStatus;
+}
+
+export interface PrivateUser extends PublicUser {
+  email: string;
+}
+
+export interface UserUpdate {
+  bio: string;
 }
 //#endregion
 
