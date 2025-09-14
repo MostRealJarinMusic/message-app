@@ -1,19 +1,13 @@
 import http from "http";
-import jwt from "jsonwebtoken";
 import WebSocket from "ws";
-import { config } from "../config";
 import {
   AnyWSEvent,
   PresenceStatus,
-  PresenceUpdate,
-  UserSignature,
-  WSEvent,
   WSEventPayload,
   WSEventType,
 } from "../../../common/types";
-import { EventBusPort, SignedSocket } from "../types/types";
+import { SignedSocket } from "../types/types";
 import { AuthService } from "../services/auth.service";
-import { RelevanceService } from "../services/relevance.service";
 import { ConnectionRegistry } from "./connection-registry";
 import { HeartbeatService } from "../services/heartbeat.service";
 import { PresenceService } from "../services/presence.service";
@@ -93,7 +87,7 @@ export class WebSocketManager {
   }
   //#endregion
 
-  //#region Broadcasting and single DMs
+  //#region Broadcasting
   public broadcastToAll<T extends WSEventType>(
     event: T,
     payload: WSEventPayload[T]

@@ -9,7 +9,6 @@ import { MessageRepo } from "../db/repos/message.repo";
 import { BadRequestError, NotFoundError } from "../errors/errors";
 import { ulid } from "ulid";
 import { EventBusPort } from "../types/types";
-import { RelevanceService } from "./relevance.service";
 
 export class MessageService {
   constructor(

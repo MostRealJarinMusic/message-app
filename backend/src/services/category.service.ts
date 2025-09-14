@@ -6,7 +6,6 @@ import {
 } from "../../../common/types";
 import { ChannelCategoryRepo } from "../db/repos/category.repo";
 import { ChannelRepo } from "../db/repos/channel.repo";
-import { ServerMemberRepo } from "../db/repos/server-member.repo";
 import { BadRequestError, NotFoundError } from "../errors/errors";
 import { ulid } from "ulid";
 import { EventBusPort } from "../types/types";

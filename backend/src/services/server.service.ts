@@ -14,7 +14,7 @@ import { ServerMemberRepo } from "../db/repos/server-member.repo";
 import { ServerRepo } from "../db/repos/server.repo";
 import { ChannelRepo } from "../db/repos/channel.repo";
 import { BadRequestError, NotFoundError } from "../errors/errors";
-import { EventBusPort, PresencePort } from "../types/types";
+import { EventBusPort } from "../types/types";
 import { PresenceService } from "./presence.service";
 
 export class ServerService {

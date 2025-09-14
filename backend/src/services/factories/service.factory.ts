@@ -1,6 +1,6 @@
 import { AuthService } from "../../services/auth.service";
 import { CategoryService } from "../../services/category.service";
-import { EventBusPort, PresencePort, Repos, Services } from "../../types/types";
+import { EventBusPort, Repos, Services } from "../../types/types";
 import { ConnectionRegistry } from "../../websocket/connection-registry";
 import { ChannelService } from "../channel.service";
 import { DirectMessageService } from "../direct-message.service";
