@@ -82,7 +82,7 @@ export class MessageInputComponent {
     });
 
     effect(() => {
-      console.log('Active typers:', this.typingService.activeChannelTypers());
+      
     });
   }
 
