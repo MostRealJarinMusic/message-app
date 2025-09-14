@@ -10,7 +10,6 @@ import { ChannelService } from 'src/app/features/channel/services/channel/channe
 import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
 import { UserService } from 'src/app/features/user/services/user/user.service';
 import { TypingService } from 'src/app/features/typing/services/typing/typing.service';
-import { clear } from 'console';
 
 @Component({
   selector: 'app-message-input',
