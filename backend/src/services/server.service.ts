@@ -15,6 +15,7 @@ import { ServerRepo } from "../db/repos/server.repo";
 import { ChannelRepo } from "../db/repos/channel.repo";
 import { BadRequestError, NotFoundError } from "../errors/errors";
 import { EventBusPort, PresencePort } from "../types/types";
+import { PresenceService } from "./presence.service";
 
 export class ServerService {
   constructor(
@@ -23,7 +24,7 @@ export class ServerService {
     private readonly serverRepo: ServerRepo,
     private readonly channelRepo: ChannelRepo,
     private readonly eventBus: EventBusPort,
-    private readonly presenceManager: PresencePort
+    private readonly presenceService: PresenceService
   ) {}
 
   //Gets all servers that the user is a member of
@@ -43,7 +44,7 @@ export class ServerService {
   //Accessing server user presences
   async getServerUserPresences(serverId: string) {
     const memberIds = await this.serverMemberRepo.getServerMemberIds(serverId);
-    const presences = await this.presenceManager.getSnapshot(memberIds);
+    const presences = this.presenceService.getSnapshot(memberIds);
 
     return presences;
   }

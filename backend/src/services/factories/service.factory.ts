@@ -1,12 +1,15 @@
 import { AuthService } from "../../services/auth.service";
 import { CategoryService } from "../../services/category.service";
 import { EventBusPort, PresencePort, Repos, Services } from "../../types/types";
+import { ConnectionRegistry } from "../../websocket/connection-registry";
 import { ChannelService } from "../channel.service";
 import { DirectMessageService } from "../direct-message.service";
 import { FriendRequestService } from "../friend-request.service";
 import { FriendService } from "../friend.service";
+import { HeartbeatService } from "../heartbeat.service";
 import { InviteService } from "../invite.service";
 import { MessageService } from "../message.service";
+import { PresenceService } from "../presence.service";
 import { RelevanceService } from "../relevance.service";
 import { ServerService } from "../server.service";
 import { UserService } from "../user.service";
@@ -14,8 +17,10 @@ import { UserService } from "../user.service";
 export function createServices(
   repos: Repos,
   eventBus: EventBusPort,
-  presenceManager: PresencePort
+  registry: ConnectionRegistry
 ): Services {
+  const presenceService = new PresenceService(repos.user, eventBus);
+
   const authService = new AuthService(repos.user);
   const categoryService = new CategoryService(
     repos.category,
@@ -52,7 +57,7 @@ export function createServices(
     repos.server,
     repos.channel,
     eventBus,
-    presenceManager
+    presenceService
   );
 
   const relevanceService = new RelevanceService(
@@ -70,12 +75,9 @@ export function createServices(
     eventBus
   );
 
-  const userService = new UserService(
-    repos.user,
-    relevanceService,
-    eventBus,
-    presenceManager
-  );
+  const userService = new UserService(repos.user, relevanceService, eventBus);
+
+  const heartbeatService = new HeartbeatService(registry);
 
   return {
     auth: authService,
@@ -84,8 +86,10 @@ export function createServices(
     directMessage: directMessageService,
     friendRequest: friendRequestService,
     friend: friendService,
+    heartbeat: heartbeatService,
     invite: inviteService,
     message: messageService,
+    presence: presenceService,
     relevance: relevanceService,
     server: serverService,
     user: userService,

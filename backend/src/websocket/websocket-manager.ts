@@ -10,26 +10,31 @@ import {
   WSEventPayload,
   WSEventType,
 } from "../../../common/types";
-import { EventBusPort } from "../types/types";
-
-const HEARTBEAT_INTERVAL = 60000;
-const TIMEOUT_LIMIT = 120000;
+import { EventBusPort, SignedSocket } from "../types/types";
+import { AuthService } from "../services/auth.service";
+import { RelevanceService } from "../services/relevance.service";
+import { ConnectionRegistry } from "./connection-registry";
+import { HeartbeatService } from "../services/heartbeat.service";
+import { PresenceService } from "../services/presence.service";
 
 export class WebSocketManager {
-  private wss: WebSocket.Server;
-  private clientLastPong = new Map<WebSocket, number>();
-  private userSockets: Map<string, Set<WebSocket>>;
-  private presenceStore: Map<string, string>;
+  private wss!: WebSocket.Server;
 
-  constructor(server: http.Server, private readonly eventBus: EventBusPort) {
-    this.userSockets = new Map<string, Set<WebSocket>>();
-    this.presenceStore = new Map<string, string>();
+  constructor(
+    private readonly authService: AuthService,
+    private readonly relevanceService: RelevanceService,
+    private readonly heartbeatService: HeartbeatService,
+    private readonly presenceService: PresenceService,
+    private readonly registry: ConnectionRegistry,
+    private readonly eventBus: EventBusPort
+  ) {}
 
+  init(server: http.Server) {
     this.wss = new WebSocket.Server({ server });
     this.wss.on("connection", this.handleConnection.bind(this));
-    setInterval(this.pingClients.bind(this), HEARTBEAT_INTERVAL);
-
     this.setupEventBusSubscriptions();
+
+    this.heartbeatService.start();
   }
 
   private setupEventBusSubscriptions() {
@@ -68,75 +73,52 @@ export class WebSocketManager {
         this.broadcastToAll(broadcastEvent, payload);
       })
     );
+
+    this.eventBus.subscribe(WSEventType.PRESENCE, async (update) => {
+      const relatedUserIds = await this.relevanceService.getRelevantUserIds(
+        update.userId
+      );
+      this.broadcastToGroup(WSEventType.PRESENCE, update, relatedUserIds);
+    });
   }
 
-  private handleConnection(ws: WebSocket, req: http.IncomingMessage) {
+  private handleConnection(ws: SignedSocket, req: http.IncomingMessage) {
     const token = new URLSearchParams(req.url?.split("?")[1] || "").get(
       "token"
     );
-    if (!token) return ws.close(); //Invalid token
+    if (!token) return ws.close(); // No token
 
     try {
-      const signature = jwt.verify(token, config.jwtSecret) as UserSignature;
+      const signature = this.authService.verifyToken(token);
       const userId = signature.id;
-      (ws as any).signature = signature;
 
-      this.clientLastPong.set(ws, Date.now());
+      ws.signature = signature;
+      this.registry.addConnection(userId, ws);
 
-      //Send initial presence
-      if (!this.userSockets.has(userId)) {
-        this.userSockets.set(userId, new Set());
-      }
-      this.userSockets.get(userId)?.add(ws);
-
-      if (this.userSockets.get(userId)?.size === 1) {
-        this.updatePresence(userId, "online" as PresenceStatus);
+      if (this.registry.getSockets(userId).length === 1) {
+        this.presenceService.updateStatus({
+          userId,
+          status: "online" as PresenceStatus,
+        });
       }
 
       ws.on("message", async (message) => await this.routeMessage(ws, message));
 
       ws.on("close", () => {
-        const id = ((ws as any).signature as UserSignature).id;
+        this.registry.removeConnection(userId, ws);
 
-        this.clientLastPong.delete(ws);
-        console.log(`WS: ${(ws as any).signature.username} disconnected`);
-
-        const sockets = this.userSockets.get(id);
-        if (!sockets) return;
-
-        sockets.delete(ws);
-
-        if (sockets.size === 0) {
-          this.userSockets.delete(id);
-          this.updatePresence(id, "offline" as PresenceStatus);
+        if (this.registry.getSockets(userId).length === 0) {
+          this.presenceService.updateStatus({
+            userId,
+            status: "offline" as PresenceStatus,
+          });
         }
       });
-    } catch {
+    } catch (err) {
+      console.error(err);
       ws.close();
     }
   }
-
-  //#region Presence
-  private updatePresence(userId: string, status: PresenceStatus) {
-    const previous = this.presenceStore.get(userId);
-    if (previous === status) return;
-
-    this.presenceStore.set(userId, status);
-
-    //Temporary - should only broadcast to friends, users in the same servers
-    this.broadcastToAll("presence:update" as WSEventType, {
-      userId: userId,
-      status: status,
-    });
-  }
-
-  public getPresenceSnapshot(userIds: string[]): PresenceUpdate[] {
-    return userIds.map((id) => ({
-      userId: id,
-      status: (this.presenceStore.get(id) || "offline") as PresenceStatus,
-    }));
-  }
-  //#endregion
 
   //#region WS event handling
   private async routeMessage(ws: WebSocket, message: WebSocket.RawData) {
@@ -146,7 +128,8 @@ export class WebSocketManager {
 
       switch (event) {
         case "pong":
-          this.clientLastPong.set(ws, Date.now());
+          this.registry.updateLastPong(ws);
+
           console.log(`WS: Pong from ${signature.username}`);
           break;
         default:
@@ -166,7 +149,7 @@ export class WebSocketManager {
   //#endregion
 
   //#region Broadcasting and single DMs
-  public broadcastToAll<T extends WSEventType>(
+  private broadcastToAll<T extends WSEventType>(
     event: T,
     payload: WSEventPayload[T]
   ) {
@@ -188,7 +171,7 @@ export class WebSocketManager {
     });
   }
 
-  public broadcastToGroup<T extends WSEventType>(
+  private broadcastToGroup<T extends WSEventType>(
     event: T,
     payload: WSEventPayload[T],
     ids: string[]
@@ -199,35 +182,12 @@ export class WebSocketManager {
   private getSocketsFromIds(ids: string[]) {
     const result: WebSocket[] = [];
     for (const id of ids) {
-      const sockets = this.userSockets.get(id);
+      const sockets = this.registry.getSockets(id); //this.userSockets.get(id);
       if (sockets) {
         result.push(...sockets);
       }
     }
     return result;
-  }
-  //#endregion
-
-  //#region Connection checking
-  private pingClients() {
-    const now = Date.now();
-    console.log("WS: Ping");
-    //console.log(this.wss.clients.size);
-
-    this.wss.clients.forEach((ws) => {
-      const lastPong = this.clientLastPong.get(ws) || 0;
-      if (now - lastPong > TIMEOUT_LIMIT) {
-        console.log(
-          `WS: No pong received from ${
-            (ws as any).signature
-          } - terminating client`
-        );
-        ws.terminate();
-        return;
-      }
-
-      ws.send(JSON.stringify({ event: "ping", payload: { timestamp: now } }));
-    });
   }
   //#endregion
 }

@@ -8,22 +8,12 @@ export class UserService {
   constructor(
     private readonly userRepo: UserRepo,
     private readonly relevanceService: RelevanceService,
-    private readonly eventBus: EventBusPort,
-    private readonly presenceManager: PresencePort
+    private readonly eventBus: EventBusPort
   ) {}
 
   async getAllUsers() {
     const users = await this.userRepo.getAllUsers();
     return users;
-  }
-
-  async getAllUserPresences() {
-    const users = await this.userRepo.getAllUsers();
-    const userIds = users.map((u) => u.id);
-
-    const presences = await this.presenceManager.getSnapshot(userIds);
-
-    return presences;
   }
 
   async getUserById(userId: string) {

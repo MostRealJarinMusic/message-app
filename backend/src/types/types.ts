@@ -28,9 +28,16 @@ import { InviteService } from "../services/invite.service";
 import { MessageService } from "../services/message.service";
 import { ServerService } from "../services/server.service";
 import { UserService } from "../services/user.service";
+import { WebSocket } from "ws";
+import { HeartbeatService } from "../services/heartbeat.service";
+import { PresenceService } from "../services/presence.service";
 
 //Local extension
 export interface SignedRequest extends Request {
+  signature?: UserSignature;
+}
+
+export interface SignedSocket extends WebSocket {
   signature?: UserSignature;
 }
 
@@ -54,8 +61,10 @@ export interface Services {
   directMessage: DirectMessageService;
   friendRequest: FriendRequestService;
   friend: FriendService;
+  heartbeat: HeartbeatService;
   invite: InviteService;
   message: MessageService;
+  presence: PresenceService;
   relevance: RelevanceService;
   server: ServerService;
   user: UserService;

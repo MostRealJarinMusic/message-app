@@ -4,22 +4,22 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import { errorHandler } from "../middleware/error-handler";
 import { DB } from "../db/db";
-import { EventBusPort, PresencePort, Repos, Services } from "../types/types";
+import { Repos, Services } from "../types/types";
 import { createRepos } from "../db/factories/repo.factory";
 import { WebSocketManager } from "../websocket/websocket-manager";
-import { registerRoutes } from "../routes/factories/route.factory";
+import { createRoutes } from "../routes/factories/route.factory";
 import { createServices } from "../services/factories/service.factory";
 import { EventBus } from "../websocket/event-bus";
-import { PresenceAdapter } from "../websocket/adapters/websocket-presence.adapter";
+import { ConnectionRegistry } from "../websocket/connection-registry";
 
 export class Server {
   private app = express();
   private server = http.createServer(this.app);
   private wsManager!: WebSocketManager;
+  private connectionRegistry!: ConnectionRegistry;
   private db!: DB;
 
   private eventBus!: EventBus;
-  private presenceManager!: PresencePort;
   private repos!: Repos;
   private services!: Services;
 
@@ -30,28 +30,35 @@ export class Server {
 
   public async init() {
     this.db = new DB();
-    await this.db.initTables();
+    await this.db.init();
 
     // Initialise repos
     this.repos = createRepos(this.db);
 
-    // Initialise event bus + presence manager
+    // Initialise event bus + connection registry
     this.eventBus = new EventBus();
-
-    // Initialise WebSocket manager
-    this.wsManager = new WebSocketManager(this.server, this.eventBus);
-
-    this.presenceManager = new PresenceAdapter(this.eventBus);
+    this.connectionRegistry = new ConnectionRegistry();
 
     // Initialise services
     this.services = createServices(
       this.repos,
       this.eventBus,
-      this.presenceManager
+      this.connectionRegistry
     );
 
+    // Initialise WebSocket manager
+    this.wsManager = new WebSocketManager(
+      this.services.auth,
+      this.services.relevance,
+      this.services.heartbeat,
+      this.services.presence,
+      this.connectionRegistry,
+      this.eventBus
+    );
+    this.wsManager.init(this.server);
+
     // Register routes
-    registerRoutes(this.app, this.services);
+    createRoutes(this.app, this.services);
 
     // Error handler
     this.app.use(errorHandler);

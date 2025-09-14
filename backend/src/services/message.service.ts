@@ -1,14 +1,11 @@
 import {
-  ChannelType,
   Message,
   MessageCreate,
   MessageUpdate,
   WSEventType,
 } from "../../../common/types";
 import { ChannelRepo } from "../db/repos/channel.repo";
-import { DMChannelRepo } from "../db/repos/dm-channel.repo";
 import { MessageRepo } from "../db/repos/message.repo";
-import { ServerMemberRepo } from "../db/repos/server-member.repo";
 import { BadRequestError, NotFoundError } from "../errors/errors";
 import { ulid } from "ulid";
 import { EventBusPort } from "../types/types";

@@ -6,11 +6,13 @@ import { SignedRequest } from "../types/types";
 import { DirectMessageService } from "../services/direct-message.service";
 import { FriendService } from "../services/friend.service";
 import { asyncHandler } from "../utils/async-wrapper";
+import { PresenceService } from "../services/presence.service";
 
 export default function userRoutes(
   userService: UserService,
   directMessageService: DirectMessageService,
-  friendService: FriendService
+  friendService: FriendService,
+  presenceService: PresenceService
 ): Router {
   const userRoutes = Router();
 
@@ -59,7 +61,7 @@ export default function userRoutes(
     "/presences",
     authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
-      const presences = await userService.getAllUserPresences();
+      const presences = await presenceService.getAllUserPresences();
       res.json(presences);
     })
   );

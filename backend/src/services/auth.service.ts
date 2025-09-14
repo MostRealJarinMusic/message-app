@@ -4,6 +4,7 @@ import {
   AuthPayload,
   LoginCredentials,
   RegisterPayload,
+  UserSignature,
 } from "../../../common/types";
 import { BadRequestError, UnauthorizedError } from "../errors/errors";
 import { UserRepo } from "../db/repos/user.repo";
@@ -33,5 +34,13 @@ export class AuthService {
     );
 
     return { token, user };
+  }
+
+  verifyToken(token: string): UserSignature {
+    try {
+      return jwt.verify(token, config.jwtSecret) as UserSignature;
+    } catch {
+      throw new Error("Bad token");
+    }
   }
 }

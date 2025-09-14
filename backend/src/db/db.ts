@@ -16,15 +16,15 @@ export class DB {
     return this.db;
   }
 
-  async initTables(): Promise<void> {
-    const execAsync = (sql: string) =>
+  async init(): Promise<void> {
+    const asyncExec = (sql: string) =>
       new Promise<void>((resolve, reject) =>
         this.db.exec(sql, (err) => (err ? reject(err) : resolve()))
       );
 
-    await execAsync("PRAGMA foreign_keys = ON;");
+    await asyncExec("PRAGMA foreign_keys = ON;");
 
-    await execAsync(`
+    await asyncExec(`
       CREATE TABLE IF NOT EXISTS messages (
         id          TEXT PRIMARY KEY,
         authorId    TEXT,
@@ -36,7 +36,7 @@ export class DB {
       );
     `);
 
-    await execAsync(`
+    await asyncExec(`
       CREATE TABLE IF NOT EXISTS users (
         id              TEXT PRIMARY KEY,
         username        TEXT NOT NULL,
@@ -46,7 +46,7 @@ export class DB {
       );
     `);
 
-    await execAsync(`
+    await asyncExec(`
       CREATE TABLE IF NOT EXISTS friendships (
         userId1           TEXT NOT NULL,
         userId2           TEXT NOT NULL,
@@ -58,7 +58,7 @@ export class DB {
       );
     `);
 
-    await execAsync(`
+    await asyncExec(`
       CREATE TABLE IF NOT EXISTS friend_requests (
         id              TEXT PRIMARY KEY,
         senderId        TEXT NOT NULL,
@@ -72,7 +72,7 @@ export class DB {
       );
     `);
 
-    await execAsync(`
+    await asyncExec(`
       CREATE TABLE IF NOT EXISTS channels (
         id          TEXT PRIMARY KEY,
         serverId    TEXT,
@@ -85,7 +85,7 @@ export class DB {
       );
     `);
 
-    await execAsync(`
+    await asyncExec(`
       CREATE TABLE IF NOT EXISTS channel_categories ( 
         id            TEXT PRIMARY KEY,
         serverId      TEXT NOT NULL,
@@ -94,7 +94,7 @@ export class DB {
       );
     `);
 
-    await execAsync(`
+    await asyncExec(`
       CREATE TABLE IF NOT EXISTS channel_participants (
         channelId       TEXT NOT NULL,
         userId          TEXT NOT NULL,
@@ -104,7 +104,7 @@ export class DB {
       );  
     `);
 
-    await execAsync(`
+    await asyncExec(`
       CREATE TABLE IF NOT EXISTS direct_messages (
         channelId       TEXT PRIMARY KEY,
         userId1         TEXT NOT NULL,
@@ -117,7 +117,7 @@ export class DB {
       );
     `);
 
-    await execAsync(`
+    await asyncExec(`
       CREATE TABLE IF NOT EXISTS servers (
         id            TEXT PRIMARY KEY,
         name          TEXT NOT NULL,
@@ -125,7 +125,7 @@ export class DB {
       );    
     `);
 
-    await execAsync(`
+    await asyncExec(`
       CREATE TABLE IF NOT EXISTS server_members (
         userId        TEXT NOT NULL,
         serverId      TEXT NOT NULL,
@@ -135,7 +135,7 @@ export class DB {
       );
     `);
 
-    await execAsync(`
+    await asyncExec(`
       CREATE TABLE IF NOT EXISTS server_invites (
         id              TEXT PRIMARY KEY,
         serverId        TEXT,
