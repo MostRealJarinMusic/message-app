@@ -33,6 +33,7 @@ export class ConnectionRegistry {
 
   updateLastPong(ws: SignedSocket) {
     this.clientLastPong.set(ws, Date.now());
+    console.log(`WS: ${ws.signature!.username} pongs`);
   }
 
   getLastPong(ws: SignedSocket) {

@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import WebSocket from "ws";
 import { config } from "../config";
 import {
+  AnyWSEvent,
   PresenceStatus,
   PresenceUpdate,
   UserSignature,
@@ -16,6 +17,7 @@ import { RelevanceService } from "../services/relevance.service";
 import { ConnectionRegistry } from "./connection-registry";
 import { HeartbeatService } from "../services/heartbeat.service";
 import { PresenceService } from "../services/presence.service";
+import { WebSocketRouter } from "./websocket-router";
 
 export class WebSocketManager {
   private wss!: WebSocket.Server;
@@ -26,6 +28,7 @@ export class WebSocketManager {
     private readonly heartbeatService: HeartbeatService,
     private readonly presenceService: PresenceService,
     private readonly registry: ConnectionRegistry,
+    private readonly router: WebSocketRouter,
     private readonly eventBus: EventBusPort
   ) {}
 
@@ -123,18 +126,8 @@ export class WebSocketManager {
   //#region WS event handling
   private async routeMessage(ws: WebSocket, message: WebSocket.RawData) {
     try {
-      const { event, payload }: WSEvent<any> = JSON.parse(message.toString());
-      const signature: UserSignature = (ws as any).signature;
-
-      switch (event) {
-        case "pong":
-          this.registry.updateLastPong(ws);
-
-          console.log(`WS: Pong from ${signature.username}`);
-          break;
-        default:
-          console.warn("WS: Unhandled event", event);
-      }
+      const parsedEvent: AnyWSEvent = JSON.parse(message.toString());
+      await this.router.handle(parsedEvent, ws);
     } catch (err) {
       console.error("WS: Invalid message format", err);
     }

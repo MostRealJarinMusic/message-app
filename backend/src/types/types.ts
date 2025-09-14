@@ -31,6 +31,7 @@ import { UserService } from "../services/user.service";
 import { WebSocket } from "ws";
 import { HeartbeatService } from "../services/heartbeat.service";
 import { PresenceService } from "../services/presence.service";
+import { TypingService } from "../services/typing.service";
 
 //Local extension
 export interface SignedRequest extends Request {
@@ -67,6 +68,7 @@ export interface Services {
   presence: PresenceService;
   relevance: RelevanceService;
   server: ServerService;
+  typing: TypingService;
   user: UserService;
 }
 

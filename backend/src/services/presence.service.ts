@@ -14,6 +14,7 @@ export class PresenceService {
     private readonly eventBus: EventBusPort
   ) {}
 
+  //Temporary
   async getAllUserPresences() {
     const users = await this.userRepo.getAllUsers();
     const userIds = users.map((u) => u.id);

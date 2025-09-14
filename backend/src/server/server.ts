@@ -11,11 +11,13 @@ import { createRoutes } from "../routes/factories/route.factory";
 import { createServices } from "../services/factories/service.factory";
 import { EventBus } from "../websocket/event-bus";
 import { ConnectionRegistry } from "../websocket/connection-registry";
+import { WebSocketRouter } from "../websocket/websocket-router";
 
 export class Server {
   private app = express();
   private server = http.createServer(this.app);
   private wsManager!: WebSocketManager;
+  private wsRouter!: WebSocketRouter;
   private connectionRegistry!: ConnectionRegistry;
   private db!: DB;
 
@@ -28,7 +30,7 @@ export class Server {
     this.app.use(bodyParser.json());
   }
 
-  public async init() {
+  async init() {
     this.db = new DB();
     await this.db.init();
 
@@ -47,12 +49,18 @@ export class Server {
     );
 
     // Initialise WebSocket manager
+    this.wsRouter = new WebSocketRouter(
+      this.services.typing,
+      this.connectionRegistry
+    );
+
     this.wsManager = new WebSocketManager(
       this.services.auth,
       this.services.relevance,
       this.services.heartbeat,
       this.services.presence,
       this.connectionRegistry,
+      this.wsRouter,
       this.eventBus
     );
     this.wsManager.init(this.server);

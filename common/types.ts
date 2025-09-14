@@ -214,6 +214,10 @@ export type WSEventPayload = {
   [WSEventType.TYPING_STOP]: TypingIndicator;
 };
 
+export type AnyWSEvent = {
+  [K in WSEventType]: { event: K; payload: WSEventPayload[K] };
+}[WSEventType];
+
 //#endregion
 
 //#region Presence types

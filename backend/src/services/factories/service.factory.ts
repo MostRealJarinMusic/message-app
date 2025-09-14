@@ -12,6 +12,7 @@ import { MessageService } from "../message.service";
 import { PresenceService } from "../presence.service";
 import { RelevanceService } from "../relevance.service";
 import { ServerService } from "../server.service";
+import { TypingService } from "../typing.service";
 import { UserService } from "../user.service";
 
 export function createServices(
@@ -79,6 +80,12 @@ export function createServices(
 
   const heartbeatService = new HeartbeatService(registry);
 
+  const typingService = new TypingService(
+    repos.channel,
+    relevanceService,
+    eventBus
+  );
+
   return {
     auth: authService,
     category: categoryService,
@@ -92,6 +99,7 @@ export function createServices(
     presence: presenceService,
     relevance: relevanceService,
     server: serverService,
+    typing: typingService,
     user: userService,
   };
 }
