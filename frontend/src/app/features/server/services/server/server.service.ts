@@ -74,8 +74,8 @@ export class ServerService {
     });
 
     this.wsService.on(WSEventType.USER_SERVER_JOIN).subscribe({
-      next: (server) => {
-        this.upsertServer(server);
+      next: (serverJoin) => {
+        this.upsertServer(serverJoin.server);
       },
       error: (err) => {
         console.log('Failed to join server from WebSocket message:', err);

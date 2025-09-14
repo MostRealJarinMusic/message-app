@@ -83,11 +83,7 @@ export interface PresencePort {
 
 //#region Event Bus
 export interface EventBusPort {
-  publish<T extends WSEventType>(
-    event: T,
-    payload: WSEventPayload[T],
-    targetIds?: string[]
-  ): void;
+  publish<T extends WSEventType>(event: T, payload: WSEventPayload[T]): void;
   subscribe<T extends WSEventType>(event: T, handler: Handler<T>): void;
 }
 

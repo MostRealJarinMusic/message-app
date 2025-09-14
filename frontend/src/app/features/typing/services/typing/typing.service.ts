@@ -32,6 +32,8 @@ export class TypingService {
   private initWebSocket() {
     this.wsService.on(WSEventType.TYPING_START).subscribe({
       next: (indicator) => {
+        console.log('Received typing start', indicator);
+
         this.activeTyperStore.update((store) => {
           if (!store.has(indicator.channelId)) store.set(indicator.channelId, new Set());
 
@@ -59,11 +61,31 @@ export class TypingService {
     });
   }
 
-  startTyping(indicator: TypingIndicator) {
+  startTyping(channelId: string) {
+    const user = this.userService.currentUser();
+    if (!user) return;
+
+    const indicator: TypingIndicator = {
+      channelId,
+      userId: user.id,
+    };
+
+    console.log('Emitting typing start', indicator);
+
     this.wsService.emit(WSEventType.TYPING_START, indicator);
   }
 
-  stopTyping(indicator: TypingIndicator) {
+  stopTyping(channelId: string) {
+    const user = this.userService.currentUser();
+    if (!user) return;
+
+    const indicator: TypingIndicator = {
+      channelId,
+      userId: user.id,
+    };
+
+    console.log('Emitting typing stop', indicator);
+
     this.wsService.emit(WSEventType.TYPING_STOP, indicator);
   }
 }

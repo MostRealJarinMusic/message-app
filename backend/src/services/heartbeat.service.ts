@@ -1,4 +1,3 @@
-import { EventBusPort } from "../types/types";
 import { ConnectionRegistry } from "../websocket/connection-registry";
 
 export class HeartbeatService {

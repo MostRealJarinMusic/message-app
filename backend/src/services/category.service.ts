@@ -14,7 +14,6 @@ import { EventBusPort } from "../types/types";
 export class CategoryService {
   constructor(
     private readonly categoryRepo: ChannelCategoryRepo,
-    private readonly serverMemberRepo: ServerMemberRepo,
     private readonly channelRepo: ChannelRepo,
     private readonly eventBus: EventBusPort
   ) {}
@@ -37,8 +36,7 @@ export class CategoryService {
 
     await this.categoryRepo.createCategory(category);
 
-    const memberIds = await this.serverMemberRepo.getServerMemberIds(serverId);
-    this.eventBus.publish(WSEventType.CATEGORY_CREATE, category, memberIds);
+    this.eventBus.publish(WSEventType.CATEGORY_CREATE, category);
 
     return category;
   }
@@ -50,13 +48,10 @@ export class CategoryService {
     const targetChannels = await this.channelRepo.getChannelsByCategory(
       categoryId
     );
-    const memberIds = await this.serverMemberRepo.getServerMemberIds(
-      category.serverId
-    );
 
     await this.categoryRepo.deleteCategory(categoryId);
 
-    this.eventBus.publish(WSEventType.CATEGORY_DELETE, category, memberIds);
+    this.eventBus.publish(WSEventType.CATEGORY_DELETE, category);
 
     const updatedChannels = targetChannels.map((channel) => ({
       ...channel,
@@ -64,11 +59,7 @@ export class CategoryService {
     }));
 
     updatedChannels.forEach((updatedChannel) => {
-      this.eventBus.publish(
-        WSEventType.CHANNEL_UPDATE,
-        updatedChannel,
-        memberIds
-      );
+      this.eventBus.publish(WSEventType.CHANNEL_UPDATE, updatedChannel);
     });
   }
 
@@ -87,14 +78,6 @@ export class CategoryService {
     await this.categoryRepo.editCategory(proposedCategory);
 
     const updatedCategory = await this.categoryRepo.getCategory(categoryId);
-    const memberIds = await this.serverMemberRepo.getServerMemberIds(
-      updatedCategory.serverId
-    );
-
-    this.eventBus.publish(
-      WSEventType.CATEGORY_UPDATE,
-      updatedCategory,
-      memberIds
-    );
+    this.eventBus.publish(WSEventType.CATEGORY_UPDATE, updatedCategory);
   }
 }

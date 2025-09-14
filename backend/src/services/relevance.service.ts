@@ -29,11 +29,19 @@ export class RelevanceService {
     if (!channel) throw new NotFoundError("Channel doesn't exist");
 
     if (channel.type === ChannelType.TEXT && channel.serverId) {
-      return this.serverMemberRepo.getServerMemberIds(channel.serverId);
+      return this.getTargetIdsForServer(channel.serverId);
     } else if (channel.type === ChannelType.DM) {
-      return this.dmChannelRepo.getDMChannelParticipantIds(channel.id);
+      return this.getTargetIdsForDMChannel(channel.id);
     }
 
     return [];
+  }
+
+  async getTargetIdsForServer(serverId: string): Promise<string[]> {
+    return this.serverMemberRepo.getServerMemberIds(serverId);
+  }
+
+  async getTargetIdsForDMChannel(dmChannelId: string): Promise<string[]> {
+    return this.dmChannelRepo.getDMChannelParticipantIds(dmChannelId);
   }
 }

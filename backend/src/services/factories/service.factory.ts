@@ -25,15 +25,10 @@ export function createServices(
   const authService = new AuthService(repos.user);
   const categoryService = new CategoryService(
     repos.category,
-    repos.serverMember,
     repos.channel,
     eventBus
   );
-  const channelService = new ChannelService(
-    repos.channel,
-    repos.serverMember,
-    eventBus
-  );
+  const channelService = new ChannelService(repos.channel, eventBus);
   const directMessageService = new DirectMessageService(repos.dmChannel);
   const friendRequestService = new FriendRequestService(
     repos.friendRequest,
@@ -61,29 +56,24 @@ export function createServices(
     presenceService
   );
 
+  const messageService = new MessageService(
+    repos.message,
+    repos.channel,
+    eventBus
+  );
+
+  const userService = new UserService(repos.user, eventBus);
+
+  const heartbeatService = new HeartbeatService(registry);
+
+  const typingService = new TypingService(repos.channel, eventBus);
+
   const relevanceService = new RelevanceService(
     friendService,
     serverService,
     repos.channel,
     repos.serverMember,
     repos.dmChannel
-  );
-
-  const messageService = new MessageService(
-    repos.message,
-    repos.channel,
-    relevanceService,
-    eventBus
-  );
-
-  const userService = new UserService(repos.user, relevanceService, eventBus);
-
-  const heartbeatService = new HeartbeatService(registry);
-
-  const typingService = new TypingService(
-    repos.channel,
-    relevanceService,
-    eventBus
   );
 
   return {

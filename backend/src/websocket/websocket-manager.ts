@@ -24,65 +24,17 @@ export class WebSocketManager {
 
   constructor(
     private readonly authService: AuthService,
-    private readonly relevanceService: RelevanceService,
     private readonly heartbeatService: HeartbeatService,
     private readonly presenceService: PresenceService,
     private readonly registry: ConnectionRegistry,
-    private readonly router: WebSocketRouter,
-    private readonly eventBus: EventBusPort
+    private readonly router: WebSocketRouter
   ) {}
 
   init(server: http.Server) {
     this.wss = new WebSocket.Server({ server });
     this.wss.on("connection", this.handleConnection.bind(this));
-    this.setupEventBusSubscriptions();
 
     this.heartbeatService.start();
-  }
-
-  private setupEventBusSubscriptions() {
-    const broadcastEvents: WSEventType[] = [
-      WSEventType.MESSAGE_RECEIVE,
-      WSEventType.MESSAGE_EDIT,
-      WSEventType.MESSAGE_DELETE,
-      WSEventType.CHANNEL_CREATE,
-      WSEventType.CHANNEL_UPDATE,
-      WSEventType.CHANNEL_DELETE,
-      WSEventType.CATEGORY_CREATE,
-      WSEventType.CATEGORY_UPDATE,
-      WSEventType.CATEGORY_DELETE,
-      WSEventType.SERVER_CREATE,
-      WSEventType.SERVER_UPDATE,
-      WSEventType.SERVER_DELETE,
-      WSEventType.SERVER_MEMBER_ADD,
-      WSEventType.PRESENCE,
-      WSEventType.FRIEND_REQUEST_SENT,
-      WSEventType.FRIEND_REQUEST_RECEIVE,
-      WSEventType.FRIEND_REQUEST_UPDATE,
-      WSEventType.FRIEND_REQUEST_DELETE,
-      WSEventType.FRIEND_ADD,
-      WSEventType.DM_CHANNEL_CREATE,
-      WSEventType.USER_UPDATE,
-      WSEventType.USER_SERVER_JOIN,
-    ];
-
-    broadcastEvents.forEach((broadcastEvent) =>
-      this.eventBus.subscribe(broadcastEvent, (payload, targetIds) => {
-        if (targetIds) {
-          this.broadcastToGroup(broadcastEvent, payload, targetIds);
-          return;
-        }
-
-        this.broadcastToAll(broadcastEvent, payload);
-      })
-    );
-
-    this.eventBus.subscribe(WSEventType.PRESENCE, async (update) => {
-      const relatedUserIds = await this.relevanceService.getRelevantUserIds(
-        update.userId
-      );
-      this.broadcastToGroup(WSEventType.PRESENCE, update, relatedUserIds);
-    });
   }
 
   private handleConnection(ws: SignedSocket, req: http.IncomingMessage) {
@@ -142,11 +94,27 @@ export class WebSocketManager {
   //#endregion
 
   //#region Broadcasting and single DMs
-  private broadcastToAll<T extends WSEventType>(
+  public broadcastToAll<T extends WSEventType>(
     event: T,
     payload: WSEventPayload[T]
   ) {
     this.broadcast(event, payload, Array.from(this.wss.clients));
+  }
+
+  public broadcastToGroup<T extends WSEventType>(
+    event: T,
+    payload: WSEventPayload[T],
+    ids: string[]
+  ) {
+    this.broadcast(event, payload, this.getSocketsFromIds(ids));
+  }
+
+  public broadcastToUser<T extends WSEventType>(
+    event: T,
+    payload: WSEventPayload[T],
+    id: string
+  ) {
+    this.broadcast(event, payload, this.getSocketsFromIds([id]));
   }
 
   private broadcast<T extends WSEventType>(
@@ -162,14 +130,6 @@ export class WebSocketManager {
         client.send(message);
       }
     });
-  }
-
-  private broadcastToGroup<T extends WSEventType>(
-    event: T,
-    payload: WSEventPayload[T],
-    ids: string[]
-  ) {
-    this.broadcast(event, payload, this.getSocketsFromIds(ids));
   }
 
   private getSocketsFromIds(ids: string[]) {

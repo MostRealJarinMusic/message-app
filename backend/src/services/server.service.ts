@@ -101,7 +101,7 @@ export class ServerService {
 
     // With public servers, we may have to notify people
     //Broadcast to creator
-    this.eventBus.publish(WSEventType.SERVER_CREATE, server, [creatorId]);
+    this.eventBus.publish(WSEventType.SERVER_CREATE, server);
 
     return server;
   }
@@ -111,11 +111,8 @@ export class ServerService {
     const server = await this.serverRepo.getServer(serverId);
     if (!server) throw new NotFoundError("Server doesn't exist");
 
-    const memberIds = await this.serverMemberRepo.getServerMemberIds(serverId);
-
+    this.eventBus.publish(WSEventType.SERVER_DELETE, server);
     await this.serverRepo.deleteServer(serverId);
-
-    this.eventBus.publish(WSEventType.SERVER_DELETE, server, memberIds);
   }
 
   //Editing a server
@@ -131,7 +128,6 @@ export class ServerService {
     await this.serverRepo.editServer(proposedServer);
     const updatedServer = await this.serverRepo.getServer(serverId);
 
-    const memberIds = await this.serverMemberRepo.getServerMemberIds(serverId);
-    this.eventBus.publish(WSEventType.SERVER_UPDATE, updatedServer, memberIds);
+    this.eventBus.publish(WSEventType.SERVER_UPDATE, updatedServer);
   }
 }

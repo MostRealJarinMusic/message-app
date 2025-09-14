@@ -137,6 +137,11 @@ export interface ServerInviteCreate {
   serverId: string;
   expiresOn?: string;
 }
+
+export interface ServerJoin {
+  userId: string;
+  server: Server;
+}
 //#endregion
 
 //#region WebSocket types
@@ -204,12 +209,12 @@ export type WSEventPayload = {
   [WSEventType.FRIEND_REQUEST_RECEIVE]: FriendRequest;
   [WSEventType.FRIEND_REQUEST_UPDATE]: FriendRequest;
   [WSEventType.FRIEND_REQUEST_DELETE]: FriendRequest;
-  [WSEventType.FRIEND_ADD]: { id: string };
+  [WSEventType.FRIEND_ADD]: FriendCreate;
   [WSEventType.DM_CHANNEL_CREATE]: Channel;
   [WSEventType.PING]: { timestamp: Timestamp };
   [WSEventType.PONG]: { timestamp: Timestamp };
   [WSEventType.USER_UPDATE]: PublicUser;
-  [WSEventType.USER_SERVER_JOIN]: Server;
+  [WSEventType.USER_SERVER_JOIN]: ServerJoin;
   [WSEventType.TYPING_START]: TypingIndicator;
   [WSEventType.TYPING_STOP]: TypingIndicator;
 };
@@ -260,6 +265,11 @@ export interface Friendship {
 
 export interface Friend {
   id: string;
+}
+
+export interface FriendCreate {
+  targetId: string;
+  friendId: string;
 }
 
 export interface FriendRequest {

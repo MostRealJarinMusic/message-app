@@ -99,15 +99,10 @@ export class InviteService {
     await this.serverMemberRepo.addServerMember(member);
 
     //WebSocket message to notify other server members
-    const memberIds = await this.serverMemberRepo.getServerMemberIds(server.id);
-    this.eventBus.publish(
-      WSEventType.SERVER_MEMBER_ADD,
-      member,
-      memberIds.filter((m) => m !== userId)
-    );
+    this.eventBus.publish(WSEventType.SERVER_MEMBER_ADD, member);
 
     //WebSocket message to notify other synced clients that they have joined
-    this.eventBus.publish(WSEventType.USER_SERVER_JOIN, server, [userId]);
+    this.eventBus.publish(WSEventType.USER_SERVER_JOIN, { server, userId });
 
     //Return server
     return server;

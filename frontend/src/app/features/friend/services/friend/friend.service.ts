@@ -33,7 +33,7 @@ export class FriendService {
   private initWebSocket() {
     //Listeners for friend adds and blocks
     this.wsService.on(WSEventType.FRIEND_ADD).subscribe((friend) => {
-      this.friends.update((current) => [...current, friend.id]);
+      this.friends.update((current) => [...current, friend.friendId]);
     });
   }
 

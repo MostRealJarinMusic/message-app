@@ -15,7 +15,6 @@ export class MessageService {
   constructor(
     private readonly messageRepo: MessageRepo,
     private readonly channelRepo: ChannelRepo,
-    private readonly relevanceService: RelevanceService,
     private readonly eventBus: EventBusPort
   ) {}
 
@@ -40,11 +39,7 @@ export class MessageService {
 
     await this.messageRepo.createMessage(message);
 
-    //Target IDs for the channel
-    let targetIds: string[] =
-      await this.relevanceService.getTargetIdsForChannel(channelId);
-
-    this.eventBus.publish(WSEventType.MESSAGE_RECEIVE, message, targetIds);
+    this.eventBus.publish(WSEventType.MESSAGE_RECEIVE, message);
 
     return message;
   }
@@ -60,14 +55,10 @@ export class MessageService {
     const message = await this.messageRepo.getMessage(messageId);
     if (!message) throw new NotFoundError("Message doesn't exist");
 
-    //Target IDs for the channel
-    let targetIds: string[] =
-      await this.relevanceService.getTargetIdsForChannel(message.channelId);
+    //Broadcast to users
+    this.eventBus.publish(WSEventType.MESSAGE_DELETE, message);
 
     await this.messageRepo.deleteMessage(messageId);
-
-    //Broadcast to users
-    this.eventBus.publish(WSEventType.MESSAGE_DELETE, message, targetIds);
   }
 
   async editMessage(messageId: string, messageUpdate: MessageUpdate) {
@@ -77,11 +68,7 @@ export class MessageService {
     await this.messageRepo.editMessage(messageId, messageUpdate.content);
     const newMessage = await this.messageRepo.getMessage(messageId);
 
-    //Target IDs for the channel
-    let targetIds: string[] =
-      await this.relevanceService.getTargetIdsForChannel(message.channelId);
-
     //Broadcast to users
-    this.eventBus.publish(WSEventType.MESSAGE_EDIT, newMessage, targetIds);
+    this.eventBus.publish(WSEventType.MESSAGE_EDIT, newMessage);
   }
 }

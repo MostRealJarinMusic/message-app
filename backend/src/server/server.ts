@@ -12,6 +12,7 @@ import { createServices } from "../services/factories/service.factory";
 import { EventBus } from "../websocket/event-bus";
 import { ConnectionRegistry } from "../websocket/connection-registry";
 import { WebSocketRouter } from "../websocket/websocket-router";
+import { NotificationDispatcher } from "../websocket/notification-dispatcher";
 
 export class Server {
   private app = express();
@@ -19,6 +20,7 @@ export class Server {
   private wsManager!: WebSocketManager;
   private wsRouter!: WebSocketRouter;
   private connectionRegistry!: ConnectionRegistry;
+  private notificationDispatcher!: NotificationDispatcher;
   private db!: DB;
 
   private eventBus!: EventBus;
@@ -56,14 +58,20 @@ export class Server {
 
     this.wsManager = new WebSocketManager(
       this.services.auth,
-      this.services.relevance,
       this.services.heartbeat,
       this.services.presence,
       this.connectionRegistry,
-      this.wsRouter,
-      this.eventBus
+      this.wsRouter
     );
     this.wsManager.init(this.server);
+
+    // Initialise notification dispatcher
+    this.notificationDispatcher = new NotificationDispatcher(
+      this.services.relevance,
+      this.wsManager,
+      this.eventBus
+    );
+    this.notificationDispatcher.init();
 
     // Register routes
     createRoutes(this.app, this.services);

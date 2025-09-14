@@ -64,14 +64,10 @@ export class FriendRequestService {
     await this.friendRequestRepo.createRequest(friendRequest);
 
     // //Notify sender
-    this.eventBus.publish(WSEventType.FRIEND_REQUEST_SENT, friendRequest, [
-      friendRequest.senderId,
-    ]);
+    this.eventBus.publish(WSEventType.FRIEND_REQUEST_SENT, friendRequest);
 
     //Notify requested user
-    this.eventBus.publish(WSEventType.FRIEND_REQUEST_RECEIVE, friendRequest, [
-      friendRequest.receiverId,
-    ]);
+    this.eventBus.publish(WSEventType.FRIEND_REQUEST_RECEIVE, friendRequest);
 
     return friendRequest;
   }
@@ -112,10 +108,7 @@ export class FriendRequestService {
     );
 
     //Sender and receiver notification that request is updated - frontend will deal with UI update
-    this.eventBus.publish(WSEventType.FRIEND_REQUEST_UPDATE, updated, [
-      friendRequest.senderId,
-      receiverId,
-    ]);
+    this.eventBus.publish(WSEventType.FRIEND_REQUEST_UPDATE, updated);
 
     switch (updated.status) {
       case FriendRequestStatus.ACCEPTED:
@@ -123,16 +116,16 @@ export class FriendRequestService {
         await this.friendRepo.addFriend(friendRequest.senderId, receiverId);
 
         //Sender notification for new friend
-        this.eventBus.publish(WSEventType.FRIEND_ADD, { id: receiverId }, [
-          friendRequest.senderId,
-        ]);
+        this.eventBus.publish(WSEventType.FRIEND_ADD, {
+          targetId: receiverId,
+          friendId: friendRequest.senderId,
+        });
 
         //Receiver notification for new friend
-        this.eventBus.publish(
-          WSEventType.FRIEND_ADD,
-          { id: friendRequest.senderId },
-          [receiverId]
-        );
+        this.eventBus.publish(WSEventType.FRIEND_ADD, {
+          targetId: friendRequest.senderId,
+          friendId: receiverId,
+        });
 
         //Create the channel and direct message entry
         const channel: Channel = {
@@ -146,10 +139,7 @@ export class FriendRequestService {
         await this.dmChannelRepo.createDMChannel(channel, friendRequest);
 
         //Notification for channel creation
-        this.eventBus.publish(WSEventType.DM_CHANNEL_CREATE, channel, [
-          friendRequest.senderId,
-          receiverId,
-        ]);
+        this.eventBus.publish(WSEventType.DM_CHANNEL_CREATE, channel);
 
         break;
       case FriendRequestStatus.REJECTED:
@@ -174,9 +164,6 @@ export class FriendRequestService {
 
     await this.friendRequestRepo.deleteFriendRequest(requestId);
 
-    this.eventBus.publish(WSEventType.FRIEND_REQUEST_DELETE, friendRequest, [
-      friendRequest.senderId,
-      friendRequest.receiverId,
-    ]);
+    this.eventBus.publish(WSEventType.FRIEND_REQUEST_DELETE, friendRequest);
   }
 }

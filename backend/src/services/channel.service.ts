@@ -18,7 +18,6 @@ import { EventBusPort } from "../types/types";
 export class ChannelService {
   constructor(
     private readonly channelRepo: ChannelRepo,
-    private readonly serverMemberRepo: ServerMemberRepo,
     private readonly eventBus: EventBusPort
   ) {}
 
@@ -36,8 +35,7 @@ export class ChannelService {
 
     await this.channelRepo.createChannel(channel);
 
-    const memberIds = await this.serverMemberRepo.getServerMemberIds(serverId);
-    this.eventBus.publish(WSEventType.CHANNEL_CREATE, channel, memberIds);
+    this.eventBus.publish(WSEventType.CHANNEL_CREATE, channel);
 
     return channel;
   }
@@ -56,12 +54,8 @@ export class ChannelService {
     if (channel.type === ChannelType.DM || !channel.serverId)
       throw new ForbiddenError("Attempted to delete DM channel");
 
-    const memberIds = await this.serverMemberRepo.getServerMemberIds(
-      channel.serverId
-    );
+    this.eventBus.publish(WSEventType.CHANNEL_DELETE, channel);
     await this.channelRepo.deleteChannel(channelId);
-
-    this.eventBus.publish(WSEventType.CHANNEL_DELETE, channel, memberIds);
   }
 
   async editChannel(channelId: string, channelUpdate: ChannelUpdate) {
@@ -75,15 +69,7 @@ export class ChannelService {
     await this.channelRepo.editChannel(proposedChannel);
     const updatedChannel = await this.channelRepo.getChannel(channelId);
 
-    const memberIds = await this.serverMemberRepo.getServerMemberIds(
-      channel.serverId
-    );
-
     //Broadcast to users
-    this.eventBus.publish(
-      WSEventType.CHANNEL_UPDATE,
-      updatedChannel,
-      memberIds
-    );
+    this.eventBus.publish(WSEventType.CHANNEL_UPDATE, updatedChannel);
   }
 }
