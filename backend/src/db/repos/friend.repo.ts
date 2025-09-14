@@ -1,11 +1,13 @@
-import { getDB } from "../db";
+import { DB } from "../db";
 
 export class FriendRepo {
-  static async getFriends(id: string): Promise<string[]> {
-    const db = await getDB();
+  constructor(private db: DB) {}
+
+  getFriends(id: string): Promise<string[]> {
+    const database = this.db.getInstance();
 
     return new Promise((resolve, reject) => {
-      db.all(
+      database.all(
         `SELECT 
           CASE 
             WHEN userId1 = ? THEN userId2
@@ -28,14 +30,14 @@ export class FriendRepo {
     });
   }
 
-  static async addFriend(id: string, friendId: string): Promise<void> {
-    const db = await getDB();
+  addFriend(id: string, friendId: string): Promise<void> {
+    const database = this.db.getInstance();
 
     return new Promise((resolve, reject) => {
       if (id === friendId) return reject();
 
       if (id < friendId) {
-        db.run(
+        database.run(
           `INSERT INTO friendships (userId1, userId2, createdAt) VALUES (?, ?, ?)`,
           [id, friendId, new Date().toISOString()],
           function (err) {
@@ -44,7 +46,7 @@ export class FriendRepo {
           }
         );
       } else {
-        db.run(
+        database.run(
           `INSERT INTO friendships (userId1, userId2, createdAt) VALUES (?, ?, ?)`,
           [friendId, id, new Date().toISOString()],
           function (err) {
@@ -56,11 +58,11 @@ export class FriendRepo {
     });
   }
 
-  static async friendshipExists(id: string, otherId: string): Promise<boolean> {
-    const db = await getDB();
+  friendshipExists(id: string, otherId: string): Promise<boolean> {
+    const database = this.db.getInstance();
 
     return new Promise((resolve, reject) => {
-      db.get(
+      database.get(
         `SELECT 1 FROM friendships WHERE (userId1 = ? AND userId2 = ?) OR (userId1 = ? AND userId2 = ?) LIMIT 1`,
         [id, otherId, otherId, id],
         (err, row) => {

@@ -1,12 +1,14 @@
 import { ServerMember, PublicUser } from "@common/types";
-import { getDB } from "../db";
+import { DB } from "../db";
 
 export class ServerMemberRepo {
-  static async getServerMembers(serverId: string) {
-    const db = await getDB();
+  constructor(private db: DB) {}
+
+  getServerMembers(serverId: string) {
+    const database = this.db.getInstance();
 
     return new Promise<PublicUser[]>((resolve, reject) => {
-      db.all(
+      database.all(
         `
         SELECT * FROM server_members 
         INNER JOIN users
@@ -31,11 +33,11 @@ export class ServerMemberRepo {
     });
   }
 
-  static async getServerMemberIds(serverId: string) {
-    const db = await getDB();
+  getServerMemberIds(serverId: string) {
+    const database = this.db.getInstance();
 
     return new Promise<string[]>((resolve, reject) => {
-      db.all(
+      database.all(
         `
         SELECT * FROM server_members 
         INNER JOIN users
@@ -56,16 +58,14 @@ export class ServerMemberRepo {
     });
   }
 
-  static async getServerMemberIdsByServerIds(
-    serverIds: string[]
-  ): Promise<string[]> {
-    if (serverIds.length === 0) return [];
+  getServerMemberIdsByServerIds(serverIds: string[]): Promise<string[]> {
+    if (serverIds.length === 0) return Promise.resolve([]);
 
-    const db = await getDB();
+    const database = this.db.getInstance();
 
     return new Promise<string[]>((resolve, reject) => {
       const placeholders = serverIds.map(() => "?").join(",");
-      db.all(
+      database.all(
         `SELECT userId FROM server_members WHERE serverId IN (${placeholders})`,
         serverIds,
         (err, rows) => {
@@ -77,11 +77,11 @@ export class ServerMemberRepo {
     });
   }
 
-  static async addServerMember(member: ServerMember): Promise<void> {
-    const db = await getDB();
+  addServerMember(member: ServerMember): Promise<void> {
+    const database = this.db.getInstance();
 
     return new Promise((resolve, reject) => {
-      db.run(
+      database.run(
         `INSERT INTO server_members (userId, serverId) VALUES (?, ?)`,
         [member.userId, member.serverId],
         function (err) {
@@ -92,11 +92,11 @@ export class ServerMemberRepo {
     });
   }
 
-  static async getServerMember(serverId: string, userId: string) {
-    const db = await getDB();
+  getServerMember(serverId: string, userId: string) {
+    const database = this.db.getInstance();
 
     return new Promise<ServerMember | null>((resolve, reject) => {
-      db.get(
+      database.get(
         `SELECT * FROM server_members WHERE serverId = ? AND userId = ?`,
         [serverId, userId],
         (err, row: any) => {

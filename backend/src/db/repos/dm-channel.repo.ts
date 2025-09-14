@@ -1,12 +1,14 @@
 import { Channel, FriendRequest } from "../../../../common/types";
-import { getDB } from "../db";
+import { DB } from "../db";
 
 export class DMChannelRepo {
-  static async getDMChannels(userId: string) {
-    const db = await getDB();
+  constructor(private db: DB) {}
+
+  getDMChannels(userId: string) {
+    const database = this.db.getInstance();
 
     return new Promise<Channel[]>((resolve, reject) => {
-      db.all(
+      database.all(
         `
         SELECT * FROM direct_messages 
         INNER JOIN channels
@@ -33,11 +35,11 @@ export class DMChannelRepo {
     });
   }
 
-  static async getDMChannelParticipantIds(channelId: string) {
-    const db = await getDB();
+  getDMChannelParticipantIds(channelId: string) {
+    const database = this.db.getInstance();
 
     return new Promise<string[]>((resolve, reject) => {
-      db.get(
+      database.get(
         `SELECT * FROM direct_messages WHERE channelId = ?`,
         [channelId],
         (err, row: any) => {
@@ -55,17 +57,17 @@ export class DMChannelRepo {
     });
   }
 
-  static async createDMChannel(
+  createDMChannel(
     channel: Channel,
     friendRequest: FriendRequest
   ): Promise<void> {
-    const db = await getDB();
+    const database = this.db.getInstance();
 
     return new Promise((resolve, reject) => {
       if (friendRequest.senderId === friendRequest.receiverId) return reject();
 
       if (friendRequest.senderId < friendRequest.receiverId) {
-        db.run(
+        database.run(
           `INSERT INTO direct_messages (channelId, userId1, userId2) VALUES (?, ?, ?)`,
           [channel.id, friendRequest.senderId, friendRequest.receiverId],
           function (err) {
@@ -74,7 +76,7 @@ export class DMChannelRepo {
           }
         );
       } else {
-        db.run(
+        database.run(
           `INSERT INTO direct_messages (channelId, userId1, userId2) VALUES (?, ?, ?)`,
           [channel.id, friendRequest.receiverId, friendRequest.senderId],
           function (err) {

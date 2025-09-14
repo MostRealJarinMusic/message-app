@@ -1,12 +1,14 @@
 import { FriendRequest, FriendRequestUpdate } from "@common/types";
-import { getDB } from "../db";
+import { DB } from "../db";
 
 export class FriendRequestRepo {
-  static async createRequest(friendRequest: FriendRequest): Promise<void> {
-    const db = await getDB();
+  constructor(private db: DB) {}
+
+  createRequest(friendRequest: FriendRequest): Promise<void> {
+    const database = this.db.getInstance();
 
     return new Promise((resolve, reject) => {
-      db.run(
+      database.run(
         `INSERT INTO friend_requests (id, senderId, receiverId, status, createdAt) VALUES (?, ?, ?, ?, ?)`,
         [
           friendRequest.id,
@@ -23,13 +25,11 @@ export class FriendRequestRepo {
     });
   }
 
-  static async getFriendRequestsForUser(
-    userId: string
-  ): Promise<FriendRequest[]> {
-    const db = await getDB();
+  getFriendRequestsForUser(userId: string): Promise<FriendRequest[]> {
+    const database = this.db.getInstance();
 
     return new Promise((resolve, reject) => {
-      db.all(
+      database.all(
         `SELECT * FROM friend_requests WHERE senderId = ? OR receiverId = ?`,
         [userId, userId],
         (err, rows) => {
@@ -52,11 +52,11 @@ export class FriendRequestRepo {
     });
   }
 
-  static async getFriendRequestById(id: string): Promise<FriendRequest> {
-    const db = await getDB();
+  getFriendRequestById(id: string): Promise<FriendRequest> {
+    const database = this.db.getInstance();
 
     return new Promise((resolve, reject) => {
-      db.get(
+      database.get(
         `SELECT * FROM friend_requests WHERE id = ?`,
         [id],
         (err, row: any) => {
@@ -80,11 +80,11 @@ export class FriendRequestRepo {
     });
   }
 
-  static async requestExists(id: string): Promise<boolean> {
-    const db = await getDB();
+  requestExists(id: string): Promise<boolean> {
+    const database = this.db.getInstance();
 
     return new Promise((resolve, reject) => {
-      db.get(
+      database.get(
         `SELECT 1 FROM friend_requests WHERE id = ? LIMIT 1`,
         [id],
         (err, row) => {
@@ -95,14 +95,14 @@ export class FriendRequestRepo {
     });
   }
 
-  static async requestExistsByUserIds(
+  requestExistsByUserIds(
     senderId: string,
     receiverId: string
   ): Promise<boolean> {
-    const db = await getDB();
+    const database = this.db.getInstance();
 
     return new Promise((resolve, reject) => {
-      db.get(
+      database.get(
         `SELECT 1 FROM friend_requests WHERE (senderId = ? AND receiverId = ?) OR (senderId = ? AND receiverId = ?) LIMIT 1`,
         [senderId, receiverId, receiverId, senderId],
         (err, row) => {
@@ -113,24 +113,26 @@ export class FriendRequestRepo {
     });
   }
 
-  static async deleteFriendRequest(id: string): Promise<void> {
-    const db = await getDB();
+  deleteFriendRequest(id: string): Promise<void> {
+    const database = this.db.getInstance();
 
     return new Promise<void>((resolve, reject) => {
-      db.run(`DELETE FROM friend_requests WHERE id = ?`, [id], function (err) {
-        if (err) return reject(err);
-        resolve();
-      });
+      database.run(
+        `DELETE FROM friend_requests WHERE id = ?`,
+        [id],
+        function (err) {
+          if (err) return reject(err);
+          resolve();
+        }
+      );
     });
   }
 
-  static async updateFriendRequestStatus(
-    requestUpdate: FriendRequestUpdate
-  ): Promise<void> {
-    const db = await getDB();
+  updateFriendRequestStatus(requestUpdate: FriendRequestUpdate): Promise<void> {
+    const database = this.db.getInstance();
 
     return new Promise<void>((resolve, reject) => {
-      db.run(
+      database.run(
         `UPDATE friend_requests SET status = ? WHERE id = ?`,
         [requestUpdate.status, requestUpdate.id],
         function (err) {

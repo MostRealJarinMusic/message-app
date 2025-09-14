@@ -1,12 +1,14 @@
 import { Server } from "@common/types";
-import { getDB } from "../db";
+import { DB } from "../db";
 
 export class ServerRepo {
-  static async getAllServers() {
-    const db = await getDB();
+  constructor(private db: DB) {}
+
+  getAllServers() {
+    const database = this.db.getInstance();
 
     return new Promise<Server[]>((resolve, reject) => {
-      db.all(`SELECT * FROM servers`, (err, rows) => {
+      database.all(`SELECT * FROM servers`, (err, rows) => {
         if (err) {
           console.log("Error retrieving servers:", err);
           return reject(err);
@@ -22,11 +24,11 @@ export class ServerRepo {
     });
   }
 
-  static async getServers(userId: string) {
-    const db = await getDB();
+  getServers(userId: string) {
+    const database = this.db.getInstance();
 
     return new Promise<Server[]>((resolve, reject) => {
-      db.all(
+      database.all(
         `
         SELECT * FROM server_members
         INNER JOIN servers
@@ -51,11 +53,11 @@ export class ServerRepo {
     });
   }
 
-  static async serverExists(serverId: string): Promise<boolean> {
-    const db = await getDB();
+  serverExists(serverId: string): Promise<boolean> {
+    const database = this.db.getInstance();
 
     return new Promise((resolve, reject) => {
-      db.get(
+      database.get(
         `SELECT 1 FROM servers WHERE id = ? LIMIT 1`,
         [serverId],
         (err, row) => {
@@ -66,11 +68,11 @@ export class ServerRepo {
     });
   }
 
-  static async createServer(server: Server): Promise<void> {
-    const db = await getDB();
+  createServer(server: Server): Promise<void> {
+    const database = this.db.getInstance();
 
     return new Promise((resolve, reject) => {
-      db.run(
+      database.run(
         `INSERT INTO servers (id, name, description) VALUES (?, ?, ?)`,
         [server.id, server.name, server.description],
         function (err) {
@@ -81,22 +83,26 @@ export class ServerRepo {
     });
   }
 
-  static async deleteServer(serverId: string): Promise<void> {
-    const db = await getDB();
+  deleteServer(serverId: string): Promise<void> {
+    const database = this.db.getInstance();
 
     return new Promise((resolve, reject) => {
-      db.run(`DELETE FROM servers WHERE id = ?`, [serverId], function (err) {
-        if (err) return reject(err);
-        resolve();
-      });
+      database.run(
+        `DELETE FROM servers WHERE id = ?`,
+        [serverId],
+        function (err) {
+          if (err) return reject(err);
+          resolve();
+        }
+      );
     });
   }
 
-  static async getServer(serverId: string): Promise<Server> {
-    const db = await getDB();
+  getServer(serverId: string): Promise<Server> {
+    const database = this.db.getInstance();
 
     return new Promise((resolve, reject) => {
-      db.get(
+      database.get(
         `SELECT * FROM servers WHERE id = ?`,
         [serverId],
         (err, row: any) => {
@@ -116,11 +122,11 @@ export class ServerRepo {
     });
   }
 
-  static async editServer(newServer: Server) {
-    const db = await getDB();
+  editServer(newServer: Server) {
+    const database = this.db.getInstance();
 
     return new Promise<void>((resolve, reject) => {
-      db.run(
+      database.run(
         `UPDATE servers SET name = ?, description = ? WHERE id = ?`,
         [newServer.name, newServer.description, newServer.id],
         function (err) {

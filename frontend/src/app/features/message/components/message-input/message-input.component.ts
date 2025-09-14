@@ -9,6 +9,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { ChannelService } from 'src/app/features/channel/services/channel/channel.service';
 import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
 import { UserService } from 'src/app/features/user/services/user/user.service';
+import { TypingService } from 'src/app/features/typing/services/typing/typing.service';
 
 @Component({
   selector: 'app-message-input',
@@ -22,9 +23,10 @@ export class MessageInputComponent {
   private channelService = inject(ChannelService);
   private userService = inject(UserService);
   private draftService = inject(MessageDraftService);
+  private typingService = inject(TypingService);
 
   protected newMessage = signal('');
-  protected currentChannel = computed(
+  protected currentChannelId = computed(
     () => this.navService.activeChannelId() || this.navService.activeDMId(),
   );
   protected placeholderMessage = computed(() => {
@@ -51,20 +53,82 @@ export class MessageInputComponent {
 
     return '';
   });
+  protected activeTypers = computed(() => {
+    if (this.typingService.activeChannelTypers().length === 0) return '';
+
+    return `
+    ${this.typingService
+      .activeChannelTypers()
+      .map((id) => this.userService.getUsername(id))
+      .filter((name) => !!name)
+      .join(
+        ', ',
+      )}${this.typingService.activeChannelTypers().length === 1 ? ' is' : ' are'} typing...
+    `.trim();
+  });
+
+  private TYPING_THROTTLE = 3000;
+  private TYPING_STOP = 5000;
+  private typingTimeout!: NodeJS.Timeout;
+  private lastTypingSent = 0;
 
   constructor() {
     effect(() => {
-      const channel = this.currentChannel();
-      if (!channel) return;
+      const channelId = this.currentChannelId();
+      if (!channelId) return;
 
-      const draftSignal = this.draftService.getDraftSignal(channel);
+      const draftSignal = this.draftService.getDraftSignal(channelId);
       this.newMessage.set(draftSignal());
+    });
+
+    effect(() => {
+      
     });
   }
 
   protected onInputChange(message: string) {
     this.newMessage.set(message);
-    this.draftService.setDraft(this.currentChannel()!, message);
+    this.draftService.setDraft(this.currentChannelId()!, message);
+
+    // Start typing
+    const channelId = this.currentChannelId();
+    if (!channelId) return;
+
+    const now = Date.now();
+    if (now - this.lastTypingSent < this.TYPING_THROTTLE) return;
+
+    this.lastTypingSent = now;
+    this.typingService.startTyping(channelId);
+
+    //this.resetTypingTimeout(channelId);
+  }
+
+  protected onBlur() {
+    const channelId = this.currentChannelId();
+    if (!channelId) return;
+
+    clearTimeout(this.typingTimeout);
+    this.typingService.stopTyping(channelId);
+  }
+
+  protected onFocus() {
+    const channelId = this.currentChannelId();
+    if (!channelId) return;
+
+    const now = Date.now();
+    if (now - this.lastTypingSent < this.TYPING_THROTTLE) return;
+
+    this.lastTypingSent = now;
+    this.typingService.startTyping(channelId);
+
+    //this.resetTypingTimeout(channelId);
+  }
+
+  private resetTypingTimeout(channelId: string) {
+    clearTimeout(this.typingTimeout);
+    this.typingTimeout = setTimeout(() => {
+      this.typingService.stopTyping(channelId);
+    }, this.TYPING_STOP);
   }
 
   protected sendMessage() {
@@ -73,7 +137,7 @@ export class MessageInputComponent {
     if (!message) return;
 
     this.messageService.sendMessage(message);
-    this.draftService.clearDraft(this.currentChannel()!);
+    this.draftService.clearDraft(this.currentChannelId()!);
     this.newMessage.set('');
   }
 

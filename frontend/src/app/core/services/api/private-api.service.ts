@@ -110,7 +110,7 @@ export class PrivateApiService extends BaseApiService {
 
   editChannel(channelId: string, channelUpdate: ChannelUpdate): Observable<void> {
     return this.authorisedFetch<void>((_) =>
-      this.patch<void>(`channels/${channelId}`, { channelUpdate }),
+      this.patch<void>(`channels/${channelId}`, channelUpdate),
     );
   }
 
@@ -160,9 +160,7 @@ export class PrivateApiService extends BaseApiService {
   }
 
   editServer(serverId: string, serverUpdate: ServerUpdate): Observable<void> {
-    return this.authorisedFetch<void>((_) =>
-      this.patch<void>(`servers/${serverId}`, { serverUpdate }),
-    );
+    return this.authorisedFetch<void>((_) => this.patch<void>(`servers/${serverId}`, serverUpdate));
   }
   //#endregion
 
