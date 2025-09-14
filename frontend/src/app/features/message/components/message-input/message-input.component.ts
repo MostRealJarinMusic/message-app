@@ -54,8 +54,10 @@ export class MessageInputComponent {
 
     return '';
   });
-  protected activeTypers = computed(
-    () => `
+  protected activeTypers = computed(() => {
+    if (this.typingService.activeChannelTypers().length === 0) return '';
+
+    return `
     ${this.typingService
       .activeChannelTypers()
       .map((id) => this.userService.getUsername(id))
@@ -63,8 +65,8 @@ export class MessageInputComponent {
       .join(
         ', ',
       )}${this.typingService.activeChannelTypers().length === 1 ? ' is' : ' are'} typing...
-  `,
-  );
+    `.trim();
+  });
 
   private TYPING_THROTTLE = 3000;
   private TYPING_STOP = 5000;
@@ -99,7 +101,7 @@ export class MessageInputComponent {
     this.lastTypingSent = now;
     this.typingService.startTyping(channelId);
 
-    this.resetTypingTimeout(channelId);
+    //this.resetTypingTimeout(channelId);
   }
 
   protected onBlur() {
@@ -120,7 +122,7 @@ export class MessageInputComponent {
     this.lastTypingSent = now;
     this.typingService.startTyping(channelId);
 
-    this.resetTypingTimeout(channelId);
+    //this.resetTypingTimeout(channelId);
   }
 
   private resetTypingTimeout(channelId: string) {

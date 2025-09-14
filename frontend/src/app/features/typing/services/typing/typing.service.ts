@@ -1,4 +1,4 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { TypingIndicator, WSEventType } from '@common/types';
 import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
 import { SocketService } from 'src/app/core/services/socket/socket.service';
@@ -15,14 +15,14 @@ export class TypingService {
   private activeTyperStore = signal(new Map<string, Set<string>>());
 
   activeChannelTypers = computed(() => {
-    const channel = this.navService.activeChannelId() || this.navService.activeDMId();
-    if (!channel) return [];
+    const channelId = this.navService.activeChannelId() || this.navService.activeDMId();
+    if (!channelId) return [];
 
     const user = this.userService.currentUser();
     if (!user) return [];
 
     // Remove yourself from the active typers
-    return Array.from(this.activeTyperStore().get(channel) ?? []).filter((id) => id !== user.id);
+    return Array.from(this.activeTyperStore().get(channelId) ?? []).filter((id) => id !== user.id);
   });
 
   constructor() {
@@ -32,13 +32,14 @@ export class TypingService {
   private initWebSocket() {
     this.wsService.on(WSEventType.TYPING_START).subscribe({
       next: (indicator) => {
-        console.log('Received typing start', indicator);
-
         this.activeTyperStore.update((store) => {
-          if (!store.has(indicator.channelId)) store.set(indicator.channelId, new Set());
+          const newStore = new Map(store);
+          const users = new Set(newStore.get(indicator.channelId) || []);
 
-          store.get(indicator.channelId)?.add(indicator.userId);
-          return store;
+          users.add(indicator.userId);
+          newStore.set(indicator.channelId, users);
+
+          return newStore;
         });
       },
       error: (err) => {
@@ -49,13 +50,18 @@ export class TypingService {
     this.wsService.on(WSEventType.TYPING_STOP).subscribe({
       next: (indicator) => {
         this.activeTyperStore.update((store) => {
-          const activeTypers = store.get(indicator.channelId);
-          if (!activeTypers) return store;
+          const newStore = new Map(store);
+          const activeTypers = new Set(newStore.get(indicator.channelId) || []);
 
           activeTypers.delete(indicator.userId);
-          if (activeTypers.size === 0) store.delete(indicator.channelId);
 
-          return store;
+          if (activeTypers.size > 0) {
+            newStore.set(indicator.channelId, activeTypers);
+          } else {
+            newStore.delete(indicator.channelId);
+          }
+
+          return newStore;
         });
       },
     });
@@ -70,8 +76,6 @@ export class TypingService {
       userId: user.id,
     };
 
-    console.log('Emitting typing start', indicator);
-
     this.wsService.emit(WSEventType.TYPING_START, indicator);
   }
 
@@ -83,8 +87,6 @@ export class TypingService {
       channelId,
       userId: user.id,
     };
-
-    console.log('Emitting typing stop', indicator);
 
     this.wsService.emit(WSEventType.TYPING_STOP, indicator);
   }

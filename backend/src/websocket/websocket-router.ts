@@ -16,6 +16,7 @@ export class WebSocketRouter {
         break;
       case WSEventType.TYPING_STOP:
         await this.typingService.stopTyping(eventObject.payload);
+        break;
       case WSEventType.PONG:
         this.registry.updateLastPong(ws);
         break;
