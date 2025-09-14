@@ -24,6 +24,7 @@ export default function categoryRoutes(
     authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
       await categoryService.editCategory(req.params.categoryId, req.body);
+      res.status(204).send();
     })
   );
 
