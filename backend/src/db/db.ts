@@ -31,8 +31,10 @@ export class DB {
         channelId   TEXT NOT NULL,
         content     TEXT NOT NULL,
         createdAt   TEXT NOT NULL,
+        replyToId   TEXT,
         FOREIGN KEY (channelId) REFERENCES channels(id) ON DELETE CASCADE,
-        FOREIGN KEY (authorId) REFERENCES users(id) ON DELETE SET NULL
+        FOREIGN KEY (authorId) REFERENCES users(id) ON DELETE SET NULL,
+        FOREIGN KEY (replyToId) REFERENCES messages(id) ON DELETE SET NULL
       );
     `);
 

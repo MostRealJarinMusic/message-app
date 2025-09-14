@@ -27,6 +27,7 @@ export interface Message {
   authorId: string;
   channelId: string;
   content: string;
+  replyToId?: string;
   createdAt: string;
   editedAt?: string;
   deleted?: boolean;

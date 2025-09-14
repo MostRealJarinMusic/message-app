@@ -9,13 +9,14 @@ export class MessageRepo {
 
     return new Promise((resolve, reject) => {
       database.run(
-        `INSERT INTO messages (id, authorId, channelId, content, createdAt) VALUES (?, ?, ?, ?, ?)`,
+        `INSERT INTO messages (id, authorId, channelId, content, createdAt, replyToId) VALUES (?, ?, ?, ?, ?, ?)`,
         [
           message.id,
           message.authorId,
           message.channelId,
           message.content,
           message.createdAt,
+          message.replyToId,
         ],
         function (err) {
           if (err) return reject(err);
@@ -58,6 +59,7 @@ export class MessageRepo {
             channelId: row.channelId,
             content: row.content,
             createdAt: row.createdAt,
+            replyToId: row.replyToId,
           };
 
           resolve(message);
@@ -85,6 +87,7 @@ export class MessageRepo {
             channelId: row.channelId,
             content: row.content,
             createdAt: row.createdAt,
+            replyToId: row.replyToId,
           }));
 
           resolve(allMessages);
@@ -113,7 +116,7 @@ export class MessageRepo {
 
     return new Promise<void>((resolve, reject) => {
       database.run(
-        `UPDATE messages SET content = ?  WHERE id = ?`,
+        `UPDATE messages SET content = ? WHERE id = ?`,
         [newContent, messageId],
         function (err) {
           if (err) return reject(err);
