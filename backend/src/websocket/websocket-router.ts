@@ -21,7 +21,7 @@ export class WebSocketRouter {
         this.registry.updateLastPong(ws);
         break;
       default:
-        console.warn("WS: unhandled event", event);
+        console.warn("WS: unhandled event", eventObject.event);
     }
   }
 }
