@@ -8,7 +8,7 @@ export class TypingService {
   constructor(
     private readonly channelRepo: ChannelRepo,
     private readonly relevanceService: RelevanceService,
-    private readonly publisher: EventBusPort
+    private readonly eventBus: EventBusPort
   ) {}
 
   async startTyping(indicator: TypingIndicator) {
@@ -19,7 +19,7 @@ export class TypingService {
       channel.id
     );
 
-    this.publisher.publish(
+    this.eventBus.publish(
       WSEventType.TYPING_START,
       indicator,
       memberIds.filter((id) => id !== indicator.userId)
@@ -34,7 +34,7 @@ export class TypingService {
       channel.id
     );
 
-    this.publisher.publish(
+    this.eventBus.publish(
       WSEventType.TYPING_STOP,
       indicator,
       memberIds.filter((id) => id !== indicator.userId)

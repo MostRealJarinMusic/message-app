@@ -1,9 +1,4 @@
-import {
-  AnyWSEvent,
-  WSEvent,
-  WSEventPayload,
-  WSEventType,
-} from "../../../common/types";
+import { AnyWSEvent, WSEventType } from "../../../common/types";
 import { TypingService } from "../services/typing.service";
 import { ConnectionRegistry } from "./connection-registry";
 import { SignedSocket } from "../types/types";
