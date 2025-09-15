@@ -13,6 +13,7 @@ import { MessageEditService } from 'src/app/features/message/services/message-ed
 import { UserService } from 'src/app/features/user/services/user/user.service';
 import { EmbedResolverService } from 'src/app/core/services/embed-resolver/embed-resolver.service';
 import { EmbedHostComponent } from 'src/app/shared/components/embed-host/embed-host.component';
+import { MessageDraftService } from '../../services/message-draft/message-draft.service';
 
 @Component({
   selector: 'app-message',
@@ -31,6 +32,7 @@ import { EmbedHostComponent } from 'src/app/shared/components/embed-host/embed-h
 })
 export class MessageComponent implements OnInit {
   private messageService = inject(MessageService);
+  private draftService = inject(MessageDraftService);
   protected userService = inject(UserService);
   private editService = inject(MessageEditService);
   private embedService = inject(EmbedResolverService);
@@ -113,5 +115,9 @@ export class MessageComponent implements OnInit {
 
   protected isBeingEdited(): boolean {
     return this.editService.isEditing(this.message.id);
+  }
+
+  protected replyToMessage() {
+    this.draftService.setReplyTarget(this.message.channelId, this.message);
   }
 }

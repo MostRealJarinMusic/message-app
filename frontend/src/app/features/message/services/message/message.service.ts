@@ -1,7 +1,12 @@
 import { effect, inject, Injectable, signal } from '@angular/core';
 import { SocketService } from '../../../../core/services/socket/socket.service';
-import { LoggerType, Message, MessageCreate, MessageUpdate, WSEventType } from '@common/types';
-import { ChannelService } from 'src/app/features/channel/services/channel/channel.service';
+import {
+  LoggerType,
+  Message,
+  CreateMessagePayload,
+  UpdateMessagePayload,
+  WSEventType,
+} from '@common/types';
 import { PrivateApiService } from 'src/app/core/services/api/private-api.service';
 import { LoggerService } from 'src/app/core/services/logger/logger.service';
 import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
@@ -35,15 +40,16 @@ export class MessageService {
     });
   }
 
-  public sendMessage(content: string): void {
+  public sendMessage(content: string, replyToId?: string): void {
     //this.dbService.saveMessage(message);
 
     const activeChannelId = this.navService.activeChannelId() || this.navService.activeDMId();
-    const messageCreate: MessageCreate = {
+    const messagePayload: CreateMessagePayload = {
       content,
+      replyToId: replyToId || null,
     };
 
-    this.apiService.sendMessage(activeChannelId!, messageCreate).subscribe({
+    this.apiService.sendMessage(activeChannelId!, messagePayload).subscribe({
       next: (message) => {},
       error: (err) => {
         //Response to any errors - optimistic UI
@@ -96,11 +102,11 @@ export class MessageService {
   }
 
   public editMessage(messageId: string, content: string) {
-    const messageUpdate: MessageUpdate = {
+    const updatePayload: UpdateMessagePayload = {
       content,
     };
 
-    this.apiService.editMessage(messageId, messageUpdate).subscribe({
+    this.apiService.editMessage(messageId, updatePayload).subscribe({
       next: () => {
         this.logger.log(LoggerType.SERVICE_MESSAGE, 'Successful edit');
       },

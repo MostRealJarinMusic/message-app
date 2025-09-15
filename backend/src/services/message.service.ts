@@ -1,7 +1,7 @@
 import {
   Message,
-  MessageCreate,
-  MessageUpdate,
+  CreateMessagePayload,
+  UpdateMessagePayload,
   WSEventType,
 } from "../../../common/types";
 import { ChannelRepo } from "../db/repos/channel.repo";
@@ -20,20 +20,21 @@ export class MessageService {
   async sendMessage(
     channelId: string,
     authorId: string,
-    messageCreate: MessageCreate
+    createPayload: CreateMessagePayload
   ) {
     const channel = await this.channelRepo.getChannel(channelId);
 
     if (!channel) throw new NotFoundError("Channel doesn't exist");
 
-    if (!messageCreate) throw new BadRequestError("Message content required");
+    if (!createPayload) throw new BadRequestError("Message content required");
 
     const message: Message = {
       id: ulid(),
       channelId,
       authorId,
-      content: messageCreate.content,
+      content: createPayload.content,
       createdAt: new Date().toISOString(),
+      replyToId: createPayload.replyToId || null,
     };
 
     await this.messageRepo.createMessage(message);
@@ -60,11 +61,11 @@ export class MessageService {
     await this.messageRepo.deleteMessage(messageId);
   }
 
-  async editMessage(messageId: string, messageUpdate: MessageUpdate) {
+  async editMessage(messageId: string, updatePayload: UpdateMessagePayload) {
     const message = await this.messageRepo.getMessage(messageId);
     if (!message) throw new NotFoundError("Message doesn't exist");
 
-    await this.messageRepo.editMessage(messageId, messageUpdate.content);
+    await this.messageRepo.editMessage(messageId, updatePayload.content);
     const newMessage = await this.messageRepo.getMessage(messageId);
 
     //Broadcast to users

@@ -21,11 +21,11 @@ export class MessageInputComponent {
   private messageService = inject(MessageService);
   private navService = inject(NavigationService);
   private channelService = inject(ChannelService);
-  private userService = inject(UserService);
+  protected userService = inject(UserService);
   private draftService = inject(MessageDraftService);
   private typingService = inject(TypingService);
 
-  protected newMessage = signal('');
+  protected message = signal('');
   protected currentChannelId = computed(
     () => this.navService.activeChannelId() || this.navService.activeDMId(),
   );
@@ -66,6 +66,14 @@ export class MessageInputComponent {
       )}${this.typingService.activeChannelTypers().length === 1 ? ' is' : ' are'} typing...
     `.trim();
   });
+  protected replyTarget = computed(() => {
+    const channelId = this.currentChannelId();
+    if (!channelId) return undefined;
+
+    console.log('Reloading reply target');
+
+    return this.draftService.getReplyTargetSignal(channelId)();
+  });
 
   private TYPING_THROTTLE = 3000;
   private TYPING_STOP = 5000;
@@ -77,22 +85,20 @@ export class MessageInputComponent {
       const channelId = this.currentChannelId();
       if (!channelId) return;
 
-      const draftSignal = this.draftService.getDraftSignal(channelId);
-      this.newMessage.set(draftSignal());
-    });
-
-    effect(() => {
-      
+      //const draftSignal = this.draftService.getDraftSignal(channelId);
+      const draftText = this.draftService.getDraftContentSignal(channelId);
+      this.message.set(draftText());
     });
   }
 
   protected onInputChange(message: string) {
-    this.newMessage.set(message);
-    this.draftService.setDraft(this.currentChannelId()!, message);
-
-    // Start typing
     const channelId = this.currentChannelId();
     if (!channelId) return;
+
+    this.message.set(message);
+    this.draftService.setDraftContent(channelId, message);
+
+    // Start typing
 
     const now = Date.now();
     if (now - this.lastTypingSent < this.TYPING_THROTTLE) return;
@@ -132,13 +138,21 @@ export class MessageInputComponent {
   }
 
   protected sendMessage() {
-    //Message sanitisation here
-    const message = this.newMessage().trim();
-    if (!message) return;
+    const channelId = this.currentChannelId();
+    if (!channelId) return;
 
-    this.messageService.sendMessage(message);
-    this.draftService.clearDraft(this.currentChannelId()!);
-    this.newMessage.set('');
+    //Message sanitisation here
+    const content = this.message().trim();
+    if (!content) return;
+
+    const target = this.replyTarget();
+    if (!target) {
+      this.messageService.sendMessage(content);
+    } else {
+      this.messageService.sendMessage(content, target.id);
+    }
+    this.draftService.clearDraft(channelId);
+    this.message.set('');
   }
 
   protected handleKeydown(event: KeyboardEvent) {

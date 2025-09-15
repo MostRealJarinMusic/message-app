@@ -27,10 +27,10 @@ export class WebSocketManager {
   init(server: http.Server) {
     this.wss = new WebSocket.Server({
       server,
-      clientTracking: true,
-      path: "/ws",
-      maxPayload: 10 * 1024 * 1024, // 10MB
-      perMessageDeflate: false,
+      // clientTracking: true,
+      // path: "/ws",
+      // maxPayload: 10 * 1024 * 1024, // 10MB
+      // perMessageDeflate: false,
     });
     this.wss.on("connection", this.handleConnection.bind(this));
 
