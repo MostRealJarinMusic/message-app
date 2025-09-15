@@ -1,7 +1,7 @@
 <div
   class="relative group block w-full my-1 mr-2 p-2 transition-colors duration-800 rounded-r-md hover:bg-surface-700"
   [ngClass]="{
-    'bg-surface-700': isBeingEdited(),
+    'bg-surface-700': isBeingEdited() || isReplyTarget(),
   }">
   <div
     class="absolute top-0 right-0 mt-[-1rem] mr-2 flex opacity-0 group-hover:opacity-100 transition-opacity duration-200">

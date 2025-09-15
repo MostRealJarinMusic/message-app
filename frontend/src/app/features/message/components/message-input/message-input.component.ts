@@ -145,12 +145,9 @@ export class MessageInputComponent {
     const content = this.message().trim();
     if (!content) return;
 
-    const target = this.replyTarget();
-    if (!target) {
-      this.messageService.sendMessage(content);
-    } else {
-      this.messageService.sendMessage(content, target.id);
-    }
+    const replyTarget = this.replyTarget();
+    this.messageService.sendMessage(content, replyTarget);
+
     this.draftService.clearDraft(channelId);
     this.message.set('');
   }

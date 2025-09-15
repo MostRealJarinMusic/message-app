@@ -117,6 +117,13 @@ export class MessageComponent implements OnInit {
     return this.editService.isEditing(this.message.id);
   }
 
+  protected isReplyTarget(): boolean {
+    const replyTarget = this.draftService.getReplyTargetSignal(this.message.channelId)();
+    if (!replyTarget) return false;
+
+    return replyTarget.id === this.message.id;
+  }
+
   protected replyToMessage() {
     this.draftService.setReplyTarget(this.message.channelId, this.message);
   }

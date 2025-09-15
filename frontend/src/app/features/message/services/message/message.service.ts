@@ -40,13 +40,13 @@ export class MessageService {
     });
   }
 
-  public sendMessage(content: string, replyToId?: string): void {
+  public sendMessage(content: string, replyTarget?: Message): void {
     //this.dbService.saveMessage(message);
 
     const activeChannelId = this.navService.activeChannelId() || this.navService.activeDMId();
     const messagePayload: CreateMessagePayload = {
       content,
-      replyToId: replyToId || null,
+      replyToId: replyTarget ? replyTarget.id : null,
     };
 
     this.apiService.sendMessage(activeChannelId!, messagePayload).subscribe({
