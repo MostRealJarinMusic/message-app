@@ -13,7 +13,7 @@ import { TypingService } from 'src/app/features/typing/services/typing/typing.se
 
 @Component({
   selector: 'app-message-input',
-  imports: [InputTextModule, FormsModule, ButtonModule, CardModule, TextareaModule],
+  imports: [InputTextModule, FormsModule, ButtonModule, CardModule, TextareaModule, ButtonModule],
   templateUrl: './message-input.component.html',
   styleUrl: './message-input.component.scss',
 })
@@ -85,7 +85,6 @@ export class MessageInputComponent {
       const channelId = this.currentChannelId();
       if (!channelId) return;
 
-      //const draftSignal = this.draftService.getDraftSignal(channelId);
       const draftText = this.draftService.getDraftContentSignal(channelId);
       this.message.set(draftText());
     });
@@ -157,5 +156,12 @@ export class MessageInputComponent {
       event.preventDefault();
       this.sendMessage();
     }
+  }
+
+  protected cancelReply() {
+    const channelId = this.currentChannelId();
+    if (!channelId) return;
+
+    this.draftService.clearReplyTarget(channelId);
   }
 }
