@@ -22,21 +22,25 @@ export class MessageService {
 
   readonly messages = signal<Message[]>([]);
 
+  private currentChannelId = computed(
+    () => this.navService.activeChannelId() || this.navService.activeDMId(),
+  );
+
   constructor() {
     this.logger.init(LoggerType.SERVICE_MESSAGE);
 
     this.initWebSocket();
 
-    //Load message history
     effect(() => {
-      const currentChannel = this.navService.activeChannelId() || this.navService.activeDMId();
-      if (currentChannel) {
+      const currentChannelId = this.currentChannelId();
+      if (currentChannelId) {
         this.logger.log(LoggerType.SERVICE_MESSAGE, 'Loading message history');
-        this.loadMessageHistory(currentChannel);
-      } else {
-        this.logger.log(LoggerType.SERVICE_MESSAGE, 'No channel');
-        this.messages.set([]);
+        this.loadMessageHistory(currentChannelId);
+        return;
       }
+
+      this.logger.log(LoggerType.SERVICE_MESSAGE, 'No channel');
+      this.messages.set([]);
     });
   }
 
@@ -130,7 +134,7 @@ export class MessageService {
   }
 
   public getMessage(messageId: string) {
-    const currentChannelId = this.navService.activeChannelId() || this.navService.activeDMId();
+    const currentChannelId = this.currentChannelId();
     if (!currentChannelId) return undefined;
 
     // Look in messages
