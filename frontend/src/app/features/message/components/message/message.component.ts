@@ -42,6 +42,7 @@ export class MessageComponent implements OnInit {
 
   protected embedData: EmbedData | null = null;
   protected editContent = this.editService.getContent();
+  protected replyPreview: string = '';
 
   async ngOnInit() {
     if (!this.message) return;
@@ -49,6 +50,21 @@ export class MessageComponent implements OnInit {
     const url = this.message.content.match(/https?:\/\/[^\s]+/);
     if (url) {
       this.embedData = await this.embedService.resolve(url[0]);
+    }
+
+    this.getReplyPreview();
+  }
+
+  private getReplyPreview() {
+    if (this.message.replyToId) {
+      const replyMessage = this.messageService.getMessage(this.message.replyToId);
+      if (!replyMessage) {
+        //Something has gone wrong here
+        this.replyPreview = 'Orignal message was deleted';
+        return;
+      }
+
+      this.replyPreview = `${this.userService.getUsername(replyMessage.authorId)} - ${replyMessage.content}`;
     }
   }
 

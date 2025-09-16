@@ -1,4 +1,4 @@
-import { effect, inject, Injectable, signal } from '@angular/core';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { SocketService } from '../../../../core/services/socket/socket.service';
 import {
   LoggerType,
@@ -127,5 +127,13 @@ export class MessageService {
         this.logger.error(LoggerType.SERVICE_MESSAGE, 'Unsuccessful delete', err);
       },
     });
+  }
+
+  public getMessage(messageId: string) {
+    const currentChannelId = this.navService.activeChannelId() || this.navService.activeDMId();
+    if (!currentChannelId) return undefined;
+
+    // Look in messages
+    return this.messages().find((m) => m.id === messageId);
   }
 }
