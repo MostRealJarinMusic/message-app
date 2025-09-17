@@ -40,22 +40,24 @@ export class MessageComponent implements OnInit {
   private editService = inject(MessageEditService);
   private embedService = inject(EmbedResolverService);
 
-  message = input.required<Message>();
-  isMine = input.required<boolean>();
+  //message = input.required<Message>();
+  //isMine = input.required<boolean>();
+  @Input({ required: true }) message!: Message;
+  @Input({ required: true }) isMine!: boolean;
 
   protected embedData: EmbedData | null = null;
   protected editContent = this.editService.getContent();
 
   async ngOnInit() {
-    const url = this.message().content.match(/https?:\/\/[^\s]+/);
+    const url = this.message.content.match(/https?:\/\/[^\s]+/);
     if (url) {
       this.embedData = await this.embedService.resolve(url[0]);
     }
   }
 
   protected startMessageEdit() {
-    if (!this.editService.isEditing(this.message().id)) {
-      this.editService.startEdit(this.message().id, this.message().content);
+    if (!this.editService.isEditing(this.message.id)) {
+      this.editService.startEdit(this.message.id, this.message.content);
     }
   }
 
@@ -65,7 +67,7 @@ export class MessageComponent implements OnInit {
 
   protected enterMessageEdit() {
     const editedContent = this.editContent().trim();
-    if (editedContent === this.message().content) {
+    if (editedContent === this.message.content) {
       console.log('No edits made');
       this.escapeMessageEdit();
       return;
@@ -96,21 +98,21 @@ export class MessageComponent implements OnInit {
   }
 
   protected deleteMessage() {
-    this.messageService.deleteMessage(this.message().id);
+    this.messageService.deleteMessage(this.message.id);
   }
 
   protected isBeingEdited(): boolean {
-    return this.editService.isEditing(this.message().id);
+    return this.editService.isEditing(this.message.id);
   }
 
   protected isReplyTarget(): boolean {
-    const replyTarget = this.draftService.getReplyTargetSignal(this.message().channelId)();
+    const replyTarget = this.draftService.getReplyTargetSignal(this.message.channelId)();
     if (!replyTarget) return false;
 
-    return replyTarget.id === this.message().id;
+    return replyTarget.id === this.message.id;
   }
 
   protected replyToMessage() {
-    this.draftService.setReplyTarget(this.message().channelId, this.message());
+    this.draftService.setReplyTarget(this.message.channelId, this.message);
   }
 }

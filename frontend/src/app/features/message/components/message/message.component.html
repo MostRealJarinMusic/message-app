@@ -6,7 +6,7 @@
   <div
     class="absolute top-0 right-0 mt-[-1rem] mr-2 flex opacity-0 group-hover:opacity-100 transition-opacity duration-200">
     <div class="flex gap-2 bg-surface-900 px-2 py-1 rounded-border shadow-md">
-      @if (isMine() && !isBeingEdited()) {
+      @if (isMine && !isBeingEdited()) {
         <p-button
           icon="pi pi-pencil"
           styleClass="p-button-sm p-button-text p-button-rounded p-button-secondary !w-6 !h-6"
@@ -34,8 +34,8 @@
     </div>
   </div>
 
-  @if (this.message().replyToId) {
-    <app-reply-preview [replyToId]="this.message().replyToId" />
+  @if (this.message.replyToId) {
+    <app-reply-preview [replyToId]="this.message.replyToId" />
   }
 
   <div class="flex items-start min-w-0 w-full pr-2">
@@ -45,12 +45,12 @@
 
     <div class="flex-1 min-w-0 space-y-1">
       <app-message-header
-        [authorName]="userService.getUsername(message().authorId)"
-        [timestamp]="message().createdAt" />
+        [authorName]="userService.getUsername(message.authorId)"
+        [timestamp]="message.createdAt" />
 
       @if (!isBeingEdited()) {
         <div class="text-xs whitespace-pre-line break-words">
-          <span>{{ message().content }}</span>
+          <span>{{ message.content }}</span>
           @if (embedData) {
             <app-embed-host [embed]="embedData" />
           }
