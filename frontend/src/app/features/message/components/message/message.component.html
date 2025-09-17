@@ -35,7 +35,6 @@
   </div>
 
   @if (this.message.replyToId) {
-    <!-- <p class="text-xs">{{ this.replyPreview }}</p> -->
     <app-reply-preview [replyToId]="this.message.replyToId" />
   }
 
@@ -46,12 +45,9 @@
 
     <div class="flex-1 min-w-0">
       <div class="space-y-1">
-        <div class="text-xs font-bold">
-          {{ userService.getUsername(message.authorId) }}
-          <span class="text-xs ml-2 font-light text-muted-color">{{
-            formatTime(message.createdAt)
-          }}</span>
-        </div>
+        <app-message-header
+          [authorName]="userService.getUsername(message.authorId)"
+          [timestamp]="message.createdAt" />
 
         @if (!isBeingEdited()) {
           <div class="text-xs whitespace-pre-line break-words">
