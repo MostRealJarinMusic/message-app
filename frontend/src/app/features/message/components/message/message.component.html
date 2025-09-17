@@ -35,7 +35,8 @@
   </div>
 
   @if (this.message.replyToId) {
-    <p class="text-xs">{{ this.replyPreview }}</p>
+    <!-- <p class="text-xs">{{ this.replyPreview }}</p> -->
+    <app-reply-preview [replyToId]="this.message.replyToId" />
   }
 
   <div class="flex items-start min-w-0 w-full pr-2">

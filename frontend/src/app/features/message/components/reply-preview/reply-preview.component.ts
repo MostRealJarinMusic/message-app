@@ -1,0 +1,34 @@
+import { Component, inject, input, OnInit } from '@angular/core';
+
+import { UserService } from 'src/app/features/user/services/user/user.service';
+import { MessageService } from '../../services/message/message.service';
+
+@Component({
+  selector: 'app-reply-preview',
+  imports: [],
+  templateUrl: './reply-preview.component.html',
+  styleUrl: './reply-preview.component.scss',
+})
+export class ReplyPreviewComponent implements OnInit {
+  public replyToId = input<string>();
+  public replyTarget?: { authorName: string; content: string };
+
+  private messageService = inject(MessageService);
+  private userService = inject(UserService);
+
+  ngOnInit(): void {
+    const replyToId = this.replyToId();
+    if (!replyToId) return;
+
+    const replyTarget = this.messageService.getMessage(replyToId);
+    if (!replyTarget) {
+      this.replyTarget = { authorName: 'Deleted', content: 'Original message was deleted' };
+      return;
+    }
+
+    this.replyTarget = {
+      authorName: this.userService.getUsername(replyTarget.authorId),
+      content: replyTarget.content,
+    };
+  }
+}

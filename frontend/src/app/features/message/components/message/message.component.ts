@@ -14,6 +14,7 @@ import { UserService } from 'src/app/features/user/services/user/user.service';
 import { EmbedResolverService } from 'src/app/core/services/embed-resolver/embed-resolver.service';
 import { EmbedHostComponent } from 'src/app/shared/components/embed-host/embed-host.component';
 import { MessageDraftService } from '../../services/message-draft/message-draft.service';
+import { ReplyPreviewComponent } from '../reply-preview/reply-preview.component';
 
 @Component({
   selector: 'app-message',
@@ -26,6 +27,7 @@ import { MessageDraftService } from '../../services/message-draft/message-draft.
     FormsModule,
     TextareaModule,
     EmbedHostComponent,
+    ReplyPreviewComponent,
   ],
   templateUrl: './message.component.html',
   styleUrl: './message.component.scss',
