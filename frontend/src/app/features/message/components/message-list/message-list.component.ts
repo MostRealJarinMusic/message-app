@@ -2,7 +2,6 @@ import { Component, effect, ElementRef, inject, ViewChild, ViewContainerRef } fr
 import { Message } from '@common/types';
 import { MessageService } from 'src/app/features/message/services/message/message.service';
 import { MessageComponent } from '../message/message.component';
-import { SessionService } from 'src/app/core/services/session/session.service';
 import { UserService } from 'src/app/features/user/services/user/user.service';
 
 @Component({
@@ -35,7 +34,7 @@ export class MessageListComponent {
       componentReference.instance.isMine = message.authorId === this.userService.currentUser()?.id;
     }
 
-    setTimeout(() => this.scrollToBottom(), 5);
+    setTimeout(() => this.scrollToBottom(), 100);
   }
 
   private scrollToBottom() {
