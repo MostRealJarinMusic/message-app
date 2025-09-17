@@ -4,6 +4,11 @@ import { MessageService } from 'src/app/features/message/services/message/messag
 import { MessageComponent } from '../message/message.component';
 import { UserService } from 'src/app/features/user/services/user/user.service';
 
+interface DecoratedMessage {
+  message: Message;
+  showHeader: boolean;
+}
+
 @Component({
   selector: 'app-message-list',
   imports: [],
@@ -27,25 +32,45 @@ export class MessageListComponent {
   }
 
   private renderMessages(messages: Message[]) {
+    const currentUser = this.userService.currentUser();
+    if (!currentUser) return;
+
+    const decorated = this.getDecoratedMessages(messages);
+
     this.container.clear();
-    for (const message of messages) {
+
+    for (const message of decorated) {
       const componentReference = this.container.createComponent(MessageComponent);
-      componentReference.instance.message = message;
-      componentReference.instance.isMine = message.authorId === this.userService.currentUser()?.id;
+      componentReference.instance.message = message.message;
+      componentReference.instance.isMine = message.message.authorId === currentUser.id;
+      componentReference.instance.showHeader = message.showHeader;
     }
 
     setTimeout(() => this.scrollToBottom(), 100);
   }
 
+  private getDecoratedMessages(messages: Message[]): DecoratedMessage[] {
+    let prev: Message | null = null;
+    return messages.map((message) => {
+      let showHeader = true;
+      if (prev) {
+        const sameAuthor = prev.authorId === message.authorId;
+        const timeDifference =
+          new Date(message.createdAt).getTime() - new Date(prev.createdAt).getTime();
+        const withinBounds = timeDifference < 5 * 60 * 1000;
+        if (sameAuthor && withinBounds && !message.replyToId) showHeader = false;
+      }
+
+      prev = message;
+      return { message, showHeader };
+    });
+  }
+
   private scrollToBottom() {
     const element = this.messageListRef.nativeElement;
-    if (element) {
-      const target = element.scrollHeight;
+    if (!element) return;
 
-      element.scrollTop = target; //element.scrollHeight;
-
-      // console.log(element.scrollHeight);
-      // console.log(element.scrollTop);
-    }
+    const target = element.scrollHeight;
+    element.scrollTop = target;
   }
 }

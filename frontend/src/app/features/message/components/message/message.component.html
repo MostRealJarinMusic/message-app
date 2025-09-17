@@ -39,14 +39,18 @@
   }
 
   <div class="flex items-start min-w-0 w-full pr-2">
-    <div class="mx-4 shrink-0">
-      <p-avatar icon="pi pi-user" shape="circle"></p-avatar>
-    </div>
+    @if (showHeader) {
+      <div class="mx-4 shrink-0">
+        <p-avatar icon="pi pi-user" shape="circle"></p-avatar>
+      </div>
+    }
 
     <div class="flex-1 min-w-0 space-y-1">
-      <app-message-header
-        [authorName]="userService.getUsername(message.authorId)"
-        [timestamp]="message.createdAt" />
+      @if (showHeader) {
+        <app-message-header
+          [authorName]="userService.getUsername(message.authorId)"
+          [timestamp]="message.createdAt" />
+      }
 
       @if (!isBeingEdited()) {
         <div class="text-xs whitespace-pre-line break-words">

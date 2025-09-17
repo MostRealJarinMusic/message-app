@@ -40,10 +40,9 @@ export class MessageComponent implements OnInit {
   private editService = inject(MessageEditService);
   private embedService = inject(EmbedResolverService);
 
-  //message = input.required<Message>();
-  //isMine = input.required<boolean>();
   @Input({ required: true }) message!: Message;
   @Input({ required: true }) isMine!: boolean;
+  @Input({ required: true }) showHeader: boolean = false;
 
   protected embedData: EmbedData | null = null;
   protected editContent = this.editService.getContent();
@@ -53,6 +52,8 @@ export class MessageComponent implements OnInit {
     if (url) {
       this.embedData = await this.embedService.resolve(url[0]);
     }
+
+    console.log(this.showHeader);
   }
 
   protected startMessageEdit() {
