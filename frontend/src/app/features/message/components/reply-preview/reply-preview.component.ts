@@ -10,7 +10,7 @@ import { MessageService } from '../../services/message/message.service';
   styleUrl: './reply-preview.component.scss',
 })
 export class ReplyPreviewComponent implements OnInit {
-  public replyToId = input<string>();
+  public replyToId = input<string | null>();
   public replyTarget?: { authorName: string; content: string };
 
   private messageService = inject(MessageService);
