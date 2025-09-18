@@ -51,19 +51,21 @@ export class MessageListComponent {
 
   private getDecoratedMessages(messages: Message[]): DecoratedMessage[] {
     let prev: Message | null = null;
-    return messages.map((message) => {
-      let showHeader = true;
-      if (prev) {
-        const sameAuthor = prev.authorId === message.authorId;
-        const timeDifference =
-          new Date(message.createdAt).getTime() - new Date(prev.createdAt).getTime();
-        const withinBounds = timeDifference < 5 * 60 * 1000;
-        if (sameAuthor && withinBounds && !message.replyToId) showHeader = false;
-      }
+    return messages
+      .map((message) => {
+        let showHeader = true;
+        if (prev) {
+          const sameAuthor = prev.authorId === message.authorId;
+          const timeDifference =
+            new Date(message.createdAt).getTime() - new Date(prev.createdAt).getTime();
+          const withinBounds = timeDifference < 5 * 60 * 1000;
+          if (sameAuthor && withinBounds && !message.replyToId) showHeader = false;
+        }
 
-      prev = message;
-      return { message, showHeader };
-    });
+        prev = message;
+        return { message, showHeader };
+      })
+      .filter((message) => !message.message.deleted);
   }
 
   private scrollToBottom() {

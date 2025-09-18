@@ -60,6 +60,7 @@ export class MessageRepo {
             content: row.content,
             createdAt: row.createdAt,
             replyToId: row.replyToId,
+            deleted: !!row.deleted,
           };
 
           resolve(message);
@@ -88,6 +89,7 @@ export class MessageRepo {
             content: row.content,
             createdAt: row.createdAt,
             replyToId: row.replyToId,
+            deleted: !!row.deleted,
           }));
 
           resolve(allMessages);
@@ -101,7 +103,7 @@ export class MessageRepo {
 
     return new Promise<void>((resolve, reject) => {
       database.run(
-        `DELETE FROM messages WHERE id = ?`,
+        `UPDATE messages SET deleted = 1, content = NULL WHERE id = ?`,
         [messageId],
         function (err) {
           if (err) return reject(err);

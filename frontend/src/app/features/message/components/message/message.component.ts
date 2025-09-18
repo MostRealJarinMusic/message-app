@@ -48,17 +48,18 @@ export class MessageComponent implements OnInit {
   protected editContent = this.editService.getContent();
 
   async ngOnInit() {
-    const url = this.message.content.match(/https?:\/\/[^\s]+/);
+    const content = this.message.content;
+    if (!content) return;
+
+    const url = content.match(/https?:\/\/[^\s]+/);
     if (url) {
       this.embedData = await this.embedService.resolve(url[0]);
     }
-
-    console.log(this.showHeader);
   }
 
   protected startMessageEdit() {
     if (!this.editService.isEditing(this.message.id)) {
-      this.editService.startEdit(this.message.id, this.message.content);
+      this.editService.startEdit(this.message.id, this.message.content!);
     }
   }
 

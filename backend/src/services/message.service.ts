@@ -35,6 +35,7 @@ export class MessageService {
       content: createPayload.content,
       createdAt: new Date().toISOString(),
       replyToId: createPayload.replyToId || null,
+      deleted: false,
     };
 
     await this.messageRepo.createMessage(message);
@@ -55,10 +56,11 @@ export class MessageService {
     const message = await this.messageRepo.getMessage(messageId);
     if (!message) throw new NotFoundError("Message doesn't exist");
 
-    //Broadcast to users
-    this.eventBus.publish(WSEventType.MESSAGE_DELETE, message);
-
     await this.messageRepo.deleteMessage(messageId);
+    //Broadcast to users
+    const deletedMessage = await this.messageRepo.getMessage(messageId);
+
+    this.eventBus.publish(WSEventType.MESSAGE_DELETE, deletedMessage);
   }
 
   async editMessage(messageId: string, updatePayload: UpdateMessagePayload) {

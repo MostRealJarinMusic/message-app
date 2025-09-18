@@ -84,7 +84,10 @@ export class MessageService {
       const activeChannelId = this.navService.activeChannelId() || this.navService.activeDMId();
 
       if (message.channelId === activeChannelId) {
-        this.messages.update((current) => current.filter((m) => m.id !== message.id));
+        //this.messages.update((current) => current.filter((m) => m.id !== message.id));
+        this.messages.update((current) =>
+          current.map((m) => (m.id === message.id ? { ...m, content: null, deleted: true } : m)),
+        );
       }
     });
 
@@ -96,10 +99,8 @@ export class MessageService {
       const activeChannelId = this.navService.activeChannelId() || this.navService.activeDMId();
 
       if (message.channelId === activeChannelId) {
-        this.messages.update((currentMessages) =>
-          currentMessages.map((m) =>
-            m.id === message.id ? { ...m, content: message.content } : m,
-          ),
+        this.messages.update((current) =>
+          current.map((m) => (m.id === message.id ? { ...m, content: message.content } : m)),
         );
       }
     });

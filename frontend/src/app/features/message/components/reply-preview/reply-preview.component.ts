@@ -11,6 +11,7 @@ import { MessageService } from '../../services/message/message.service';
 })
 export class ReplyPreviewComponent implements OnInit {
   public replyToId = input<string | null>();
+  public deletedReply = false;
   public replyTarget?: { authorName: string; content: string };
 
   private messageService = inject(MessageService);
@@ -22,13 +23,20 @@ export class ReplyPreviewComponent implements OnInit {
 
     const replyTarget = this.messageService.getMessage(replyToId);
     if (!replyTarget) {
-      this.replyTarget = { authorName: 'Deleted', content: 'Original message was deleted' };
+      //Not loaded
+      this.replyTarget = { authorName: '', content: 'Failed to load message' };
+      return;
+    }
+
+    if (replyTarget.deleted) {
+      this.deletedReply = true;
+      this.replyTarget = { authorName: '', content: 'Original message was deleted' };
       return;
     }
 
     this.replyTarget = {
       authorName: this.userService.getUsername(replyTarget.authorId),
-      content: replyTarget.content,
+      content: replyTarget.content!,
     };
   }
 }

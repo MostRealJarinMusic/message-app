@@ -29,12 +29,13 @@ export class DB {
         id          TEXT PRIMARY KEY,
         authorId    TEXT,
         channelId   TEXT NOT NULL,
-        content     TEXT NOT NULL,
+        content     TEXT,
         createdAt   TEXT NOT NULL,
         replyToId   TEXT,
+        deleted     INTEGER NOT NULL DEFAULT 0,
         FOREIGN KEY (channelId) REFERENCES channels(id) ON DELETE CASCADE,
         FOREIGN KEY (authorId) REFERENCES users(id) ON DELETE SET NULL,
-        FOREIGN KEY (replyToId) REFERENCES messages(id) ON DELETE SET NULL
+        FOREIGN KEY (replyToId) REFERENCES messages(id)
       );
     `);
 
