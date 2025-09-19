@@ -1,5 +1,5 @@
 <div
-  class="relative group block w-full mr-2 p-1 transition-colors duration-800 rounded-r-md"
+  class="relative group block max-w-full mr-2 p-1 transition-colors duration-800 rounded-r-md"
   [ngClass]="{
     'bg-surface-700': isBeingEdited() || isReplyTarget(),
   }">
@@ -34,7 +34,7 @@
     </div>
   </div>
 
-  <div class="grid grid-cols-[50px_1fr] grid-rows-[auto_auto] gap-0">
+  <div class="grid grid-cols-[50px_1fr] grid-rows-[auto_auto] gap-0 items-start">
     <div></div>
 
     <div class="justify-start">
@@ -58,8 +58,8 @@
         }
 
         @if (!isBeingEdited()) {
-          <div class="text-xs whitespace-pre-line break-words">
-            <span>{{ message.content }}</span>
+          <div class="text-xs whitespace-pre-line break-words w-full max-w-full">
+            <span class="break-all w-full max-w-full">{{ message.content }}</span>
             @if (embedData) {
               <app-embed-host [embed]="embedData" />
             }
