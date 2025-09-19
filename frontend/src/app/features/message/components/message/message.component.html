@@ -37,17 +37,15 @@
   <div class="grid grid-cols-[50px_1fr] grid-rows-[auto_auto] gap-0">
     <div></div>
 
-    <div>
+    <div class="justify-start">
       @if (this.message.replyToId) {
         <app-reply-preview [replyToId]="this.message.replyToId" />
       }
     </div>
 
-    <div>
+    <div class="flex justify-center">
       @if (showHeader) {
-        <div class="self-center mx-4 shrink-0">
-          <p-avatar icon="pi pi-user" shape="circle"></p-avatar>
-        </div>
+        <p-avatar icon="pi pi-user" shape="circle"></p-avatar>
       }
     </div>
 

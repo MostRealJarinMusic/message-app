@@ -62,7 +62,7 @@ export class MessageListComponent {
           if (sameAuthor && withinBounds && !message.replyToId) showHeader = false;
         }
 
-        prev = message;
+        if (!message.deleted) prev = message;
         return { message, showHeader };
       })
       .filter((message) => !message.message.deleted);
