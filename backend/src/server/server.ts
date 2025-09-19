@@ -30,6 +30,10 @@ export class Server {
   constructor() {
     this.app.use(cors());
     this.app.use(bodyParser.json());
+
+    if (process.env.NODE_ENV === "production") {
+      this.app.set("trust proxy", 1);
+    }
   }
 
   async init() {

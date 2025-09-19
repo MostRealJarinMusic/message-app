@@ -1,7 +1,12 @@
-import { effect, inject, Injectable, signal } from '@angular/core';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { SocketService } from '../../../../core/services/socket/socket.service';
-import { LoggerType, Message, MessageCreate, MessageUpdate, WSEventType } from '@common/types';
-import { ChannelService } from 'src/app/features/channel/services/channel/channel.service';
+import {
+  LoggerType,
+  Message,
+  CreateMessagePayload,
+  UpdateMessagePayload,
+  WSEventType,
+} from '@common/types';
 import { PrivateApiService } from 'src/app/core/services/api/private-api.service';
 import { LoggerService } from 'src/app/core/services/logger/logger.service';
 import { NavigationService } from 'src/app/core/services/navigation/navigation.service';
@@ -17,33 +22,38 @@ export class MessageService {
 
   readonly messages = signal<Message[]>([]);
 
+  private currentChannelId = computed(
+    () => this.navService.activeChannelId() || this.navService.activeDMId(),
+  );
+
   constructor() {
     this.logger.init(LoggerType.SERVICE_MESSAGE);
 
     this.initWebSocket();
 
-    //Load message history
     effect(() => {
-      const currentChannel = this.navService.activeChannelId() || this.navService.activeDMId();
-      if (currentChannel) {
+      const currentChannelId = this.currentChannelId();
+      if (currentChannelId) {
         this.logger.log(LoggerType.SERVICE_MESSAGE, 'Loading message history');
-        this.loadMessageHistory(currentChannel);
-      } else {
-        this.logger.log(LoggerType.SERVICE_MESSAGE, 'No channel');
-        this.messages.set([]);
+        this.loadMessageHistory(currentChannelId);
+        return;
       }
+
+      this.logger.log(LoggerType.SERVICE_MESSAGE, 'No channel');
+      this.messages.set([]);
     });
   }
 
-  public sendMessage(content: string): void {
+  public sendMessage(content: string, replyTarget?: Message): void {
     //this.dbService.saveMessage(message);
 
     const activeChannelId = this.navService.activeChannelId() || this.navService.activeDMId();
-    const messageCreate: MessageCreate = {
+    const messagePayload: CreateMessagePayload = {
       content,
+      replyToId: replyTarget ? replyTarget.id : null,
     };
 
-    this.apiService.sendMessage(activeChannelId!, messageCreate).subscribe({
+    this.apiService.sendMessage(activeChannelId!, messagePayload).subscribe({
       next: (message) => {},
       error: (err) => {
         //Response to any errors - optimistic UI
@@ -74,7 +84,10 @@ export class MessageService {
       const activeChannelId = this.navService.activeChannelId() || this.navService.activeDMId();
 
       if (message.channelId === activeChannelId) {
-        this.messages.update((current) => current.filter((m) => m.id !== message.id));
+        //this.messages.update((current) => current.filter((m) => m.id !== message.id));
+        this.messages.update((current) =>
+          current.map((m) => (m.id === message.id ? { ...m, content: null, deleted: true } : m)),
+        );
       }
     });
 
@@ -86,21 +99,19 @@ export class MessageService {
       const activeChannelId = this.navService.activeChannelId() || this.navService.activeDMId();
 
       if (message.channelId === activeChannelId) {
-        this.messages.update((currentMessages) =>
-          currentMessages.map((m) =>
-            m.id === message.id ? { ...m, content: message.content } : m,
-          ),
+        this.messages.update((current) =>
+          current.map((m) => (m.id === message.id ? { ...m, content: message.content } : m)),
         );
       }
     });
   }
 
   public editMessage(messageId: string, content: string) {
-    const messageUpdate: MessageUpdate = {
+    const updatePayload: UpdateMessagePayload = {
       content,
     };
 
-    this.apiService.editMessage(messageId, messageUpdate).subscribe({
+    this.apiService.editMessage(messageId, updatePayload).subscribe({
       next: () => {
         this.logger.log(LoggerType.SERVICE_MESSAGE, 'Successful edit');
       },
@@ -121,5 +132,13 @@ export class MessageService {
         this.logger.error(LoggerType.SERVICE_MESSAGE, 'Unsuccessful delete', err);
       },
     });
+  }
+
+  public getMessage(messageId: string) {
+    const currentChannelId = this.currentChannelId();
+    if (!currentChannelId) return undefined;
+
+    // Look in messages
+    return this.messages().find((m) => m.id === messageId);
   }
 }

@@ -26,17 +26,19 @@ export interface Message {
   id: string;
   authorId: string;
   channelId: string;
-  content: string;
+  content: string | null;
+  replyToId: string | null;
   createdAt: string;
   editedAt?: string;
-  deleted?: boolean;
+  deleted: boolean;
 }
 
-export interface MessageCreate {
+export interface CreateMessagePayload {
   content: string;
+  replyToId: string | null;
 }
 
-export interface MessageUpdate {
+export interface UpdateMessagePayload {
   content: string;
 }
 //#endregion

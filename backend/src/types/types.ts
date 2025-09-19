@@ -72,15 +72,6 @@ export interface Services {
   user: UserService;
 }
 
-//#region Adapter interfaces
-
-export interface PresencePort {
-  getSnapshot(userIds: string[]): Promise<PresenceUpdate[]>;
-  updateStatus(presenceUpdate: PresenceUpdate): void;
-}
-
-//#endregion
-
 //#region Event Bus
 export interface EventBusPort {
   publish<T extends WSEventType>(event: T, payload: WSEventPayload[T]): void;
@@ -88,8 +79,7 @@ export interface EventBusPort {
 }
 
 export type Handler<T extends WSEventType> = (
-  payload: WSEventPayload[T],
-  targetIds?: string[]
+  payload: WSEventPayload[T]
 ) => void;
 
 //#endregion

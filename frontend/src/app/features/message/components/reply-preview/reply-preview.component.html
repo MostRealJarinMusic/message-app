@@ -1,0 +1,10 @@
+@if (this.replyTarget) {
+  <div class="my-1 flex flex-row items-start gap-x-2">
+    @if (!this.deletedReply) {
+      <p class="text-xs">
+        Reply to: <span class="font-semibold">{{ this.replyTarget.authorName }}</span>
+      </p>
+    }
+    <p class="text-xs">{{ this.replyTarget.content }}</p>
+  </div>
+}

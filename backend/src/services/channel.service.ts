@@ -12,7 +12,6 @@ import {
   NotFoundError,
 } from "../errors/errors";
 import { ChannelRepo } from "../db/repos/channel.repo";
-import { ServerMemberRepo } from "../db/repos/server-member.repo";
 import { EventBusPort } from "../types/types";
 
 export class ChannelService {

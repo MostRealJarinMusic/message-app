@@ -1,7 +1,7 @@
 import {
   Message,
-  MessageCreate,
-  MessageUpdate,
+  CreateMessagePayload,
+  UpdateMessagePayload,
   WSEventType,
 } from "../../../common/types";
 import { ChannelRepo } from "../db/repos/channel.repo";
@@ -9,7 +9,6 @@ import { MessageRepo } from "../db/repos/message.repo";
 import { BadRequestError, NotFoundError } from "../errors/errors";
 import { ulid } from "ulid";
 import { EventBusPort } from "../types/types";
-import { RelevanceService } from "./relevance.service";
 
 export class MessageService {
   constructor(
@@ -21,20 +20,22 @@ export class MessageService {
   async sendMessage(
     channelId: string,
     authorId: string,
-    messageCreate: MessageCreate
+    createPayload: CreateMessagePayload
   ) {
     const channel = await this.channelRepo.getChannel(channelId);
 
     if (!channel) throw new NotFoundError("Channel doesn't exist");
 
-    if (!messageCreate) throw new BadRequestError("Message content required");
+    if (!createPayload) throw new BadRequestError("Message content required");
 
     const message: Message = {
       id: ulid(),
       channelId,
       authorId,
-      content: messageCreate.content,
+      content: createPayload.content,
       createdAt: new Date().toISOString(),
+      replyToId: createPayload.replyToId || null,
+      deleted: false,
     };
 
     await this.messageRepo.createMessage(message);
@@ -55,17 +56,18 @@ export class MessageService {
     const message = await this.messageRepo.getMessage(messageId);
     if (!message) throw new NotFoundError("Message doesn't exist");
 
-    //Broadcast to users
-    this.eventBus.publish(WSEventType.MESSAGE_DELETE, message);
-
     await this.messageRepo.deleteMessage(messageId);
+    //Broadcast to users
+    const deletedMessage = await this.messageRepo.getMessage(messageId);
+
+    this.eventBus.publish(WSEventType.MESSAGE_DELETE, deletedMessage);
   }
 
-  async editMessage(messageId: string, messageUpdate: MessageUpdate) {
+  async editMessage(messageId: string, updatePayload: UpdateMessagePayload) {
     const message = await this.messageRepo.getMessage(messageId);
     if (!message) throw new NotFoundError("Message doesn't exist");
 
-    await this.messageRepo.editMessage(messageId, messageUpdate.content);
+    await this.messageRepo.editMessage(messageId, updatePayload.content);
     const newMessage = await this.messageRepo.getMessage(messageId);
 
     //Broadcast to users
