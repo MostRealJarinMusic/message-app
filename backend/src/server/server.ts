@@ -28,9 +28,6 @@ export class Server {
   private services!: Services;
 
   constructor() {
-    this.app.use(cors());
-    this.app.use(bodyParser.json());
-
     if (process.env.NODE_ENV === "production") {
       this.app.set("trust proxy", 1);
     }
@@ -54,7 +51,15 @@ export class Server {
       this.connectionRegistry
     );
 
-    // Initialise WebSocket manager
+    // Register routes
+    this.app.use(cors());
+    this.app.use(bodyParser.json());
+    this.app.use("/api", createRoutes(this.services));
+
+    // Error handler
+    this.app.use(errorHandler);
+
+    // Initialise WebSockets
     this.wsRouter = new WebSocketRouter(
       this.services.typing,
       this.connectionRegistry
@@ -76,12 +81,6 @@ export class Server {
       this.eventBus
     );
     this.notificationDispatcher.init();
-
-    // Register routes
-    createRoutes(this.app, this.services);
-
-    // Error handler
-    this.app.use(errorHandler);
   }
 
   start(port: number) {

@@ -10,8 +10,10 @@ import inviteRoutes from "../invite.routes";
 import { Services } from "../../types/types";
 import { authMiddleware } from "../../middleware/auth-middleware";
 
-export function createRoutes(app: Application, services: Services) {
-  app.use("/api/public/auth", authRoutes(services.auth));
+export function createRoutes(services: Services): Router {
+  const apiRouter = Router();
+
+  apiRouter.use("/public/auth", authRoutes(services.auth));
 
   const privateRouter = Router();
   privateRouter.use(
@@ -47,5 +49,7 @@ export function createRoutes(app: Application, services: Services) {
   );
   privateRouter.use("/invites", inviteRoutes(services.invite));
 
-  app.use("/api/private", privateRouter);
+  apiRouter.use("/private", privateRouter);
+
+  return apiRouter;
 }
