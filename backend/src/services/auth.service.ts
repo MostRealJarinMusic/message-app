@@ -14,7 +14,7 @@ import {
 import { UserRepo } from "../db/repos/user.repo";
 
 export class AuthService {
-  private readonly ACCESS_TOKEN_EXPIRY = "15m";
+  private readonly ACCESS_TOKEN_EXPIRY = "5s";
   private readonly REFRESN_TOKEN_EXPIRY = "1h";
 
   constructor(private readonly userRepo: UserRepo) {}
@@ -47,7 +47,8 @@ export class AuthService {
       ) as UserSignature;
       return signature;
     } catch (err) {
-      if (err instanceof TokenExpiredError) throw new Error("Expired token");
+      if (err instanceof TokenExpiredError)
+        throw new UnauthorizedError("Expired token");
 
       throw new ForbiddenError("Bad token");
     }

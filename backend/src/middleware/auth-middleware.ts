@@ -10,15 +10,7 @@ export function authMiddleware(authService: AuthService) {
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) return res.status(401).json({ error: "No token provided" });
 
-    try {
-      req.signature = authService.verifyToken(token);
-      next();
-    } catch (err) {
-      if (err instanceof TokenExpiredError) {
-        res.status(401).json({ error: "Token has expired" });
-        return;
-      }
-      res.status(403).json({ error: "Invalid token" });
-    }
+    req.signature = authService.verifyToken(token);
+    next();
   };
 }
