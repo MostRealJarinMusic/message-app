@@ -3,6 +3,11 @@ export interface AuthPayload {
   token: string;
   refreshToken: string;
 }
+
+export interface RefreshPayload {
+  token: string;
+}
+
 export interface LoginCredentials {
   username?: string;
   email?: string;
