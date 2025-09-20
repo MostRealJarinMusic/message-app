@@ -8,7 +8,7 @@ import { LoggerService } from '../logger/logger.service';
 export class NavigationService {
   private logger = inject(LoggerService);
 
-  readonly root = signal<NavigationNode>({
+  private readonly initialRoot: NavigationNode = {
     id: 'root',
     type: 'root',
     activeChildId: 'direct_messages',
@@ -35,7 +35,9 @@ export class NavigationService {
         ],
       },
     ],
-  });
+  };
+
+  readonly root = signal<NavigationNode>(structuredClone(this.initialRoot));
 
   readonly activePath = computed(() => {
     const path: NavigationNode[] = [];
@@ -66,6 +68,13 @@ export class NavigationService {
     // effect(() => {
     //   console.log('Active Channel ID:', this.activeChannelId());
     // });
+  }
+
+  reset() {
+    this.root.set(structuredClone(this.initialRoot));
+    this.activeServerId.set(null);
+    this.activeChannelId.set(null);
+    this.activeDMId.set(null);
   }
 
   isActive = (nodeId: string) =>

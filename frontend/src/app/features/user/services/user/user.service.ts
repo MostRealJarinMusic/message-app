@@ -95,12 +95,12 @@ export class UserService {
     this.apiService.getAllUsers().subscribe({
       next: (users) => {
         users.forEach((user) => this.userCache.set(user.id, user));
-        this.serverUsers.set(users);
+        //this.serverUsers.set(users);
 
         //this.logger.log(LoggerType.SERVICE_USER, '', users);
       },
       error: (err) => {
-        this.logger.error(LoggerType.SERVICE_USER, 'Error loading server users', err);
+        this.logger.error(LoggerType.SERVICE_USER, 'Error loading users', err);
       },
     });
   }

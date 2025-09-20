@@ -43,7 +43,7 @@ export class LoginComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
 
-  async onLogin() {
+  async login() {
     const loginCredentials: LoginCredentials = {
       username: this.username,
       password: this.password,
@@ -58,7 +58,7 @@ export class LoginComponent {
     }
   }
 
-  async onRegister() {
+  async register() {
     console.log('Attempt to register account');
 
     const registerPayload: RegisterPayload = {

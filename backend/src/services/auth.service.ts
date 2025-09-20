@@ -36,6 +36,10 @@ export class AuthService {
     return { token, user };
   }
 
+  async logout() {
+    console.log("Attempt to logout");
+  }
+
   verifyToken(token: string): UserSignature {
     try {
       return jwt.verify(token, config.jwtSecret) as UserSignature;

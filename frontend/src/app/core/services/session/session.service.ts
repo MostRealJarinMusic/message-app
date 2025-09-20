@@ -5,6 +5,7 @@ import { SocketManagerService } from '../socket-manager/socket-manager.service';
 import { UserService } from '../../../features/user/services/user/user.service';
 import { LoggerService } from '../logger/logger.service';
 import { LoggerType } from '@common/types';
+import { NavigationService } from '../navigation/navigation.service';
 
 @Injectable({
   providedIn: 'root',
@@ -14,6 +15,7 @@ export class SessionService {
   private userService = inject(UserService);
   private socketManagerService = inject(SocketManagerService);
   private logger = inject(LoggerService);
+  private navService = inject(NavigationService);
 
   constructor() {
     this.logger.init(LoggerType.SERVICE_SESSION);
@@ -37,9 +39,9 @@ export class SessionService {
   endSession(): void {
     this.tokenService.clearToken();
     this.socketManagerService.terminateSocket();
-    //this.currentUser.set(null);
-
-    //Tell user service to set current user to null
+    this.userService.clearUser();
+    this.navService.reset();
+    this.logger.log(LoggerType.SERVICE_SESSION, 'Ending session');
   }
 
   async attemptResumeSession(): Promise<void> {

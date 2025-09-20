@@ -29,7 +29,9 @@ export class AuthService {
     return false;
   }
 
-  logout(): void {
+  async logout() {
+    await firstValueFrom(this.apiService.logout());
+
     this.sessionService.endSession();
   }
 }

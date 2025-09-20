@@ -6,7 +6,7 @@
       <p class="text-xs font-normal">{{ this.bio }}</p>
     </div>
   </div>
-  <div class="flex space-x-2">
+  <div class="flex space-x-1">
     <button
       pButton
       pRipple
@@ -14,6 +14,13 @@
       class="p-button-rounded"
       severity="secondary"
       (click)="userSettingsService.startEdit()"></button>
+    <button
+      pButton
+      pRipple
+      icon="pi pi-sign-out"
+      class="p-button-rounded"
+      severity="secondary"
+      (click)="logout()"></button>
   </div>
 </div>
 

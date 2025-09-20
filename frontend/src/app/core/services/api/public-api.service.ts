@@ -19,4 +19,8 @@ export class PublicApiService extends BaseApiService {
   register(payload: RegisterPayload): Observable<AuthPayload> {
     return this.post<AuthPayload>('auth/register', payload);
   }
+
+  logout(): Observable<void> {
+    return this.post<void>('auth/logout', {});
+  }
 }

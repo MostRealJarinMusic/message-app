@@ -21,5 +21,14 @@ export default function authRoutes(authService: AuthService): Router {
     })
   );
 
+  authRoutes.post(
+    "/logout",
+    asyncHandler(async (req, res) => {
+      await authService.logout();
+
+      res.status(204).send();
+    })
+  );
+
   return authRoutes;
 }

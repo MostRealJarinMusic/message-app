@@ -24,6 +24,9 @@ export class ChannelButtonComponent {
 
   constructor() {
     effect(() => {
+      const user = this.userService.currentUser();
+      if (!user) return;
+
       const channel = this.channel();
 
       if (!channel) return;
@@ -35,7 +38,7 @@ export class ChannelButtonComponent {
 
       if (!channel.participants || channel.participants.length !== 2) return;
 
-      if (channel.participants[0] === this.userService.currentUser()!.id) {
+      if (channel.participants[0] === user.id) {
         this.label = `${this.userService.getUsername(channel.participants[1])}`;
       } else {
         this.label = `${this.userService.getUsername(channel.participants[0])}`;
