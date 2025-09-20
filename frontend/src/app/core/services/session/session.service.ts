@@ -27,9 +27,9 @@ export class SessionService {
     this.tokenService.setToken(token);
     this.socketManagerService.initialiseSocket(token);
     try {
-      await this.userService.loadCurrentUser();
+      const user = await this.userService.loadCurrentUser();
 
-      this.logger.log(LoggerType.SERVICE_SESSION, 'Loading current user');
+      this.logger.log(LoggerType.SERVICE_SESSION, 'Loading current user', user);
     } catch (err) {
       this.endSession();
       throw err;
@@ -53,8 +53,8 @@ export class SessionService {
     this.socketManagerService.initialiseSocket(savedToken);
 
     try {
-      await this.userService.loadCurrentUser();
-      this.logger.log(LoggerType.SERVICE_SESSION, 'Loading current user');
+      const user = await this.userService.loadCurrentUser();
+      this.logger.log(LoggerType.SERVICE_SESSION, 'Reloading current user', user);
     } catch {
       this.endSession();
     }
