@@ -11,7 +11,6 @@ export default function friendRequestRoutes(
 
   friendRequestRoutes.post(
     "",
-    authMiddleware,
     asyncHandler(async (req: SignedRequest, res: Response) => {
       const result = await friendRequestService.sendFriendRequest(
         req.signature!.id,
@@ -23,7 +22,6 @@ export default function friendRequestRoutes(
 
   friendRequestRoutes.get(
     "/incoming",
-    authMiddleware,
     asyncHandler(async (req, res) => {
       const result = await friendRequestService.getIncomingFriendRequests(
         req.signature!.id
@@ -34,7 +32,6 @@ export default function friendRequestRoutes(
 
   friendRequestRoutes.get(
     "/outgoing",
-    authMiddleware,
     asyncHandler(async (req, res) => {
       const result = await friendRequestService.getOutgoingFriendRequests(
         req.signature!.id
@@ -45,7 +42,6 @@ export default function friendRequestRoutes(
 
   friendRequestRoutes.patch(
     "/:requestId",
-    authMiddleware,
     asyncHandler(async (req: SignedRequest, res: Response) => {
       await friendRequestService.updateFriendRequest(
         req.signature!.id,
@@ -57,7 +53,6 @@ export default function friendRequestRoutes(
 
   friendRequestRoutes.delete(
     "/:requestId",
-    authMiddleware,
     asyncHandler(async (req: SignedRequest, res: Response) => {
       await friendRequestService.deleteFriendRequest(
         req.signature!.id,

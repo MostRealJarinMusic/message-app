@@ -16,7 +16,6 @@ export default function serverRoutes(
   //Temporarily fetches all servers
   serverRoutes.get(
     "",
-    authMiddleware,
     asyncHandler(async (req: SignedRequest, res: Response) => {
       const servers = await serverService.getAllServers(req.signature!.id);
       res.json(servers);
@@ -26,7 +25,6 @@ export default function serverRoutes(
   //Accessing server users
   serverRoutes.get(
     "/:serverId/users",
-    authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
       const users = await serverService.getServerUsers(req.params.serverId);
       res.json(users);
@@ -36,7 +34,6 @@ export default function serverRoutes(
   //Accessing server user presence
   serverRoutes.get(
     "/:serverId/presences",
-    authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
       const presences = await serverService.getServerUserPresences(
         req.params.serverId
@@ -49,7 +46,6 @@ export default function serverRoutes(
   //Accessing server channels
   serverRoutes.get(
     "/:serverId/channels",
-    authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
       const channels = await channelService.getChannels(req.params.serverId);
       res.json(channels);
@@ -59,7 +55,6 @@ export default function serverRoutes(
   //Creating channel in server
   serverRoutes.post(
     "/:serverId/channels",
-    authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
       const channel = await channelService.createChannel(
         req.params.serverId,
@@ -74,7 +69,6 @@ export default function serverRoutes(
   //Accessing server categories
   serverRoutes.get(
     "/:serverId/structure",
-    authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
       const categories = await categoryService.getCategories(
         req.params.serverId
@@ -86,7 +80,6 @@ export default function serverRoutes(
   //Creating categories
   serverRoutes.post(
     "/:serverId/categories",
-    authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
       const category = await categoryService.createCategory(
         req.params.serverId,
@@ -101,7 +94,6 @@ export default function serverRoutes(
   //Creating a server
   serverRoutes.post(
     "",
-    authMiddleware,
     asyncHandler(async (req: SignedRequest, res: Response) => {
       const server = await serverService.createServer(
         req.signature!.id,
@@ -114,7 +106,6 @@ export default function serverRoutes(
   //Deleting a server
   serverRoutes.delete(
     "/:serverId",
-    authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
       await serverService.deleteServer(req.params.serverId);
       res.status(204).send();
@@ -124,7 +115,6 @@ export default function serverRoutes(
   //Editing a server
   serverRoutes.patch(
     "/:serverId",
-    authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
       await serverService.editServer(req.params.serverId, req.body);
       res.status(204).send();

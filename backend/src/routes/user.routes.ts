@@ -18,7 +18,6 @@ export default function userRoutes(
 
   userRoutes.get(
     "/me/dms",
-    authMiddleware,
     asyncHandler(async (req: SignedRequest, res: Response) => {
       const userId = req.signature!.id;
       const dmChannels = await directMessageService.getChannels(userId);
@@ -29,7 +28,6 @@ export default function userRoutes(
 
   userRoutes.get(
     "/me/friends",
-    authMiddleware,
     asyncHandler(async (req: SignedRequest, res: Response) => {
       const friendIds = await friendService.getFriendIds(req.signature!.id);
       res.json(friendIds);
@@ -38,7 +36,6 @@ export default function userRoutes(
 
   userRoutes.get(
     "/me",
-    authMiddleware,
     asyncHandler(async (req: SignedRequest, res: Response) => {
       const user = await userService.getMe(req.signature!.id);
       res.json(user);
@@ -47,7 +44,6 @@ export default function userRoutes(
 
   userRoutes.patch(
     "/me",
-    authMiddleware,
     asyncHandler(async (req: SignedRequest, res: Response) => {
       await userService.updateUserSettings(req.signature!.id, req.body);
 
@@ -59,7 +55,6 @@ export default function userRoutes(
   //Temporary
   userRoutes.get(
     "/presences",
-    authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
       const presences = await presenceService.getAllUserPresences();
       res.json(presences);
@@ -69,7 +64,6 @@ export default function userRoutes(
   //Temporary
   userRoutes.get(
     "/",
-    authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
       const users = await userService.getAllUsers();
       res.json(users);
@@ -77,7 +71,7 @@ export default function userRoutes(
   );
 
   //Currently this route isn't used - temporarily disabled as a reminder for testing code
-  // userRoutes.get("/:id", authMiddleware, (req, res) =>
+  // userRoutes.get("/:id",  (req, res) =>
   //   UserService.getUserById(req, res)
   // );
 

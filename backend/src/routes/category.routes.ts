@@ -11,7 +11,6 @@ export default function categoryRoutes(
   //Deleting categories
   categoryRoutes.delete(
     "/:categoryId",
-    authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
       await categoryService.deleteCategory(req.params.categoryId);
       res.status(204).send();
@@ -21,7 +20,6 @@ export default function categoryRoutes(
   //Editing categories
   categoryRoutes.patch(
     "/:categoryId",
-    authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
       await categoryService.editCategory(req.params.categoryId, req.body);
       res.status(204).send();

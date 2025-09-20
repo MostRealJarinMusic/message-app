@@ -13,7 +13,6 @@ export default function channelRoutes(
 
   channelRoutes.delete(
     "/:channelId",
-    authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
       await channelService.deleteChannel(req.params.channelId);
       res.status(204).send();
@@ -22,7 +21,6 @@ export default function channelRoutes(
 
   channelRoutes.post(
     "/:channelId/messages",
-    authMiddleware,
     asyncHandler(async (req: SignedRequest, res: Response) => {
       const message = await messageService.sendMessage(
         req.params.channelId,
@@ -35,7 +33,6 @@ export default function channelRoutes(
 
   channelRoutes.get(
     "/:channelId/messages",
-    authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
       const messages = await messageService.getMessages(req.params.channelId);
       res.json(messages);
@@ -44,7 +41,6 @@ export default function channelRoutes(
 
   channelRoutes.patch(
     "/:channelId",
-    authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
       await channelService.editChannel(req.params.channelId, req.body);
       res.status(204).send();

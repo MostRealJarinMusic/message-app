@@ -1,4 +1,4 @@
-import jwt from "jsonwebtoken";
+import jwt, { TokenExpiredError } from "jsonwebtoken";
 import { config } from "../config";
 import { SignedRequest } from "../types/types";
 import { UserSignature } from "../../../common/types";
@@ -10,7 +10,11 @@ export function authMiddleware(req: SignedRequest, res: any, next: any) {
   try {
     req.signature = jwt.verify(token, config.accessJwtSecret) as UserSignature;
     next();
-  } catch {
+  } catch (err) {
+    if (err instanceof TokenExpiredError) {
+      res.status(401).json({ error: "Token has expired" });
+      return;
+    }
     res.status(403).json({ error: "Invalid token" });
   }
 }

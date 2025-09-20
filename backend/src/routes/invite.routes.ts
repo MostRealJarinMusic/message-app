@@ -9,7 +9,6 @@ export default function inviteRoutes(inviteService: InviteService): Router {
 
   inviteRoutes.post(
     "",
-    authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
       const invite = await inviteService.createInvite(req.body);
       res.status(201).json(invite);
@@ -18,7 +17,6 @@ export default function inviteRoutes(inviteService: InviteService): Router {
 
   inviteRoutes.get(
     "/:link",
-    authMiddleware,
     asyncHandler(async (req: Request, res: Response) => {
       const invite = await inviteService.previewInvite(req.params.link);
       res.json(invite);
@@ -27,7 +25,6 @@ export default function inviteRoutes(inviteService: InviteService): Router {
 
   inviteRoutes.post(
     "/:link/accept",
-    authMiddleware,
     asyncHandler(async (req: SignedRequest, res: Response) => {
       const server = await inviteService.acceptInvite(
         req.params.link,
