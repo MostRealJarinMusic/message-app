@@ -1,7 +1,7 @@
 //#region Auth types
 export interface AuthPayload {
   token: string;
-  user: PrivateUser;
+  refreshToken: string;
 }
 export interface LoginCredentials {
   username?: string;

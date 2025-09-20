@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { AuthTokenService } from '../authtoken/auth-token.service';
+import { AuthTokenService } from '../auth-token/auth-token.service';
 import { firstValueFrom } from 'rxjs';
 import { SocketManagerService } from '../socket-manager/socket-manager.service';
 import { UserService } from '../../../features/user/services/user/user.service';

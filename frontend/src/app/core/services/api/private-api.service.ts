@@ -25,7 +25,7 @@ import {
   PrivateUser,
   UserUpdate,
 } from '@common/types';
-import { AuthTokenService } from '../authtoken/auth-token.service';
+import { AuthTokenService } from '../auth-token/auth-token.service';
 import { Channel } from '@common/types';
 
 @Injectable({

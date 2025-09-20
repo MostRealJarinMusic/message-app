@@ -1,6 +1,6 @@
 import { effect, inject, Injectable } from '@angular/core';
 import { SocketService } from '../socket/socket.service';
-import { AuthTokenService } from '../authtoken/auth-token.service';
+import { AuthTokenService } from '../auth-token/auth-token.service';
 import { LoggerService } from '../logger/logger.service';
 import { LoggerType } from '@common/types';
 
