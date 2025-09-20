@@ -1,4 +1,4 @@
-import jwt, { SignOptions } from "jsonwebtoken";
+import jwt, { SignOptions, TokenExpiredError } from "jsonwebtoken";
 import { config } from "../config";
 import {
   AuthPayload,
@@ -46,7 +46,9 @@ export class AuthService {
         config.accessJwtSecret
       ) as UserSignature;
       return signature;
-    } catch {
+    } catch (err) {
+      if (err instanceof TokenExpiredError) throw new Error("Expired token");
+
       throw new ForbiddenError("Bad token");
     }
   }

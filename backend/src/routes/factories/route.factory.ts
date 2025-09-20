@@ -1,4 +1,4 @@
-import { Application, Router } from "express";
+import { Application, NextFunction, Request, Response, Router } from "express";
 import authRoutes from "../auth.routes";
 import userRoutes from "../user.routes";
 import channelRoutes from "../channel.routes";
@@ -14,7 +14,13 @@ export function createRoutes(app: Application, services: Services) {
   app.use("/api/public/auth", authRoutes(services.auth));
 
   const privateRouter = Router();
-  privateRouter.use(authMiddleware);
+  privateRouter.use(
+    authMiddleware(services.auth) as (
+      req: Request,
+      res: Response,
+      next: NextFunction
+    ) => void
+  );
 
   privateRouter.use(
     "/channels",
