@@ -1,11 +1,12 @@
 //#region Auth types
 export interface AuthPayload {
-  token: string;
-  refreshToken: string;
+  token: Token;
 }
 
+export type Token = string;
+
 export interface RefreshPayload {
-  token: string;
+  token: Token;
 }
 
 export interface LoginCredentials {

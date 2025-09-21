@@ -5,12 +5,11 @@ import { BehaviorSubject, Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class AuthTokenService {
-  private readonly tokenKey = 'auth_token';
+  private readonly TOKEN_KEY = 'access_token';
   private tokenSubject = new BehaviorSubject<string | null>(null);
 
   setToken(token: string): void {
-    if (typeof window !== 'undefined' && sessionStorage)
-      sessionStorage.setItem(this.tokenKey, token);
+    if (this.isBrowser()) localStorage.setItem(this.TOKEN_KEY, token);
     this.tokenSubject.next(token);
   }
 
@@ -19,18 +18,21 @@ export class AuthTokenService {
   }
 
   getSavedToken(): string | null {
-    if (typeof window !== 'undefined' && sessionStorage) {
-      return sessionStorage.getItem(this.tokenKey);
-    }
+    if (this.isBrowser()) return localStorage.getItem(this.TOKEN_KEY);
+
     return null;
   }
 
   clearToken(): void {
-    if (typeof window !== 'undefined' && sessionStorage) sessionStorage.removeItem(this.tokenKey);
+    if (this.isBrowser()) localStorage.removeItem(this.TOKEN_KEY);
     this.tokenSubject.next(null);
   }
 
   get token$(): Observable<string | null> {
     return this.tokenSubject.asObservable();
+  }
+
+  private isBrowser() {
+    return typeof window !== 'undefined' && localStorage;
   }
 }

@@ -4,6 +4,7 @@ import {
   AuthPayload,
   LoginCredentials,
   RegisterPayload,
+  Token,
   UserSignature,
 } from "../../../common/types";
 import {
@@ -14,19 +15,23 @@ import {
 import { UserRepo } from "../db/repos/user.repo";
 
 export class AuthService {
-  private readonly ACCESS_TOKEN_EXPIRY = "5s";
-  private readonly REFRESN_TOKEN_EXPIRY = "1h";
+  private readonly ACCESS_TOKEN_EXPIRY = "30s";
+  private readonly REFRESH_TOKEN_EXPIRY = "1h";
 
   constructor(private readonly userRepo: UserRepo) {}
 
-  async login(credentials: LoginCredentials): Promise<AuthPayload> {
+  async login(
+    credentials: LoginCredentials
+  ): Promise<AuthPayload & { refreshToken: Token }> {
     const user = await this.userRepo.loginUser(credentials);
     if (!user) throw new UnauthorizedError("Invalid credentials");
 
     return this.generateTokens({ id: user.id, username: user.username }); //{ token };
   }
 
-  async register(credentials: RegisterPayload): Promise<AuthPayload> {
+  async register(
+    credentials: RegisterPayload
+  ): Promise<AuthPayload & { refreshToken: Token }> {
     const user = await this.userRepo.registerUser(credentials);
     if (!user) throw new BadRequestError("Registration failed");
 
@@ -37,14 +42,28 @@ export class AuthService {
     console.log("Attempt to logout");
   }
 
-  refresh() {}
+  refresh(refreshToken: Token): Token {
+    try {
+      const signature = this.verify(refreshToken, config.refreshJwtSecret);
+
+      return this.generateToken(
+        { id: signature.id, username: signature.username },
+        config.accessJwtSecret,
+        {
+          expiresIn: this.ACCESS_TOKEN_EXPIRY,
+        }
+      );
+    } catch (err) {
+      if (err instanceof TokenExpiredError)
+        throw new UnauthorizedError("Expired refresh token"); //Attempt to log user out
+
+      throw new ForbiddenError(`Bad refresh token -> ${err}`);
+    }
+  }
 
   verifyToken(token: string): UserSignature {
     try {
-      const signature = jwt.verify(
-        token,
-        config.accessJwtSecret
-      ) as UserSignature;
+      const signature = this.verify(token, config.accessJwtSecret);
       return signature;
     } catch (err) {
       if (err instanceof TokenExpiredError)
@@ -54,15 +73,21 @@ export class AuthService {
     }
   }
 
+  private verify(token: string, secret: string) {
+    return jwt.verify(token, secret) as UserSignature;
+  }
+
   private generateToken(
     signature: UserSignature,
     secret: string,
     options: SignOptions
   ) {
-    return jwt.sign(signature, secret, options);
+    return jwt.sign(signature, secret, options) as Token;
   }
 
-  private generateTokens(signature: UserSignature) {
+  private generateTokens(
+    signature: UserSignature
+  ): AuthPayload & { refreshToken: Token } {
     const token = this.generateToken(signature, config.accessJwtSecret, {
       expiresIn: this.ACCESS_TOKEN_EXPIRY,
     });
@@ -70,7 +95,7 @@ export class AuthService {
       signature,
       config.refreshJwtSecret,
       {
-        expiresIn: this.REFRESN_TOKEN_EXPIRY,
+        expiresIn: this.REFRESH_TOKEN_EXPIRY,
       }
     );
 

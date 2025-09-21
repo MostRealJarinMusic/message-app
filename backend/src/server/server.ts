@@ -13,6 +13,7 @@ import { EventBus } from "../websocket/event-bus";
 import { ConnectionRegistry } from "../websocket/connection-registry";
 import { WebSocketRouter } from "../websocket/websocket-router";
 import { NotificationDispatcher } from "../websocket/notification-dispatcher";
+import cookieParser from "cookie-parser";
 
 export class Server {
   private app = express();
@@ -54,6 +55,7 @@ export class Server {
     // Register routes
     this.app.use(cors());
     this.app.use(bodyParser.json());
+    this.app.use(cookieParser());
     this.app.use("/api", createRoutes(this.services));
 
     // Error handler
