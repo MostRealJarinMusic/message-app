@@ -14,7 +14,7 @@ export default function authRoutes(authService: AuthService): Router {
       res.cookie("refreshToken", result.refreshToken, {
         httpOnly: true,
         secure: false,
-        sameSite: "strict",
+        sameSite: "lax",
         maxAge: 60 * 60 * 1000,
       });
 
@@ -30,7 +30,7 @@ export default function authRoutes(authService: AuthService): Router {
       res.cookie("refreshToken", result.refreshToken, {
         httpOnly: true,
         secure: false,
-        sameSite: "strict",
+        sameSite: "lax",
         maxAge: 60 * 60 * 1000,
       });
 

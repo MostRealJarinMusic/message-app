@@ -15,7 +15,7 @@ import {
 import { UserRepo } from "../db/repos/user.repo";
 
 export class AuthService {
-  private readonly ACCESS_TOKEN_EXPIRY = "30s";
+  private readonly ACCESS_TOKEN_EXPIRY = "15m";
   private readonly REFRESH_TOKEN_EXPIRY = "1h";
 
   constructor(private readonly userRepo: UserRepo) {}

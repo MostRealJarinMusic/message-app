@@ -12,6 +12,7 @@ import Aura from '@primeng/themes/aura';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { authInterceptor } from './core/interceptors/auth/auth.interceptor';
 import { SessionService } from './core/services/session/session.service';
+import { loggerInterceptor } from './core/interceptors/logger/logger.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -23,7 +24,7 @@ export const appConfig: ApplicationConfig = {
         preset: Aura,
       },
     }),
-    provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
+    provideHttpClient(withFetch(), withInterceptors([authInterceptor, loggerInterceptor])),
     provideAppInitializer(async () => {
       const sessionService = inject(SessionService);
       await sessionService.attemptResumeSession();

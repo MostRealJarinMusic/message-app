@@ -14,9 +14,13 @@ export abstract class BaseApiService {
     return this.http.get<T>(`${this.baseUrl}/${endpoint}`).pipe(catchError(this.handleError));
   }
 
-  protected post<T>(endpoint: string, body: any): Observable<T> {
+  protected post<T>(
+    endpoint: string,
+    body: any,
+    options: { withCredentials?: boolean } = {},
+  ): Observable<T> {
     return this.http
-      .post<T>(`${this.baseUrl}/${endpoint}`, body)
+      .post<T>(`${this.baseUrl}/${endpoint}`, body, { ...options })
       .pipe(catchError(this.handleError));
   }
 

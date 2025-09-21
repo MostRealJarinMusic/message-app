@@ -53,7 +53,7 @@ export class Server {
     );
 
     // Register routes
-    this.app.use(cors());
+    this.app.use(cors({ origin: "http://localhost:4200", credentials: true }));
     this.app.use(bodyParser.json());
     this.app.use(cookieParser());
     this.app.use("/api", createRoutes(this.services));
