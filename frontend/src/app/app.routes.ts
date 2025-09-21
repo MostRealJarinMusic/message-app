@@ -3,13 +3,11 @@ import { LoginComponent } from './pages/login/login.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { PageNotFoundComponent } from './pages/page-not-found/page-not-found.component';
 import { guestGuard } from './core/guards/guest/guest.guard';
-//import { authGuard } from './core/guards/auth/auth.guard';
-// import { guestGuard } from './core/guards/guest/guest.guard';
-// import { AuthGuard } from './core/guards/auth/auth.guard';
+import { authGuard } from './core/guards/auth/auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent, canActivate: [guestGuard] },
-  { path: 'dashboard', component: DashboardComponent },
+  { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: '**', component: PageNotFoundComponent },
 ];

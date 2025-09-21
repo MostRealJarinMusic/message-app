@@ -43,20 +43,4 @@ export class SessionService {
     this.navService.reset();
     this.logger.log(LoggerType.SERVICE_SESSION, 'Ending session');
   }
-
-  async attemptResumeSession(): Promise<void> {
-    const savedToken = this.tokenService.getSavedToken();
-    if (!savedToken) return;
-
-    this.logger.log(LoggerType.SERVICE_SESSION, 'Resuming session');
-    this.tokenService.setToken(savedToken);
-    this.socketManagerService.initialiseSocket(savedToken);
-
-    try {
-      const user = await this.userService.loadCurrentUser();
-      this.logger.log(LoggerType.SERVICE_SESSION, 'Reloading current user', user);
-    } catch {
-      this.endSession();
-    }
-  }
 }

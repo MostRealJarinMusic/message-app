@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { BehaviorSubject, firstValueFrom } from 'rxjs';
-import { AuthPayload, LoginCredentials, RegisterPayload } from '@common/types';
+import { firstValueFrom } from 'rxjs';
+import { LoginCredentials, RegisterPayload } from '@common/types';
 import { SessionService } from '../session/session.service';
 import { PublicApiService } from '../api/public-api.service';
 
@@ -37,5 +37,23 @@ export class AuthService {
     await firstValueFrom(this.apiService.logout());
     this.isAuthenticated.set(false);
     this.sessionService.endSession();
+  }
+
+  async refresh() {
+    try {
+      const data = await firstValueFrom(this.apiService.refresh());
+
+      if (data.token) {
+        await this.sessionService.startSession(data.token);
+        this.isAuthenticated.set(true);
+        return true;
+      }
+
+      return false;
+    } catch (err) {
+      this.sessionService.endSession();
+      this.isAuthenticated.set(false);
+      return false;
+    }
   }
 }

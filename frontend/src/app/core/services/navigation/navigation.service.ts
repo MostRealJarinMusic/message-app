@@ -75,6 +75,8 @@ export class NavigationService {
     this.activeServerId.set(null);
     this.activeChannelId.set(null);
     this.activeDMId.set(null);
+
+    console.log(this.root());
   }
 
   isActive = (nodeId: string) =>

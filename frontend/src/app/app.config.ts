@@ -11,8 +11,8 @@ import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeng/themes/aura';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { authInterceptor } from './core/interceptors/auth/auth.interceptor';
-import { SessionService } from './core/services/session/session.service';
 import { loggerInterceptor } from './core/interceptors/logger/logger.interceptor';
+import { AuthService } from './core/services/auth/auth.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -26,8 +26,13 @@ export const appConfig: ApplicationConfig = {
     }),
     provideHttpClient(withFetch(), withInterceptors([authInterceptor, loggerInterceptor])),
     provideAppInitializer(async () => {
-      const sessionService = inject(SessionService);
-      await sessionService.attemptResumeSession();
+      const authService = inject(AuthService);
+
+      try {
+        await authService.refresh();
+      } catch {
+        console.log("No refresh token - assuming user hasn't logged in before");
+      }
     }),
   ],
 };
