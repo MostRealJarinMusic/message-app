@@ -17,12 +17,6 @@ export class AuthTokenService {
     return this.tokenSubject.value;
   }
 
-  getSavedToken(): string | null {
-    if (this.isBrowser()) return localStorage.getItem(this.TOKEN_KEY);
-
-    return null;
-  }
-
   clearToken(): void {
     if (this.isBrowser()) localStorage.removeItem(this.TOKEN_KEY);
     this.tokenSubject.next(null);

@@ -6,6 +6,7 @@ import { UserService } from '../../../features/user/services/user/user.service';
 import { LoggerService } from '../logger/logger.service';
 import { LoggerType } from '@common/types';
 import { NavigationService } from '../navigation/navigation.service';
+import { RefreshService } from '../refresh/refresh.service';
 
 @Injectable({
   providedIn: 'root',
@@ -16,6 +17,7 @@ export class SessionService {
   private socketManagerService = inject(SocketManagerService);
   private logger = inject(LoggerService);
   private navService = inject(NavigationService);
+  private refreshService = inject(RefreshService);
 
   constructor() {
     this.logger.init(LoggerType.SERVICE_SESSION);
@@ -26,6 +28,7 @@ export class SessionService {
 
     this.tokenService.setToken(token);
     this.socketManagerService.initialiseSocket(token);
+    this.refreshService.start(token);
     try {
       const user = await this.userService.loadCurrentUser();
 
@@ -39,6 +42,7 @@ export class SessionService {
   }
 
   endSession(): void {
+    this.refreshService.stop();
     this.tokenService.clearToken();
     this.socketManagerService.terminateSocket();
     this.userService.clearUser();

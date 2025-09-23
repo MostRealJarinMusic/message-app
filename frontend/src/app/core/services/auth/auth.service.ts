@@ -41,10 +41,10 @@ export class AuthService {
 
   async refresh() {
     try {
-      const data = await firstValueFrom(this.apiService.refresh());
+      const { token } = await firstValueFrom(this.apiService.refresh());
 
-      if (data.token) {
-        await this.sessionService.startSession(data.token);
+      if (token) {
+        await this.sessionService.startSession(token);
         this.isAuthenticated.set(true);
         return true;
       }

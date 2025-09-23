@@ -44,6 +44,7 @@ export class AuthService {
 
   refresh(refreshToken: Token): Token {
     try {
+      console.log("User attempts refresh");
       const signature = this.verify(refreshToken, config.refreshJwtSecret);
 
       return this.generateToken(

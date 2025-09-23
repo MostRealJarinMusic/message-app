@@ -80,8 +80,6 @@ export class NavigationService {
     this.active = false;
     this.root.update((root) => {
       root = structuredClone(this.initialRoot);
-
-      console.log('Resetting tree', root);
       return { ...root };
     });
 
