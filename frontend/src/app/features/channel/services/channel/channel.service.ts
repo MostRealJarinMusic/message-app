@@ -51,11 +51,12 @@ export class ChannelService {
 
       // if (currentServer === this.lastServerId && this.navService.isActive('servers')) return;
       // this.lastServerId = currentServer;
+      this.channels.set([]);
       if (currentServerId === undefined) return;
 
       if (currentServerId) {
         this.logger.log(LoggerType.SERVICE_CHANNEL, 'Loading channels');
-        this.channels.set([]);
+
         this.loadServerChannels(currentServerId);
         return;
       }

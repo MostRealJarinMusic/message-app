@@ -86,10 +86,7 @@ export class SocketService {
 
   emit<T extends WSEventType>(event: T, payload: WSEventPayload[T]): void {
     if (!this.isConnected) {
-      this.logger.warn(
-        LoggerType.SERVICE_SOCKET,
-        'No WebSocket connection - attempt to reconnect logic',
-      );
+      this.logger.warn(LoggerType.SERVICE_SOCKET, 'No WebSocket connection');
       return;
     }
     const message: WSEvent<T> = { event, payload };

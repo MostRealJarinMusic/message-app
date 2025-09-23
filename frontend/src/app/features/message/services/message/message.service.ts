@@ -34,6 +34,7 @@ export class MessageService {
     effect(() => {
       const currentChannelId = this.currentChannelId();
 
+      this.messages.set([]);
       if (currentChannelId === undefined) return;
 
       if (currentChannelId) {
@@ -43,7 +44,6 @@ export class MessageService {
       }
 
       this.logger.log(LoggerType.SERVICE_MESSAGE, 'No channel');
-      this.messages.set([]);
     });
   }
 
