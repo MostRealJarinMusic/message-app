@@ -30,6 +30,8 @@ export class SessionService {
       const user = await this.userService.loadCurrentUser();
 
       this.logger.log(LoggerType.SERVICE_SESSION, 'Loading current user', user);
+
+      this.navService.start();
     } catch (err) {
       this.endSession();
       throw err;

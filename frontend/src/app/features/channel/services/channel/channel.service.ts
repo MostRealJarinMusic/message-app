@@ -47,20 +47,25 @@ export class ChannelService {
 
     //Load channels
     effect(() => {
-      const currentServer = this.navService.activeServerId();
+      const currentServerId = this.navService.activeServerId();
 
       // if (currentServer === this.lastServerId && this.navService.isActive('servers')) return;
       // this.lastServerId = currentServer;
+      if (currentServerId === undefined) return;
 
-      if (currentServer) {
+      if (currentServerId) {
         this.logger.log(LoggerType.SERVICE_CHANNEL, 'Loading channels');
-
-        this.loadServerChannels(currentServer);
-      } else {
-        this.logger.log(LoggerType.SERVICE_CHANNEL, 'No server - loading DMs');
-
-        this.loadDMChannels();
+        this.channels.set([]);
+        this.loadServerChannels(currentServerId);
+        return;
       }
+
+      console.log('Current server id', currentServerId);
+
+      // currentServerId = null - no server but DMs
+      this.logger.log(LoggerType.SERVICE_CHANNEL, 'No server - loading DMs');
+      this.channels.set([]);
+      this.loadDMChannels();
     });
   }
 
@@ -77,6 +82,8 @@ export class ChannelService {
   private loadDMChannels() {
     this.apiService.getDMChannels().subscribe({
       next: (channels) => {
+        console.log(channels);
+
         //Set them
         this.channels.set(channels);
 

@@ -56,9 +56,11 @@ export class NavigationService {
     return this.activePath().map((n) => n.id);
   });
 
-  readonly activeServerId = signal<string | null>(null);
-  readonly activeChannelId = signal<string | null>(null);
-  readonly activeDMId = signal<string | null>(null);
+  readonly activeServerId = signal<string | null | undefined>(undefined);
+  readonly activeChannelId = signal<string | null | undefined>(undefined);
+  readonly activeDMId = signal<string | null | undefined>(undefined);
+
+  private active = false;
 
   constructor() {
     effect(() => {
@@ -70,13 +72,25 @@ export class NavigationService {
     // });
   }
 
-  reset() {
-    this.root.set(structuredClone(this.initialRoot));
-    this.activeServerId.set(null);
-    this.activeChannelId.set(null);
-    this.activeDMId.set(null);
+  start() {
+    this.active = true;
+  }
 
-    console.log(this.root());
+  reset() {
+    this.active = false;
+    this.root.update((root) => {
+      root = structuredClone(this.initialRoot);
+
+      console.log('Resetting tree', root);
+      return { ...root };
+    });
+
+    this.activeServerId.set(undefined);
+    this.activeChannelId.set(undefined);
+    this.activeDMId.set(undefined);
+
+    // console.log(this.activeServerId());
+    // this.deriveState(this.activePath());
   }
 
   isActive = (nodeId: string) =>
@@ -190,6 +204,8 @@ export class NavigationService {
   }
 
   private deriveState(activePath: NavigationNode[]) {
+    if (!this.active) return;
+
     let serverId: string | null = null;
     let channelId: string | null = null;
     let dmId: string | null = null;
@@ -200,9 +216,9 @@ export class NavigationService {
       if (node.type === 'dm_channel') dmId = node.id;
     }
 
-    this.activeServerId.set(serverId);
-    this.activeChannelId.set(channelId);
-    this.activeDMId.set(dmId);
+    if (this.activeServerId() !== serverId) this.activeServerId.set(serverId);
+    if (this.activeChannelId() !== channelId) this.activeChannelId.set(channelId);
+    if (this.activeDMId() !== dmId) this.activeDMId.set(dmId);
   }
 
   addServers(servers: Server[]): void {
@@ -215,6 +231,7 @@ export class NavigationService {
     });
 
     this.addChildren('servers', serverNodes);
+    this.logger.log(LoggerType.SERVICE_NAVIGATION, 'Added servers');
   }
 
   removeServer(serverId: string): void {
@@ -242,6 +259,7 @@ export class NavigationService {
     });
 
     this.addChildren(serverId, channelNodes);
+    this.logger.log(LoggerType.SERVICE_NAVIGATION, 'Added channels');
 
     // Attempt to navigate to channel if no channel selected for the current server
     if (serverId !== this.activeServerId()) return;

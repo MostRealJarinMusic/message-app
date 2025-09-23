@@ -33,6 +33,9 @@ export class MessageService {
 
     effect(() => {
       const currentChannelId = this.currentChannelId();
+
+      if (currentChannelId === undefined) return;
+
       if (currentChannelId) {
         this.logger.log(LoggerType.SERVICE_MESSAGE, 'Loading message history');
         this.loadMessageHistory(currentChannelId);
