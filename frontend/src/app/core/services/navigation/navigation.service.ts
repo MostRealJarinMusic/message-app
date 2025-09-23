@@ -88,9 +88,6 @@ export class NavigationService {
     this.activeServerId.set(undefined);
     this.activeChannelId.set(undefined);
     this.activeDMId.set(undefined);
-
-    // console.log(this.activeServerId());
-    // this.deriveState(this.activePath());
   }
 
   isActive = (nodeId: string) =>
