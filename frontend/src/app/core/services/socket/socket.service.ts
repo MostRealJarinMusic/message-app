@@ -67,6 +67,7 @@ export class SocketService {
       //this.stopHeartbeat();
 
       this.logger.log(LoggerType.SERVICE_SOCKET, 'Websocket disconnected');
+      console.log(token);
 
       if (!this.explicitClose) {
         this.reconnect(token);

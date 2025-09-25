@@ -83,8 +83,6 @@ export class ChannelService {
   private loadDMChannels() {
     this.apiService.getDMChannels().subscribe({
       next: (channels) => {
-        console.log(channels);
-
         //Set them
         this.channels.set(channels);
 
